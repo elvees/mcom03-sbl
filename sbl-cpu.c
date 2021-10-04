@@ -41,11 +41,12 @@
 
 #define PP_ON 0x10
 
-#define TFA_MAGIC_ADDR 0xC1000000
+#define TFA_MAGIC_ADDR 0xC0800000
 #define TFA_MAGIC_VALUE 0xdeadc0de
 
 #define DDRINIT_START_ADDR	0
-#define TFA_START_ADDR		0xC0000000
+#define TFA_START_ADDR_VIRT	0xC0000000
+#define TFA_START_ADDR_PHYS	0x80000000
 #define UBOOT_START_ADDR	0xC0080000
 
 #define WRITE_CPU_START_ADDR_REG(reg, val) \
@@ -256,11 +257,11 @@ int main(void)
 	start = (unsigned long *)&__tfa_start;
 	end = (unsigned long *)&__tfa_end;
 	size = (unsigned long)end - (unsigned long)start;
-	memcpy((void *)TFA_START_ADDR, (void *)start, size);
+	memcpy((void *)TFA_START_ADDR_VIRT, (void *)start, size);
 
 	/* Setup CPU cores start addresses */
 	for (int i = 0; i < 4; i++)
-		WRITE_CPU_START_ADDR_REG(CPU_RVBADDR(i), TFA_START_ADDR);
+		WRITE_CPU_START_ADDR_REG(CPU_RVBADDR(i), TFA_START_ADDR_PHYS);
 
 	/* Relocate U-Boot */
 	start = (unsigned long *)&__uboot_start;
@@ -271,7 +272,7 @@ int main(void)
 #ifdef MIPS32
 	kick_arm_cpu();
 #else
-	void (*start_tfa)(void) = (void *)TFA_START_ADDR;
+	void (*start_tfa)(void) = (void *)TFA_START_ADDR_VIRT;
 	start_tfa();
 #endif
 	return 0;
