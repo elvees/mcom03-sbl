@@ -67,20 +67,20 @@ struct ucg_channel {
 
 static struct ucg_channel comm_ucg_channels[] = {
 	{0, 0, 6},	/* DP		200 MHz */
-	{0, 1, 4},	/* VPU		300 MHz */
-	{0, 2, 2},	/* GPU		600 MHz */
-	{0, 3, 6},	/* ISP		200 MHz */
-	{0, 4, 2},	/* CPU		600 MHz */
-	{0, 5, 2},	/* ACP		600 MHz */
-	{0, 6, 6},	/* LSP0		200 MHz */
-	{0, 7, 2},	/* COH_COMM	600 MHz */
-	{1, 0, 6},	/* SLOW_COMM	200 MHz */
-	{1, 2, 4},	/* FAST_COMM	300 MHz */
-	{1, 4, 2},	/* DSP		600 MHz */
-	{1, 5, 2},	/* PCIe		600 MHz */
-	{1, 6, 6},	/* LSP1		200 MHz */
-	{1, 7, 4},	/* SERVICE	300 MHz */
-	{1, 8, 3},	/* HSP		400 MHz */
+	{0, 1, 8},	/* VPU		150 MHz */
+	{0, 2, 4},	/* GPU		300 MHz */
+	{0, 3, 12},	/* ISP		100 MHz */
+	{0, 4, 4},	/* CPU		300 MHz */
+	{0, 5, 4},	/* ACP		300 MHz */
+	{0, 6, 12},	/* LSP0		100 MHz */
+	{0, 7, 4},	/* COH_COMM	300 MHz */
+	{1, 0, 12},	/* SLOW_COMM	100 MHz */
+	{1, 2, 8},	/* FAST_COMM	150 MHz */
+	{1, 4, 4},	/* DSP		300 MHz */
+	{1, 5, 4},	/* PCIe		300 MHz */
+	{1, 6, 12},	/* LSP1		100 MHz */
+	{1, 7, 8},	/* SERVICE	150 MHz */
+	{1, 8, 6},	/* HSP		200 MHz */
 };
 
 static inline void writel(unsigned long addr, uint32_t value)
