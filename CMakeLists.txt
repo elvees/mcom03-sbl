@@ -28,13 +28,13 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     set(BINFILE_FORMAT "elf64-littleaarch64")
 else()
     add_definitions(-DMIPS32)
-    add_compile_options(-Wall -Wno-nonnull -Werror -EL -mips32 -G0
+    add_compile_options(-Wall -Wno-nonnull -Werror -std=gnu99 -EL -mips32 -G0
                         -mabi=32 -fno-builtin-malloc -ffunction-sections -fdata-sections)
     add_link_options(-T link.ld -EL -nostdlib -nostartfiles -mips32 -mabi=32 -G0)
     set(CONFIG_REGION "xip0")
     set(CONFIG_ARCH "mips")
     set(CONFIG_RAM_ADDR "0x9fa00000")
-    set(BINFILE_FORMAT "elf32-tradlittlemips")
+    set(BINFILE_FORMAT "elf32-littlemips")
 endif()
 
 set(FNAME sbl-${CONFIG_ARCH})

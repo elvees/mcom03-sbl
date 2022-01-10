@@ -2,9 +2,9 @@
  * Copyright 2021 RnD Center "ELVEES", JSC
  */
 
-#include "mips/asm.h"
-#include "mips/m64c0.h"
-#include "mips/regdef.h"
+#include "machine/asm.h"
+#include "machine/regdef.h"
+#include "m32c0.h"
 
 .set    noreorder
 
