@@ -66,21 +66,21 @@ struct ucg_channel {
 };
 
 static struct ucg_channel comm_ucg_channels[] = {
-	{0, 0, 6},	/* DP		200 MHz */
-	{0, 1, 8},	/* VPU		150 MHz */
-	{0, 2, 4},	/* GPU		300 MHz */
-	{0, 3, 12},	/* ISP		100 MHz */
-	{0, 4, 4},	/* CPU		300 MHz */
-	{0, 5, 4},	/* ACP		300 MHz */
-	{0, 6, 12},	/* LSP0		100 MHz */
-	{0, 7, 4},	/* COH_COMM	300 MHz */
-	{1, 0, 12},	/* SLOW_COMM	100 MHz */
-	{1, 2, 8},	/* FAST_COMM	150 MHz */
-	{1, 4, 4},	/* DSP		300 MHz */
-	{1, 5, 4},	/* PCIe		300 MHz */
-	{1, 6, 12},	/* LSP1		100 MHz */
-	{1, 7, 8},	/* SERVICE	150 MHz */
-	{1, 8, 6},	/* HSP		200 MHz */
+	{0, 0, 6},	/* DP		198 MHz */
+	{0, 1, 8},	/* VPU		148.5 MHz */
+	{0, 2, 4},	/* GPU		297 MHz */
+	{0, 3, 12},	/* ISP		99 MHz */
+	{0, 4, 4},	/* CPU		297 MHz */
+	{0, 5, 4},	/* ACP		297 MHz */
+	{0, 6, 12},	/* LSP0		99 MHz */
+	{0, 7, 4},	/* COH_COMM	297 MHz */
+	{1, 0, 12},	/* SLOW_COMM	99 MHz */
+	{1, 2, 8},	/* FAST_COMM	148.5 MHz */
+	{1, 4, 4},	/* DSP		297 MHz */
+	{1, 5, 4},	/* PCIe		297 MHz */
+	{1, 6, 12},	/* LSP1		99 MHz */
+	{1, 7, 8},	/* SERVICE	148.5 MHz */
+	{1, 8, 6},	/* HSP		198 MHz */
 };
 
 static inline void writel(unsigned long addr, uint32_t value)
@@ -162,12 +162,14 @@ static void comm_ucg_cfg(void)
 	writel(COMM_UCG_BP(0), 0xff);
 	writel(COMM_UCG_BP(1), 0x1f5);
 
-	/* Setup PLL to 1200 MHz, assuming that XTI = 27 MHz */
+	/* Setup PLL to 1188 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
+	 * minimize PLL output jitter.
+	 */
 	val = FIELD_PREP(PLL_CFG_SEL, 1) |
 	      FIELD_PREP(PLL_CFG_MAN, 1) |
 	      FIELD_PREP(PLL_CFG_OD, 1) |
-	      FIELD_PREP(PLL_CFG_NF, 799) |
-	      FIELD_PREP(PLL_CFG_NR, 8);
+	      FIELD_PREP(PLL_CFG_NF, 87) |
+	      FIELD_PREP(PLL_CFG_NR, 0);
 	writel(COMM_PLL, val);
 
 	while (!(readl(COMM_PLL) & 0x80000000))
