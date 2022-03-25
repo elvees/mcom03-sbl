@@ -200,7 +200,6 @@ static void comm_ucg_cfg(void)
 	writel(COMM_UCG_BP(1), 0x0);
 }
 
-#ifdef MIPS32
 static void set_ppolicy(unsigned long addr, uint32_t value)
 {
 	value &= 0x1f;
@@ -239,7 +238,6 @@ static void kick_arm_cpu(void)
 	while (1)
 		asm volatile ("wait");
 }
-#endif
 
 int main(void)
 {
@@ -252,12 +250,7 @@ int main(void)
 	/* Relocate ddrinit */
 	memcpy((void *)DDRINIT_START_ADDR, (void *)start, size);
 
-#ifdef MIPS32
 	start_arm_cpu();
-#else
-	void (*start_ddrinit)(void) = (void *)DDRINIT_START_ADDR;
-	start_ddrinit();
-#endif
 
 	/* Relocate TF-A */
 	start = (unsigned long *)&__tfa_start;
@@ -275,11 +268,6 @@ int main(void)
 	size = (unsigned long)end - (unsigned long)start;
 	memcpy((void *)UBOOT_START_ADDR, (void *)start, size);
 
-#ifdef MIPS32
 	kick_arm_cpu();
-#else
-	void (*start_tfa)(void) = (void *)TFA_START_ADDR_VIRT;
-	start_tfa();
-#endif
 	return 0;
 }

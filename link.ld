@@ -1,17 +1,16 @@
-OUTPUT_ARCH(CONFIG_ARCH)
+OUTPUT_ARCH("mips")
 
 ENTRY(_start)
 
 MEMORY
 {
 	xip0 (rwx) : ORIGIN = 0x40000000, LENGTH = 0x1000000
-	xip1 (rwx) : ORIGIN = 0x50000000, LENGTH = 0x1000000
-	ram (rwx)  : ORIGIN = CONFIG_RAM_ADDR, LENGTH = 0x10000
+	ram (rwx)  : ORIGIN = 0x9fa00000, LENGTH = 0x8000
 }
 
 SECTIONS
 {
-	.text ORIGIN(CONFIG_REGION) : {
+	.text ORIGIN(xip0) : {
 		*(.text.boot)
 		*(.text)
 		*(.text.*)
@@ -28,7 +27,7 @@ SECTIONS
 		u-boot.o (.rodata*);
 		__uboot_end = ABSOLUTE(.);
 		. = ALIGN(4);
-	} > CONFIG_REGION
+	} > xip0
 
 	__text_end = ABSOLUTE(.);
 
