@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "m32c0.h"
 
 #define BIT(n) (1 << (n))
 #define GENMASK(hi, lo) (((1 << ((hi) - (lo) + 1)) - 1) << (lo))
@@ -12,9 +13,9 @@
 #define FIELD_GET(_mask, _reg) ({ (typeof(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask)); })
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-#define COMM_UCG_CTR(i, j) (0x1801000 + (i) * 0x1000 + (j) * 4)
-#define COMM_UCG_BP(i) (0x1801040 + (i) * 0x1000)
-#define COMM_PLL 0x1800000
+#define COMM_UCG_CTR(i, j) (0xA1801000 + (i) * 0x1000 + (j) * 4)
+#define COMM_UCG_BP(i) (0xA1801040 + (i) * 0x1000)
+#define COMM_PLL 0xA1800000
 
 #define PLL_CFG_SEL GENMASK(7, 0)
 #define PLL_CFG_MAN BIT(9)
@@ -31,20 +32,22 @@
 #define UCG_CTR_DIV_COEFF GENMASK(29, 10)
 #define UCG_CTR_DIV_LOCK BIT(30)
 
-#define SERV_URB_CPU_PPOLICY 0x1f000000
-#define SERV_URB_HSPERIPH_SUBS_PPOLICY 0x1f000020
-#define SERV_URB_TOP_CLKGATE 0x1f001008
+#define SERV_URB_CPU_PPOLICY 0xBF000000
+#define SERV_URB_HSPERIPH_SUBS_PPOLICY 0xBF000020
+#define SERV_URB_TOP_CLKGATE 0xBF001008
 
-#define CPU_CPU0_PPOLICY 0x1000000
-#define CPU_SYS_PPOLICY 0x1000040
-#define CPU_RVBADDR(x) (0x1000118 + (x * 8))
+#define SERV_RISC0_CSR 0xBFD08000
+
+#define CPU_CPU0_PPOLICY 0xA1000000
+#define CPU_SYS_PPOLICY 0xA1000040
+#define CPU_RVBADDR(x) (0xA1000118 + (x * 8))
 
 #define PP_ON 0x10
 
 #define TFA_MAGIC_ADDR 0xC0800000
 #define TFA_MAGIC_VALUE 0xdeadc0de
 
-#define DDRINIT_START_ADDR	0
+#define DDRINIT_START_ADDR	0xA0000000
 #define TFA_START_ADDR_VIRT	0xC0000000
 #define TFA_START_ADDR_PHYS	0x80000000
 #define UBOOT_START_ADDR	0xC0080000
@@ -95,43 +98,6 @@ static inline void writel(unsigned long addr, uint32_t value)
 static inline uint32_t readl(unsigned long addr)
 {
 	return *(volatile uint32_t *)addr;
-}
-
-static uint64_t usec_to_tick(int usec)
-{
-	return (uint64_t)usec * 27ULL;
-}
-
-static uint32_t platform_get_timer_count()
-{
-	uint32_t res;
-	__asm__ __volatile__("mfc0 %0, $9"
-			     : "=r" (res));
-	return res;
-}
-
-static uint64_t get_ticks(void)
-{
-	static uint32_t timebase_h, timebase_l;
-	uint32_t now = platform_get_timer_count();
-
-	/* Increment tbh if tbl has rolled over */
-	if (now < timebase_l)
-		timebase_h++;
-	timebase_l = now;
-	return ((uint64_t)timebase_h << 32) | timebase_l;
-}
-
-static void delay_usec(int usec)
-{
-	uint64_t tmp;
-
-	/* Get current timestamp */
-	tmp = get_ticks() + usec_to_tick(usec);
-
-	/* Loop till event */
-	while (get_ticks() < tmp + 1)
-		 /*NOP*/;
 }
 
 void* memcpy(void *dest, const void *src, size_t count)
@@ -208,35 +174,24 @@ static void set_ppolicy(unsigned long addr, uint32_t value)
 	}
 }
 
-static void start_arm_cpu(void)
+static void prepare_arm_cpu(void)
 {
-	/* Enable HSPERIPH */
-	set_ppolicy(SERV_URB_HSPERIPH_SUBS_PPOLICY, PP_ON);
+	/* Enable CPU_SUBS */
 	set_ppolicy(SERV_URB_CPU_PPOLICY, PP_ON);
-	writel(SERV_URB_TOP_CLKGATE, 0x115);
 
 	/* Enable clk_core, clk_dbus and clk_sys without dividers */
-	writel(0x1080000, 0x2);
-	writel(0x1080004, 0x2);
-	writel(0x1080008, 0x2);
-
-	set_ppolicy(CPU_SYS_PPOLICY, PP_ON);
-	WRITE_CPU_START_ADDR_REG(CPU_RVBADDR(0), DDRINIT_START_ADDR);
-	set_ppolicy(CPU_CPU0_PPOLICY, PP_ON);
-
-	delay_usec(1500000);
+	writel(0xA1080000, 0x2);
+	writel(0xA1080004, 0x2);
+	writel(0xA1080008, 0x2);
 }
 
-static void kick_arm_cpu(void)
+static void start_arm_cpu(void)
 {
-	writel(TFA_MAGIC_ADDR, TFA_MAGIC_VALUE);
-
-	/* Drop magic to prevent autostart TFA after reset */
-	delay_usec(1000);
-	writel(TFA_MAGIC_ADDR, 0);
-
-	while (1)
-		asm volatile ("wait");
+	set_ppolicy(CPU_SYS_PPOLICY, PP_ON);
+	/* Setup CPU cores start addresses */
+	for (int i = 0; i < 4; i++)
+		WRITE_CPU_START_ADDR_REG(CPU_RVBADDR(i), TFA_START_ADDR_PHYS);
+	set_ppolicy(CPU_CPU0_PPOLICY, PP_ON);
 }
 
 int main(void)
@@ -250,7 +205,30 @@ int main(void)
 	/* Relocate ddrinit */
 	memcpy((void *)DDRINIT_START_ADDR, (void *)start, size);
 
-	start_arm_cpu();
+	void (*start_ddrinit)(void) = (void *)DDRINIT_START_ADDR;
+
+	/* Enable ref clks */
+	writel(SERV_URB_TOP_CLKGATE, 0x115);
+
+	prepare_arm_cpu();
+	start_ddrinit();
+
+	/* Setup memory mapping */
+
+	/* Set page size to 16 MiB */
+	mips32_set_c0(C0_PAGEMASK, 0x1ffe000);
+	mips32_set_c0(C0_WIRED, 0);
+	mips32_set_c0(C0_INDEX, 0);
+
+	/* Map 16 MiB at 0xC0000000 (virt) to 0x80000000 (phys) */
+	mips32_set_c0(C0_ENTRYHI, 0xC0000000);
+	mips32_set_c0(C0_ENTRYLO0, 0x2000017);
+	mips32_set_c0(C0_ENTRYLO1, 0x2000017);
+
+	/* Switch to TLB mapping */
+	mips_ehb();
+	mips_tlbwi();
+	writel(SERV_RISC0_CSR, 0);
 
 	/* Relocate TF-A */
 	start = (unsigned long *)&__tfa_start;
@@ -258,16 +236,16 @@ int main(void)
 	size = (unsigned long)end - (unsigned long)start;
 	memcpy((void *)TFA_START_ADDR_VIRT, (void *)start, size);
 
-	/* Setup CPU cores start addresses */
-	for (int i = 0; i < 4; i++)
-		WRITE_CPU_START_ADDR_REG(CPU_RVBADDR(i), TFA_START_ADDR_PHYS);
-
 	/* Relocate U-Boot */
 	start = (unsigned long *)&__uboot_start;
 	end = (unsigned long *)&__uboot_end;
 	size = (unsigned long)end - (unsigned long)start;
 	memcpy((void *)UBOOT_START_ADDR, (void *)start, size);
 
-	kick_arm_cpu();
+	start_arm_cpu();
+
+	while (1)
+		asm volatile ("wait");
+
 	return 0;
 }

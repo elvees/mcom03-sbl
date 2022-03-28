@@ -44,34 +44,6 @@ data_copy_loop:
 	b	data_copy_loop
 	nop
 data_copy_done:
-
-	/* Setup memory mapping */
-
-	/* Set page size to 16 MiB */
-	li      a0, 0x1ffe000
-	mtc0    a0, C0_PAGEMASK
-
-	mtc0    zero, C0_WIRED
-
-	/* Map 16 MiB at 0xC0000000 (virt) to 0x80000000 (phys) */
-	li      a0, 1
-	mtc0    a0, C0_INDEX
-
-	li      a1, 0xC0000000
-	mtc0    a1, C0_ENTRYHI
-
-	li      a1, 0x2000017
-	mtc0    a1, C0_ENTRYLO0
-	mtc0    a1, C0_ENTRYLO1
-	ehb
-	tlbwi
-	nop
-
-	/* Switch to TLB mapping */
-	li      a0, 0x1fd08000
-	li      v0, 0
-	sw      v0, 0(a0)
-
 	la      a2, main
 	jr      a2
 	nop
