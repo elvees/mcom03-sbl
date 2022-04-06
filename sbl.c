@@ -41,6 +41,10 @@
 #define CPU_CPU0_PPOLICY 0xA1000000
 #define CPU_SYS_PPOLICY 0xA1000040
 #define CPU_RVBADDR(x) (0xA1000118 + (x * 8))
+#define CPU_UCG_BYPASS 0xA1080040
+#define CPU_UCG_SYNC 0xA1080044
+#define CPU_UCG_CTR(i) (0xA1080000 + (i) * 4)
+#define CPU_PLL 0xA1000050
 
 #define PP_ON 0x10
 
@@ -124,10 +128,41 @@ void* memcpy(void *dest, const void *src, size_t count)
 	return dest;
 }
 
-static void comm_ucg_cfg(void)
+static void pll_cfg(unsigned long addr, int od, int nf)
 {
 	uint32_t val;
 
+	val = FIELD_PREP(PLL_CFG_SEL, 1) |
+	      FIELD_PREP(PLL_CFG_MAN, 1) |
+	      FIELD_PREP(PLL_CFG_OD, od) |
+	      FIELD_PREP(PLL_CFG_NF, nf) |
+	      FIELD_PREP(PLL_CFG_NR, 0);
+	writel(addr, val);
+
+	while (!(readl(addr) & PLL_CFG_LOCK))
+		continue;
+}
+
+static void ucg_cfg(unsigned long ucg_addr, int div)
+{
+	uint32_t val;
+
+	val = readl(ucg_addr);
+	val |= FIELD_PREP(UCG_CTR_DIV_COEFF, div);
+	writel(ucg_addr, val);
+	while (!(readl(ucg_addr) & UCG_CTR_DIV_LOCK))
+		continue;
+
+	if (!(val & UCG_CTR_CLK_EN)) {
+		val |= UCG_CTR_CLK_EN;
+		writel(ucg_addr, val);
+		while (!(readl(ucg_addr) & UCG_CTR_DIV_LOCK))
+			continue;
+	}
+}
+
+static void comm_ucg_cfg(void)
+{
 	/* Enable bypass for all channels */
 	writel(COMM_UCG_BP(0), 0xff);
 	writel(COMM_UCG_BP(1), 0x1f5);
@@ -135,31 +170,13 @@ static void comm_ucg_cfg(void)
 	/* Setup PLL to 1188 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
 	 * minimize PLL output jitter.
 	 */
-	val = FIELD_PREP(PLL_CFG_SEL, 1) |
-	      FIELD_PREP(PLL_CFG_MAN, 1) |
-	      FIELD_PREP(PLL_CFG_OD, 1) |
-	      FIELD_PREP(PLL_CFG_NF, 87) |
-	      FIELD_PREP(PLL_CFG_NR, 0);
-	writel(COMM_PLL, val);
-
-	while (!(readl(COMM_PLL) & 0x80000000))
-		continue;
+	pll_cfg(COMM_PLL, 1, 87);
 
 	/* Set dividers */
-	for (int i = 0; i < ARRAY_SIZE(comm_ucg_channels); i++) {
-		unsigned long chan_addr = COMM_UCG_CTR(comm_ucg_channels[i].ucg_id,
-						       comm_ucg_channels[i].chan_id);
-
-		val = FIELD_PREP(UCG_CTR_DIV_COEFF, comm_ucg_channels[i].div);
-		writel(chan_addr, val);
-		while (!(readl(chan_addr) & UCG_CTR_DIV_LOCK))
-			continue;
-
-		val |= UCG_CTR_CLK_EN;
-		writel(chan_addr, val);
-		while (!(readl(chan_addr) & UCG_CTR_DIV_LOCK))
-			continue;
-	}
+	for (int i = 0; i < ARRAY_SIZE(comm_ucg_channels); i++)
+		ucg_cfg(COMM_UCG_CTR(comm_ucg_channels[i].ucg_id,
+				     comm_ucg_channels[i].chan_id),
+			comm_ucg_channels[i].div);
 
 	/* Disable bypass */
 	writel(COMM_UCG_BP(0), 0x0);
@@ -174,19 +191,39 @@ static void set_ppolicy(unsigned long addr, uint32_t value)
 	}
 }
 
-static void prepare_arm_cpu(void)
+static void start_arm_cpu(void)
 {
+	uint32_t val;
+	int i;
+	uint8_t divs[] = {
+		4, /* sys clk 290.25 MHz */
+		1, /* core clk 1161 MHz */
+		2  /* dbus clk 580.5 MHz */
+	};
+
 	/* Enable CPU_SUBS */
 	set_ppolicy(SERV_URB_CPU_PPOLICY, PP_ON);
 
-	/* Enable clk_core, clk_dbus and clk_sys without dividers */
-	writel(0xA1080000, 0x2);
-	writel(0xA1080004, 0x2);
-	writel(0xA1080008, 0x2);
-}
+	/* Enable core clk and dbus clk (sys clk is enabled by default)*/
+	for (i = 1; i < ARRAY_SIZE(divs); i++) {
+		val = readl(CPU_UCG_CTR(i));
+		val |= UCG_CTR_CLK_EN;
+	        writel(CPU_UCG_CTR(i), val);
+		while (!(readl(CPU_UCG_CTR(i)) & UCG_CTR_DIV_LOCK))
+			continue;
+	}
 
-static void start_arm_cpu(void)
-{
+	writel(CPU_UCG_BYPASS, 7);
+
+	/* Setup PLL to 1161 MHz, assuming that XTI = 27 MHz */
+	pll_cfg(CPU_PLL, 1, 85);
+
+	for (i = 0; i < ARRAY_SIZE(divs); i++)
+		ucg_cfg(CPU_UCG_CTR(i), divs[i]);
+
+	writel(CPU_UCG_SYNC, 7);
+	writel(CPU_UCG_BYPASS, 0);
+
 	set_ppolicy(CPU_SYS_PPOLICY, PP_ON);
 	/* Setup CPU cores start addresses */
 	for (int i = 0; i < 4; i++)
@@ -210,7 +247,6 @@ int main(void)
 	/* Enable ref clks */
 	writel(SERV_URB_TOP_CLKGATE, 0x115);
 
-	prepare_arm_cpu();
 	start_ddrinit();
 
 	/* Setup memory mapping */
