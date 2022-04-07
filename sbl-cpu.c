@@ -74,7 +74,11 @@ static struct ucg_channel comm_ucg_channels[] = {
 	{0, 5, 4},	/* ACP		297 MHz */
 	{0, 6, 12},	/* LSP0		99 MHz */
 	{0, 7, 4},	/* COH_COMM	297 MHz */
-	{1, 0, 12},	/* SLOW_COMM	99 MHz */
+
+	/* To work around MCOM03SW-1192 the following frequency ratio must be met:
+	 * SLOW_COMM_FREQ < 1/2 * min(LSP0_SYS_FREQ, LSP1_SYS_FREQ, DDR_SYS_FREQ).
+	 */
+	{1, 0, 30},	/* SLOW_COMM	39.6 MHz */
 	{1, 2, 8},	/* FAST_COMM	148.5 MHz */
 	{1, 4, 4},	/* DSP		297 MHz */
 	{1, 5, 4},	/* PCIe		297 MHz */
