@@ -50,10 +50,10 @@
 #define TFA_MAGIC_ADDR 0xC0800000
 #define TFA_MAGIC_VALUE 0xdeadc0de
 
-#define DDRINIT_START_ADDR	0xA0000000
-#define TFA_START_ADDR_VIRT	0xC0000000
-#define TFA_START_ADDR_PHYS	0x80000000
-#define UBOOT_START_ADDR	0xC0080000
+#define DDRINIT_START_ADDR_VIRT 0xA0000000
+#define TFA_START_ADDR_VIRT 0xC0000000
+#define TFA_START_ADDR_PHYS 0x880300000
+#define UBOOT_START_ADDR_VIRT 0xC2080000
 
 #define WRITE_CPU_START_ADDR_REG(reg, val) \
 	do { \
@@ -239,31 +239,18 @@ int main(void)
 	comm_ucg_cfg();
 
 	/* Relocate ddrinit */
-	memcpy((void *)DDRINIT_START_ADDR, (void *)start, size);
+	memcpy((void *)DDRINIT_START_ADDR_VIRT, (void *)start, size);
 
-	void (*start_ddrinit)(void) = (void *)DDRINIT_START_ADDR;
+	void (*start_ddrinit)(void) = (void *)DDRINIT_START_ADDR_VIRT;
 
 	/* Enable ref clks */
 	writel(SERV_URB_TOP_CLKGATE, 0x115);
 
+	/* Note that ddrinit does memory mapping:
+	 * 64Bit phys addr 0x880300000 to 32bit virt addr 0xC0000000
+	 * 64Bit phys addr 0x882400000 to 32bit virt addr 0xC2000000
+	 */
 	start_ddrinit();
-
-	/* Setup memory mapping */
-
-	/* Set page size to 16 MiB */
-	mips32_set_c0(C0_PAGEMASK, 0x1ffe000);
-	mips32_set_c0(C0_WIRED, 0);
-	mips32_set_c0(C0_INDEX, 0);
-
-	/* Map 16 MiB at 0xC0000000 (virt) to 0x80000000 (phys) */
-	mips32_set_c0(C0_ENTRYHI, 0xC0000000);
-	mips32_set_c0(C0_ENTRYLO0, 0x2000017);
-	mips32_set_c0(C0_ENTRYLO1, 0x2000017);
-
-	/* Switch to TLB mapping */
-	mips_ehb();
-	mips_tlbwi();
-	writel(SERV_RISC0_CSR, 0);
 
 	/* Relocate TF-A */
 	start = (unsigned long *)&__tfa_start;
@@ -275,7 +262,7 @@ int main(void)
 	start = (unsigned long *)&__uboot_start;
 	end = (unsigned long *)&__uboot_end;
 	size = (unsigned long)end - (unsigned long)start;
-	memcpy((void *)UBOOT_START_ADDR, (void *)start, size);
+	memcpy((void *)UBOOT_START_ADDR_VIRT, (void *)start, size);
 
 	start_arm_cpu();
 

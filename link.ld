@@ -6,7 +6,7 @@ ENTRY(_start)
 
 MEMORY
 {
-	xip0 (rwx) : ORIGIN = 0x40000000, LENGTH = 0x1000000
+	xip0 (rwx) : ORIGIN = 0x00000000, LENGTH = 0x1000000
 	ram (rwx)  : ORIGIN = 0x9fa00000, LENGTH = 0x8000
 }
 
@@ -31,14 +31,20 @@ SECTIONS
 		. = ALIGN(4);
 	} > xip0
 
+	.rodata : {
+		*(.rodata)
+		*(.rodata.*)
+		. = ALIGN(4);
+	} > xip0
+
 	__text_end = ABSOLUTE(.);
 
 	.data : AT (__text_end) {
 		__data_start = ABSOLUTE(.);
 		*(.data)
 		*(.data.*)
+		_gp = ALIGN(16);  /* Base of small data (for MIPS) */
 		. = ALIGN(4);
-		_gp = ABSOLUTE(. + 0x7ff0);  /* Base of small data (for MIPS) */
 		*(.sdata)
 		*(.sdata.*)
 		. = ALIGN(4);
