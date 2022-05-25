@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "m32c0.h"
+#include "mips/m32c0.h"
 
 #define BIT(n) (1 << (n))
 #define GENMASK(hi, lo) (((1 << ((hi) - (lo) + 1)) - 1) << (lo))
