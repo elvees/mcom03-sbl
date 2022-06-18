@@ -21,7 +21,8 @@ endif()
 
 add_compile_options(-Wall -Wno-nonnull -Werror -std=gnu99 -EL -mips32 -G0
                     -mabi=32 -fno-builtin-malloc -ffunction-sections -fdata-sections)
-add_link_options(-T link.ld -EL -nostdlib -nostartfiles -mips32 -mabi=32 -G0)
+add_link_options(-T ${CMAKE_CURRENT_SOURCE_DIR}/link.ld
+                 -EL -nostdlib -nostartfiles -mips32 -mabi=32 -G0)
 
 add_executable(sbl.elf start.S sbl.c)
 
