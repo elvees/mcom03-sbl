@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+
 OUTPUT_ARCH("mips")
 
 ENTRY(_start)
