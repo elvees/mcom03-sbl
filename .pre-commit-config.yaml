@@ -1,0 +1,36 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-byte-order-marker
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-yaml
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.27.1
+    hooks:
+      - id: yamllint
+  - repo: https://github.com/PyCQA/doc8
+    rev: 0.11.2
+    hooks:
+      - id: doc8
+        args: [--quiet, --max-line-length=100]
+  - repo: https://github.com/rstcheck/rstcheck
+    rev: v6.0.0.post1
+    hooks:
+      - id: rstcheck
+        args: [--ignore-directives=uml, --report-level=warning]
+        additional_dependencies: [sphinx]
+  - repo: local
+    hooks:
+      - id: dont-use-underscores
+        name: check no underscores in filenames
+        entry: <entry command is not used>
+        language: fail
+        files: .*_.*
+        exclude: .*_defconfig
