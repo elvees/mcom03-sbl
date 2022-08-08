@@ -34,6 +34,12 @@
 #define SERV_URB_CPU_PPOLICY 0xBF000000
 #define SERV_URB_HSPERIPH_SUBS_PPOLICY 0xBF000020
 #define SERV_URB_TOP_CLKGATE 0xBF001008
+#define SERV_WDT0_BASE 0xBF080000
+#define SERV_WDT_CR 0x0
+#define SERV_WDT_TORR 0x4
+#define SERV_WDT_CRR 0xC
+#define SERV_WDT_CRR_KICK_VALUE 0x76
+#define SERV_WDT_EN BIT(0)
 
 #define SERV_RISC0_CSR 0xBFD08000
 
@@ -235,6 +241,17 @@ int main(void)
 	unsigned long *start = (unsigned long *)&__ddrinit_start;
 	unsigned long *end = (unsigned long *)&__ddrinit_end;
 	uint32_t size = (unsigned long)end - (unsigned long)start;
+
+	/* Once enabled, WDT cannot be disabled again even after
+	 * a system reset. Set WDT timeout to the maximum value (if it is
+	 * already enabled) as a workaround (2^31 clock cycles, since SBL
+	 * doesn't set up the reference clock for WDT0, assuming that
+	 * XTI = 27 MHz the timeout value is ~79s) .
+	 */
+	if (readl(SERV_WDT0_BASE + SERV_WDT_CR) & SERV_WDT_EN) {
+		writel(SERV_WDT0_BASE + SERV_WDT_TORR, 0xff);
+		writel(SERV_WDT0_BASE + SERV_WDT_CRR, SERV_WDT_CRR_KICK_VALUE);
+	}
 
 	comm_ucg_cfg();
 
