@@ -23,12 +23,21 @@ endif()
 
 add_compile_options(-Wall -Wno-nonnull -Werror -std=gnu99 -EL -mips32 -G0
                     -mabi=32 -fno-builtin-malloc -ffunction-sections -fdata-sections)
-add_link_options(-T ${CMAKE_CURRENT_SOURCE_DIR}/link.ld
+add_link_options(-T ${CMAKE_CURRENT_BINARY_DIR}/link.ld
                  -EL -nostdlib -nostartfiles -mips32 -mabi=32 -G0)
+
+if(BL32_PATH)
+    add_compile_options(-DHAS_BL32=1)
+endif()
 
 add_executable(sbl.elf start.S sbl.c)
 
 set_target_properties(sbl.elf PROPERTIES LINK_FLAGS "-Wl,-Map=sbl.map")
+
+add_custom_command(TARGET sbl.elf PRE_LINK COMMAND ${CMAKE_C_COMPILER}
+                   $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS)
+                   -E ${CMAKE_CURRENT_SOURCE_DIR}/link.ld.S -P
+                   -o ${CMAKE_CURRENT_BINARY_DIR}/link.ld)
 
 add_custom_command(TARGET sbl.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
                    -O elf32-littlemips -B mips --rename-section .data=.rodata
@@ -37,6 +46,12 @@ add_custom_command(TARGET sbl.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
 add_custom_command(TARGET sbl.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
                    -O elf32-littlemips -B mips --rename-section .data=.rodata
                    ${TFA_PATH} ${CMAKE_CURRENT_BINARY_DIR}/tfa.o)
+
+if(BL32_PATH)
+    add_custom_command(TARGET sbl.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
+                       -O elf32-littlemips -B mips --rename-section .data=.rodata
+                       ${BL32_PATH} ${CMAKE_CURRENT_BINARY_DIR}/bl32.o)
+endif()
 
 add_custom_command(TARGET sbl.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
                    -O elf32-littlemips -B mips --rename-section .data=.rodata

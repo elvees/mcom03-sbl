@@ -25,6 +25,12 @@ SECTIONS
 		tfa.o (.rodata*);
 		__tfa_end = ABSOLUTE(.);
 		. = ALIGN(4);
+#if defined(HAS_BL32)
+		__bl32_start = ABSOLUTE(.);
+		bl32.o (.rodata*);
+		__bl32_end = ABSOLUTE(.);
+		. = ALIGN(4);
+#endif
 		__uboot_start = ABSOLUTE(.);
 		u-boot.o (.rodata*);
 		__uboot_end = ABSOLUTE(.);

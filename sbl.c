@@ -59,6 +59,7 @@
 #define DDRINIT_START_ADDR_VIRT 0xA0000000
 #define TFA_START_ADDR_VIRT 0xC0000000
 #define TFA_START_ADDR_PHYS 0x880300000
+#define BL32_START_ADDR_VIRT 0xC0080000
 #define UBOOT_START_ADDR_VIRT 0xC2080000
 
 #define WRITE_CPU_START_ADDR_REG(reg, val) \
@@ -69,6 +70,9 @@
 
 extern unsigned long __ddrinit_start, __ddrinit_end;
 extern unsigned long __tfa_start, __tfa_end;
+#if defined(HAS_BL32)
+extern unsigned long __bl32_start, __bl32_end;
+#endif
 extern unsigned long __uboot_start, __uboot_end;
 
 struct ucg_channel {
@@ -274,6 +278,14 @@ int main(void)
 	end = (unsigned long *)&__tfa_end;
 	size = (unsigned long)end - (unsigned long)start;
 	memcpy((void *)TFA_START_ADDR_VIRT, (void *)start, size);
+
+#if defined(HAS_BL32)
+	/* Relocate BL32 */
+	start = (unsigned long *)&__bl32_start;
+	end = (unsigned long *)&__bl32_end;
+	size = (unsigned long)end - (unsigned long)start;
+	memcpy((void *)BL32_START_ADDR_VIRT, (void *)start, size);
+#endif
 
 	/* Relocate U-Boot */
 	start = (unsigned long *)&__uboot_start;
