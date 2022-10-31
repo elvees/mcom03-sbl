@@ -57,10 +57,10 @@
 #define TFA_MAGIC_VALUE 0xdeadc0de
 
 #define DDRINIT_START_ADDR_VIRT 0xA0000000
-#define TFA_START_ADDR_VIRT 0xC0000000
+#define TFA_START_ADDR_VIRT 0xC0300000
 #define TFA_START_ADDR_PHYS 0x880300000
-#define BL32_START_ADDR_VIRT 0xC0080000
-#define UBOOT_START_ADDR_VIRT 0xC2080000
+#define BL32_START_ADDR_VIRT 0xC1380000
+#define UBOOT_START_ADDR_VIRT 0xC0080000
 
 #define WRITE_CPU_START_ADDR_REG(reg, val) \
 	do { \
@@ -268,8 +268,13 @@ int main(void)
 	writel(SERV_URB_TOP_CLKGATE, 0x115);
 
 	/* Note that ddrinit does memory mapping:
-	 * 64Bit phys addr 0x880300000 to 32bit virt addr 0xC0000000
-	 * 64Bit phys addr 0x882400000 to 32bit virt addr 0xC2000000
+	 * +----------------------------+-------------------------+
+	 * | 64Bit phys addrs           |   32bit virt addrs      |
+	 * +----------------------------+-------------------------+
+	 * | 0x890400000 - 0x8905FFFFF  | 0xC0000000 - 0xC01FFFFF |
+	 * +----------------------------+-------------------------+
+	 * | 0x880200000 - 0x88FFFFFFF  | 0xC0200000 - 0xCFFFFFFF |
+	 * +----------------------------+-------------------------+
 	 */
 	start_ddrinit();
 
