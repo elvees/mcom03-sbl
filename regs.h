@@ -80,5 +80,12 @@
 #define SERV_WDT_CRR_KICK_VALUE 0x76
 #define SERV_WDT_EN		BIT(0)
 
+#define DDR_SYS_URB_BASE	     0xac000000
+#define CTR_SECURE_REGION	     (DDR_SYS_URB_BASE + 0x80)
+#define BASE_SECURE_REGION_LOW(num)  (DDR_SYS_URB_BASE + (0x90 + (num * 0x10)))
+#define BASE_SECURE_REGION_HIGH(num) (DDR_SYS_URB_BASE + (0x94 + (num * 0x10)))
+#define MASK_SECURE_REGION_LOW(num)  (DDR_SYS_URB_BASE + (0x98 + (num * 0x10)))
+#define MASK_SECURE_REGION_HIGH(num) (DDR_SYS_URB_BASE + (0x9C + (num * 0x10)))
+
 /** @} */
 #endif /* __MCOM03_H__ */
