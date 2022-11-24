@@ -4,13 +4,9 @@
 #include <stdint.h>
 #include <string.h>
 #include "mips/m32c0.h"
+#include "bitops.h"
 
-#define BIT(n)			(1 << (n))
-#define GENMASK(hi, lo)		(((1 << ((hi) - (lo) + 1)) - 1) << (lo))
-#define __bf_shf(x)		(__builtin_ffs(x) - 1)
-#define FIELD_PREP(_mask, _val) ({ ((typeof(_mask))(_val) << __bf_shf(_mask)) & (_mask); })
-#define FIELD_GET(_mask, _reg)	({ (typeof(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask)); })
-#define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 #define COMM_UCG_CTR(i, j) (0xA1801000 + (i)*0x1000 + (j)*4)
 #define COMM_UCG_BP(i)	   (0xA1801040 + (i)*0x1000)
