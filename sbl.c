@@ -5,6 +5,7 @@
 #include <string.h>
 #include "mips/m32c0.h"
 #include "bitops.h"
+#include "pll.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -133,18 +134,6 @@ void *memcpy(void *dest, const void *src, size_t count)
 	return dest;
 }
 
-static void pll_cfg(unsigned long addr, int od, int nf)
-{
-	uint32_t val;
-
-	val = FIELD_PREP(PLL_CFG_SEL, 1) | FIELD_PREP(PLL_CFG_MAN, 1) | FIELD_PREP(PLL_CFG_OD, od) |
-	      FIELD_PREP(PLL_CFG_NF, nf) | FIELD_PREP(PLL_CFG_NR, 0);
-	writel(addr, val);
-
-	while (!(readl(addr) & PLL_CFG_LOCK))
-		continue;
-}
-
 static void ucg_cfg(unsigned long ucg_addr, int div)
 {
 	uint32_t val;
@@ -163,8 +152,10 @@ static void ucg_cfg(unsigned long ucg_addr, int div)
 	}
 }
 
-static void comm_ucg_cfg(void)
+static int comm_ucg_cfg(void)
 {
+	int ret;
+
 	/* Enable bypass for all channels */
 	writel(COMM_UCG_BP(0), 0xff);
 	writel(COMM_UCG_BP(1), 0x1f5);
@@ -172,7 +163,14 @@ static void comm_ucg_cfg(void)
 	/* Setup PLL to 1188 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
 	 * minimize PLL output jitter.
 	 */
-	pll_cfg(COMM_PLL, 1, 87);
+	pll_cfg_t pll_cfg;
+	pll_cfg.nf_value = 87;
+	pll_cfg.nr_value = 0;
+	pll_cfg.od_value = 1;
+
+	ret = pll_set_manual_freq((pll_cfg_reg_t *)COMM_PLL, &pll_cfg, 1000);
+	if (ret)
+		return ret;
 
 	/* Set dividers */
 	for (int i = 0; i < ARRAY_SIZE(comm_ucg_channels); i++)
@@ -182,6 +180,8 @@ static void comm_ucg_cfg(void)
 	/* Disable bypass */
 	writel(COMM_UCG_BP(0), 0x0);
 	writel(COMM_UCG_BP(1), 0x0);
+
+	return 0;
 }
 
 static void set_ppolicy(unsigned long addr, uint32_t value)
@@ -192,8 +192,10 @@ static void set_ppolicy(unsigned long addr, uint32_t value)
 	}
 }
 
-static void start_arm_cpu(void)
+static int start_arm_cpu(void)
 {
+	int ret;
+
 	uint32_t val;
 	int i;
 	uint8_t divs[] = {
@@ -216,8 +218,17 @@ static void start_arm_cpu(void)
 
 	writel(CPU_UCG_BYPASS, 7);
 
-	/* Setup PLL to 1161 MHz, assuming that XTI = 27 MHz */
-	pll_cfg(CPU_PLL, 1, 85);
+	/* Setup PLL to 1161 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
+	 * minimize PLL output jitter.
+	 */
+	pll_cfg_t pll_cfg;
+	pll_cfg.nf_value = 85;
+	pll_cfg.nr_value = 0;
+	pll_cfg.od_value = 1;
+
+	ret = pll_set_manual_freq((pll_cfg_reg_t *)CPU_PLL, &pll_cfg, 1000);
+	if (ret)
+		return ret;
 
 	for (i = 0; i < ARRAY_SIZE(divs); i++)
 		ucg_cfg(CPU_UCG_CTR(i), divs[i]);
@@ -230,10 +241,14 @@ static void start_arm_cpu(void)
 	for (int i = 0; i < 4; i++)
 		WRITE_CPU_START_ADDR_REG(CPU_RVBADDR(i), TFA_START_ADDR_PHYS);
 	set_ppolicy(CPU_CPU0_PPOLICY, PP_ON);
+
+	return 0;
 }
 
 int main(void)
 {
+	int ret;
+
 	unsigned long *start = (unsigned long *)&__ddrinit_start;
 	unsigned long *end = (unsigned long *)&__ddrinit_end;
 	uint32_t size = (unsigned long)end - (unsigned long)start;
@@ -249,7 +264,10 @@ int main(void)
 		writel(SERV_WDT0_BASE + SERV_WDT_CRR, SERV_WDT_CRR_KICK_VALUE);
 	}
 
-	comm_ucg_cfg();
+	/* Initialize and configure the InterConnect clocking system */
+	ret = comm_ucg_cfg();
+	if (ret)
+		goto exit;
 
 	/* Relocate ddrinit */
 	memcpy((void *)DDRINIT_START_ADDR_VIRT, (void *)start, size);
@@ -290,8 +308,12 @@ int main(void)
 	size = (unsigned long)end - (unsigned long)start;
 	memcpy((void *)UBOOT_START_ADDR_VIRT, (void *)start, size);
 
-	start_arm_cpu();
+	/* Initialize and configure the CPU clocking system and run it */
+	ret = start_arm_cpu();
+	if (ret)
+		goto exit;
 
+exit:
 	while (1)
 		asm volatile("wait");
 
