@@ -62,6 +62,19 @@ static struct ucg_channel top_ucg_channels[] = {
 	{ 1, TOP_UCG1_CHANNEL_DDR_HSPERIPH, 6 }, /* 198 MHz */
 };
 
+/* Service Subsystem PLL output frequency is 594 MHz, assuming that XTI = 27 MHz */
+static struct ucg_channel serv_ucg_channels[] = {
+	{ 1, SERV_UCG1_CHANNEL_CLK_CORE, 1 }, /* 594 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_RISC0, 1 }, /* 594 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_QSPI0, 1 }, /* 594 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_QSPI0_EXT, 22 }, /* 27 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_APB, 12 }, /* 49.5 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_MFBSP0, 12 }, /* 49.5 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_MAILBOX0, 12 }, /* 49.5 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_PVTCTR, 12 }, /* 49.5 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_TRNG, 12 }, /* 49.5 MHz */
+};
+
 /* CPU Subsystem PLL output frequency is 1161 MHz, assuming that XTI = 27 MHz */
 static struct ucg_channel cpu_ucg_channels[] = {
 	{ 0, CPU_UCG_CHANNEL_CLK_SYS, 4 }, /* 290.25 MHz */
@@ -82,6 +95,11 @@ static inline uint32_t readl(unsigned long addr)
 static inline ucg_regs_t *ucg_get_top_registers(uint32_t ucg_id)
 {
 	return (ucg_regs_t *)(TOP_UCG0_BASE + (0x1000 * ucg_id));
+}
+
+static inline ucg_regs_t *ucg_get_service_registers(void)
+{
+	return (ucg_regs_t *)(SERV_UCG1_BASE);
 }
 
 static inline ucg_regs_t *ucg_get_cpu_registers(void)
@@ -164,6 +182,45 @@ int top_set_clock(void)
 	return 0;
 }
 
+int service_set_clock(void)
+{
+	int ret;
+
+	ucg_regs_t *serv_ucg = ucg_get_service_registers();
+
+	/* Enable Service Sub UCG1 bypass for all channel */
+	ret = ucg_enable_bp(serv_ucg, SERV_UCG1_ALL_CH_MASK);
+	if (ret)
+		return ret;
+
+	/* Setup PLL to 594 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
+	 * minimize PLL output jitter.
+	 */
+	pll_cfg_t pll_cfg;
+	pll_cfg.nf_value = 131;
+	pll_cfg.nr_value = 0;
+	pll_cfg.od_value = 5;
+
+	ret = pll_set_manual_freq((pll_cfg_reg_t *)(SERV_PLL_ADDR), &pll_cfg, 1000);
+	if (ret)
+		return ret;
+
+	/* Setup UCG1 Divider */
+	for (int i = 0; i < ARRAY_SIZE(serv_ucg_channels); i++) {
+		ret = ucg_set_divider(serv_ucg, serv_ucg_channels[i].chan_id,
+				      serv_ucg_channels[i].div, 1000);
+		if (ret)
+			return ret;
+	}
+
+	/* Sync and disable Service Sub UCG1 bypass */
+	ret = ucg_sync_and_disable_bp(serv_ucg, SERV_UCG1_ALL_CH_MASK);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static void set_ppolicy(unsigned long addr, uint32_t value)
 {
 	value &= 0x1f;
@@ -230,14 +287,18 @@ int main(void)
 
 	/* Once enabled, WDT cannot be disabled again even after
 	 * a system reset. Set WDT timeout to the maximum value (if it is
-	 * already enabled) as a workaround (2^31 clock cycles, since SBL
-	 * doesn't set up the reference clock for WDT0, assuming that
-	 * XTI = 27 MHz the timeout value is ~79s) .
+	 * already enabled) as a workaround (2^31 clock cycles, assuming that
+	 * reference clock for WDT0 is 49.5 MHz the timeout value is ~43s).
 	 */
 	if (readl(SERV_WDT0_BASE + SERV_WDT_CR) & SERV_WDT_EN) {
 		writel(SERV_WDT0_BASE + SERV_WDT_TORR, 0xff);
 		writel(SERV_WDT0_BASE + SERV_WDT_CRR, SERV_WDT_CRR_KICK_VALUE);
 	}
+
+	/* Initialize and configure the RISC0 clocking system */
+	ret = service_set_clock();
+	if (ret)
+		goto exit;
 
 	/* Initialize and configure the InterConnect clocking system */
 	ret = top_set_clock();
