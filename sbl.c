@@ -6,12 +6,13 @@
 #include "mips/m32c0.h"
 #include "bitops.h"
 #include "pll.h"
+#include "regs.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-#define COMM_UCG_CTR(i, j) (0xA1801000 + (i)*0x1000 + (j)*4)
-#define COMM_UCG_BP(i)	   (0xA1801040 + (i)*0x1000)
-#define COMM_PLL	   0xA1800000
+#define TOP_UCG_CTR(i, j) (TOP_UCG0_BASE + (i)*0x1000 + (j)*4)
+#define TOP_UCG_BP(i)	  (TOP_UCG0_BASE + (i)*0x1000 + 0x40)
+#define TOP_PLL_ADDR	  (TOP_URB_BASE)
 
 #define PLL_CFG_SEL  GENMASK(7, 0)
 #define PLL_CFG_MAN  BIT(9)
@@ -28,10 +29,10 @@
 #define UCG_CTR_DIV_COEFF      GENMASK(29, 10)
 #define UCG_CTR_DIV_LOCK       BIT(30)
 
-#define SERV_URB_CPU_PPOLICY	       0xBF000000
-#define SERV_URB_HSPERIPH_SUBS_PPOLICY 0xBF000020
-#define SERV_URB_TOP_CLKGATE	       0xBF001008
-#define SERV_WDT0_BASE		       0xBF080000
+#define SERV_URB_CPU_PPOLICY	       (SERV_URB_BASE)
+#define SERV_URB_HSPERIPH_SUBS_PPOLICY (SERV_URB_BASE + 0x20)
+#define SERV_URB_TOP_CLKGATE	       (SERV_URB_BASE + 0x1008)
+#define SERV_WDT0_BASE		       (SERV_URB_BASE + 0x80000)
 #define SERV_WDT_CR		       0x0
 #define SERV_WDT_TORR		       0x4
 #define SERV_WDT_CRR		       0xC
@@ -40,13 +41,13 @@
 
 #define SERV_RISC0_CSR 0xBFD08000
 
-#define CPU_CPU0_PPOLICY 0xA1000000
-#define CPU_SYS_PPOLICY	 0xA1000040
-#define CPU_RVBADDR(x)	 (0xA1000118 + (x * 8))
-#define CPU_UCG_BYPASS	 0xA1080040
-#define CPU_UCG_SYNC	 0xA1080044
-#define CPU_UCG_CTR(i)	 (0xA1080000 + (i)*4)
-#define CPU_PLL		 0xA1000050
+#define CPU_CPU0_PPOLICY (CPU_URB_BASE)
+#define CPU_SYS_PPOLICY	 (CPU_URB_BASE + 0x40)
+#define CPU_PLL_ADDR	 (CPU_URB_BASE + 0x50)
+#define CPU_RVBADDR(i)	 (CPU_URB_BASE + (i)*8 + 0x118)
+#define CPU_UCG_BYPASS	 (CPU_UCG_BASE + 0x40)
+#define CPU_UCG_SYNC	 (CPU_UCG_BASE + 0x44)
+#define CPU_UCG_CTR(i)	 (CPU_UCG_BASE + (i)*4)
 
 #define PP_ON 0x10
 
@@ -78,26 +79,26 @@ struct ucg_channel {
 	int div;
 };
 
-static struct ucg_channel comm_ucg_channels[] = {
-	{ 0, 0, 6 }, /* DP		198 MHz */
-	{ 0, 1, 8 }, /* VPU		148.5 MHz */
-	{ 0, 2, 4 }, /* GPU		297 MHz */
-	{ 0, 3, 12 }, /* ISP		99 MHz */
-	{ 0, 4, 4 }, /* CPU		297 MHz */
-	{ 0, 5, 4 }, /* ACP		297 MHz */
-	{ 0, 6, 12 }, /* LSP0		99 MHz */
-	{ 0, 7, 4 }, /* COH_COMM	297 MHz */
+static struct ucg_channel top_ucg_channels[] = {
+	{ 0, TOP_UCG0_CHANNEL_DDR_DP, 6 }, /* 198 MHz */
+	{ 0, TOP_UCG0_CHANNEL_DDR_VPU, 8 }, /* 148.5 MHz */
+	{ 0, TOP_UCG0_CHANNEL_DDR_GPU, 4 }, /* 297 MHz */
+	{ 0, TOP_UCG0_CHANNEL_DDR_ISP, 12 }, /* 99 MHz */
+	{ 0, TOP_UCG0_CHANNEL_DDR_CPU, 4 }, /* 297 MHz */
+	{ 0, TOP_UCG0_CHANNEL_CPU_ACP, 4 }, /* 297 MHz */
+	{ 0, TOP_UCG0_CHANNEL_DDR_LSPERIPH0, 12 }, /* 99 MHz */
+	{ 0, TOP_UCG0_CHANNEL_AXI_COH_COMM, 4 }, /* 297 MHz */
 
 	/* To work around MCOM03SW-1192 the following frequency ratio must be met:
 	 * SLOW_COMM_FREQ < 1/2 * min(LSP0_SYS_FREQ, LSP1_SYS_FREQ, DDR_SYS_FREQ).
 	 */
-	{ 1, 0, 30 }, /* SLOW_COMM	39.6 MHz */
-	{ 1, 2, 8 }, /* FAST_COMM	148.5 MHz */
-	{ 1, 4, 4 }, /* DSP		297 MHz */
-	{ 1, 5, 4 }, /* PCIe		297 MHz */
-	{ 1, 6, 12 }, /* LSP1		99 MHz */
-	{ 1, 7, 8 }, /* SERVICE	148.5 MHz */
-	{ 1, 8, 6 }, /* HSP		198 MHz */
+	{ 1, TOP_UCG1_CHANNEL_AXI_SLOW_COMM, 30 }, /* 39.6 MHz */
+	{ 1, TOP_UCG1_CHANNEL_AXI_FAST_COMM, 8 }, /* 148.5 MHz */
+	{ 1, TOP_UCG1_CHANNEL_DDR_SDR_DSP, 4 }, /* 297 MHz */
+	{ 1, TOP_UCG1_CHANNEL_DDR_SDR_PICE, 4 }, /* 297 MHz */
+	{ 1, TOP_UCG1_CHANNEL_DDR_LSPERIPH1, 12 }, /* 99 MHz */
+	{ 1, TOP_UCG1_CHANNEL_DDR_SERVICE, 8 }, /* 148.5 MHz */
+	{ 1, TOP_UCG1_CHANNEL_DDR_HSPERIPH, 6 }, /* 198 MHz */
 };
 
 static inline void writel(unsigned long addr, uint32_t value)
@@ -152,13 +153,13 @@ static void ucg_cfg(unsigned long ucg_addr, int div)
 	}
 }
 
-static int comm_ucg_cfg(void)
+static int top_set_clock(void)
 {
 	int ret;
 
 	/* Enable bypass for all channels */
-	writel(COMM_UCG_BP(0), 0xff);
-	writel(COMM_UCG_BP(1), 0x1f5);
+	writel(TOP_UCG_BP(0), 0xff);
+	writel(TOP_UCG_BP(1), 0x1f5);
 
 	/* Setup PLL to 1188 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
 	 * minimize PLL output jitter.
@@ -168,18 +169,18 @@ static int comm_ucg_cfg(void)
 	pll_cfg.nr_value = 0;
 	pll_cfg.od_value = 1;
 
-	ret = pll_set_manual_freq((pll_cfg_reg_t *)COMM_PLL, &pll_cfg, 1000);
+	ret = pll_set_manual_freq((pll_cfg_reg_t *)TOP_PLL_ADDR, &pll_cfg, 1000);
 	if (ret)
 		return ret;
 
 	/* Set dividers */
-	for (int i = 0; i < ARRAY_SIZE(comm_ucg_channels); i++)
-		ucg_cfg(COMM_UCG_CTR(comm_ucg_channels[i].ucg_id, comm_ucg_channels[i].chan_id),
-			comm_ucg_channels[i].div);
+	for (int i = 0; i < ARRAY_SIZE(top_ucg_channels); i++)
+		ucg_cfg(TOP_UCG_CTR(top_ucg_channels[i].ucg_id, top_ucg_channels[i].chan_id),
+			top_ucg_channels[i].div);
 
 	/* Disable bypass */
-	writel(COMM_UCG_BP(0), 0x0);
-	writel(COMM_UCG_BP(1), 0x0);
+	writel(TOP_UCG_BP(0), 0x0);
+	writel(TOP_UCG_BP(1), 0x0);
 
 	return 0;
 }
@@ -226,7 +227,7 @@ static int start_arm_cpu(void)
 	pll_cfg.nr_value = 0;
 	pll_cfg.od_value = 1;
 
-	ret = pll_set_manual_freq((pll_cfg_reg_t *)CPU_PLL, &pll_cfg, 1000);
+	ret = pll_set_manual_freq((pll_cfg_reg_t *)CPU_PLL_ADDR, &pll_cfg, 1000);
 	if (ret)
 		return ret;
 
@@ -265,7 +266,7 @@ int main(void)
 	}
 
 	/* Initialize and configure the InterConnect clocking system */
-	ret = comm_ucg_cfg();
+	ret = top_set_clock();
 	if (ret)
 		goto exit;
 
