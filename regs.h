@@ -65,5 +65,19 @@
 #define CPU_UCG_CHANNEL_CLK_CORE 1
 #define CPU_UCG_CHANNEL_CLK_DBUS 2
 
+#define TOP_PLL_ADDR	 (TOP_URB_BASE)
+#define SERV_CPU_PPOLICY (SERV_URB_BASE)
+#define CPU_CPU0_PPOLICY (CPU_URB_BASE)
+#define CPU_SYS_PPOLICY	 (CPU_URB_BASE + 0x40)
+#define CPU_PLL_ADDR	 (CPU_URB_BASE + 0x50)
+#define CPU_RVBADDR(i)	 (CPU_URB_BASE + 0x118 + (i)*8)
+
+#define SERV_WDT0_BASE		(SERV_URB_BASE + 0x80000)
+#define SERV_WDT_CR		0x0
+#define SERV_WDT_TORR		0x4
+#define SERV_WDT_CRR		0xC
+#define SERV_WDT_CRR_KICK_VALUE 0x76
+#define SERV_WDT_EN		BIT(0)
+
 /** @} */
 #endif /* __MCOM03_H__ */

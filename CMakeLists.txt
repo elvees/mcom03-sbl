@@ -30,7 +30,7 @@ if(BL32_PATH)
     add_compile_options(-DHAS_BL32=1)
 endif()
 
-add_executable(sbl.elf start.S sbl.c pll.c)
+add_executable(sbl.elf start.S sbl.c pll.c ucg.c)
 
 set_target_properties(sbl.elf PROPERTIES LINK_FLAGS "-Wl,-Map=sbl.map")
 

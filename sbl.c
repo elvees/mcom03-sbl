@@ -5,60 +5,21 @@
 #include <string.h>
 #include "mips/m32c0.h"
 #include "bitops.h"
+#include "ucg.h"
 #include "pll.h"
 #include "regs.h"
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
-#define TOP_UCG_CTR(i, j) (TOP_UCG0_BASE + (i)*0x1000 + (j)*4)
-#define TOP_UCG_BP(i)	  (TOP_UCG0_BASE + (i)*0x1000 + 0x40)
-#define TOP_PLL_ADDR	  (TOP_URB_BASE)
-
-#define PLL_CFG_SEL  GENMASK(7, 0)
-#define PLL_CFG_MAN  BIT(9)
-#define PLL_CFG_OD   GENMASK(13, 10)
-#define PLL_CFG_NF   GENMASK(26, 14)
-#define PLL_CFG_NR   GENMASK(30, 27)
-#define PLL_CFG_LOCK BIT(31)
-
-#define UCG_CTR_LPI_EN	       BIT(0)
-#define UCG_CTR_CLK_EN	       BIT(1)
-#define UCG_CTR_CLK_EN_STS     GENMASK(4, 2)
-#define UCG_CTR_QACTIVE_CTL_EN BIT(6)
-#define UCG_CTR_QFSM_STATE     GENMASK(9, 7)
-#define UCG_CTR_DIV_COEFF      GENMASK(29, 10)
-#define UCG_CTR_DIV_LOCK       BIT(30)
-
-#define SERV_URB_CPU_PPOLICY	       (SERV_URB_BASE)
-#define SERV_URB_HSPERIPH_SUBS_PPOLICY (SERV_URB_BASE + 0x20)
-#define SERV_URB_TOP_CLKGATE	       (SERV_URB_BASE + 0x1008)
-#define SERV_WDT0_BASE		       (SERV_URB_BASE + 0x80000)
-#define SERV_WDT_CR		       0x0
-#define SERV_WDT_TORR		       0x4
-#define SERV_WDT_CRR		       0xC
-#define SERV_WDT_CRR_KICK_VALUE	       0x76
-#define SERV_WDT_EN		       BIT(0)
-
-#define SERV_RISC0_CSR 0xBFD08000
-
-#define CPU_CPU0_PPOLICY (CPU_URB_BASE)
-#define CPU_SYS_PPOLICY	 (CPU_URB_BASE + 0x40)
-#define CPU_PLL_ADDR	 (CPU_URB_BASE + 0x50)
-#define CPU_RVBADDR(i)	 (CPU_URB_BASE + (i)*8 + 0x118)
-#define CPU_UCG_BYPASS	 (CPU_UCG_BASE + 0x40)
-#define CPU_UCG_SYNC	 (CPU_UCG_BASE + 0x44)
-#define CPU_UCG_CTR(i)	 (CPU_UCG_BASE + (i)*4)
-
-#define PP_ON 0x10
-
-#define TFA_MAGIC_ADDR	0xC0800000
-#define TFA_MAGIC_VALUE 0xdeadc0de
+#define PP_OFF	    0x01
+#define PP_WARM_RST 0x08
+#define PP_ON	    0x10
 
 #define DDRINIT_START_ADDR_VIRT 0xA0000000
 #define TFA_START_ADDR_VIRT	0xC0300000
 #define TFA_START_ADDR_PHYS	0x880300000
 #define BL32_START_ADDR_VIRT	0xC1380000
 #define UBOOT_START_ADDR_VIRT	0xC0080000
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 #define WRITE_CPU_START_ADDR_REG(reg, val)                         \
 	do {                                                       \
@@ -101,6 +62,13 @@ static struct ucg_channel top_ucg_channels[] = {
 	{ 1, TOP_UCG1_CHANNEL_DDR_HSPERIPH, 6 }, /* 198 MHz */
 };
 
+/* CPU Subsystem PLL output frequency is 1161 MHz, assuming that XTI = 27 MHz */
+static struct ucg_channel cpu_ucg_channels[] = {
+	{ 0, CPU_UCG_CHANNEL_CLK_SYS, 4 }, /* 290.25 MHz */
+	{ 0, CPU_UCG_CHANNEL_CLK_CORE, 1 }, /* 1161 MHz */
+	{ 0, CPU_UCG_CHANNEL_CLK_DBUS, 2 }, /* 580.5 MHz */
+};
+
 static inline void writel(unsigned long addr, uint32_t value)
 {
 	(*(volatile uint32_t *)addr) = value;
@@ -109,6 +77,16 @@ static inline void writel(unsigned long addr, uint32_t value)
 static inline uint32_t readl(unsigned long addr)
 {
 	return *(volatile uint32_t *)addr;
+}
+
+static inline ucg_regs_t *ucg_get_top_registers(uint32_t ucg_id)
+{
+	return (ucg_regs_t *)(TOP_UCG0_BASE + (0x1000 * ucg_id));
+}
+
+static inline ucg_regs_t *ucg_get_cpu_registers(void)
+{
+	return (ucg_regs_t *)(CPU_UCG_BASE);
 }
 
 void *memcpy(void *dest, const void *src, size_t count)
@@ -135,31 +113,22 @@ void *memcpy(void *dest, const void *src, size_t count)
 	return dest;
 }
 
-static void ucg_cfg(unsigned long ucg_addr, int div)
-{
-	uint32_t val;
-
-	val = readl(ucg_addr);
-	val |= FIELD_PREP(UCG_CTR_DIV_COEFF, div);
-	writel(ucg_addr, val);
-	while (!(readl(ucg_addr) & UCG_CTR_DIV_LOCK))
-		continue;
-
-	if (!(val & UCG_CTR_CLK_EN)) {
-		val |= UCG_CTR_CLK_EN;
-		writel(ucg_addr, val);
-		while (!(readl(ucg_addr) & UCG_CTR_DIV_LOCK))
-			continue;
-	}
-}
-
-static int top_set_clock(void)
+int top_set_clock(void)
 {
 	int ret;
+	ucg_regs_t *top_ucg[2];
 
-	/* Enable bypass for all channels */
-	writel(TOP_UCG_BP(0), 0xff);
-	writel(TOP_UCG_BP(1), 0x1f5);
+	/* Enable interconnect UCG0 bypass */
+	top_ucg[0] = ucg_get_top_registers(0);
+	ret = ucg_enable_bp(top_ucg[0], TOP_UCG0_ALL_CH_MASK);
+	if (ret)
+		return ret;
+
+	/* Enable interconnect UCG1 bypass */
+	top_ucg[1] = ucg_get_top_registers(1);
+	ret = ucg_enable_bp(top_ucg[1], TOP_UCG1_ALL_CH_MASK);
+	if (ret)
+		return ret;
 
 	/* Setup PLL to 1188 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
 	 * minimize PLL output jitter.
@@ -174,13 +143,23 @@ static int top_set_clock(void)
 		return ret;
 
 	/* Set dividers */
-	for (int i = 0; i < ARRAY_SIZE(top_ucg_channels); i++)
-		ucg_cfg(TOP_UCG_CTR(top_ucg_channels[i].ucg_id, top_ucg_channels[i].chan_id),
-			top_ucg_channels[i].div);
+	for (int i = 0; i < ARRAY_SIZE(top_ucg_channels); i++) {
+		ret = ucg_set_divider(top_ucg[top_ucg_channels[i].ucg_id],
+				      top_ucg_channels[i].chan_id, top_ucg_channels[i].div, 1000);
+		if (ret) {
+			return ret;
+		}
+	}
 
-	/* Disable bypass */
-	writel(TOP_UCG_BP(0), 0x0);
-	writel(TOP_UCG_BP(1), 0x0);
+	/* Sync and disable interconnect UCG0 bypass */
+	ret = ucg_sync_and_disable_bp(top_ucg[0], TOP_UCG0_ALL_CH_MASK);
+	if (ret)
+		return ret;
+
+	/* Sync and disable interconnect UCG1 bypass */
+	ret = ucg_sync_and_disable_bp(top_ucg[1], TOP_UCG1_ALL_CH_MASK);
+	if (ret)
+		return ret;
 
 	return 0;
 }
@@ -197,27 +176,15 @@ static int start_arm_cpu(void)
 {
 	int ret;
 
-	uint32_t val;
-	int i;
-	uint8_t divs[] = {
-		4, /* sys clk 290.25 MHz */
-		1, /* core clk 1161 MHz */
-		2 /* dbus clk 580.5 MHz */
-	};
+	ucg_regs_t *cpu_ucg = ucg_get_cpu_registers();
 
 	/* Enable CPU_SUBS */
-	set_ppolicy(SERV_URB_CPU_PPOLICY, PP_ON);
+	set_ppolicy(SERV_CPU_PPOLICY, PP_ON);
 
-	/* Enable core clk and dbus clk (sys clk is enabled by default)*/
-	for (i = 1; i < ARRAY_SIZE(divs); i++) {
-		val = readl(CPU_UCG_CTR(i));
-		val |= UCG_CTR_CLK_EN;
-		writel(CPU_UCG_CTR(i), val);
-		while (!(readl(CPU_UCG_CTR(i)) & UCG_CTR_DIV_LOCK))
-			continue;
-	}
-
-	writel(CPU_UCG_BYPASS, 7);
+	/* Enable CPU Sub UCG bypass for all channel */
+	ret = ucg_enable_bp(cpu_ucg, CPU_UCG_ALL_CH_MASK);
+	if (ret)
+		return ret;
 
 	/* Setup PLL to 1161 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
 	 * minimize PLL output jitter.
@@ -231,11 +198,19 @@ static int start_arm_cpu(void)
 	if (ret)
 		return ret;
 
-	for (i = 0; i < ARRAY_SIZE(divs); i++)
-		ucg_cfg(CPU_UCG_CTR(i), divs[i]);
+	/* Set dividers */
+	for (int i = 0; i < ARRAY_SIZE(cpu_ucg_channels); i++) {
+		ret = ucg_set_divider(cpu_ucg, cpu_ucg_channels[i].chan_id, cpu_ucg_channels[i].div,
+				      1000);
+		if (ret) {
+			return ret;
+		}
+	}
 
-	writel(CPU_UCG_SYNC, 7);
-	writel(CPU_UCG_BYPASS, 0);
+	/* Sync and disable CPU UCG bypass */
+	ret = ucg_sync_and_disable_bp(cpu_ucg, CPU_UCG_ALL_CH_MASK);
+	if (ret)
+		return ret;
 
 	set_ppolicy(CPU_SYS_PPOLICY, PP_ON);
 	/* Setup CPU cores start addresses */
@@ -250,9 +225,8 @@ int main(void)
 {
 	int ret;
 
-	unsigned long *start = (unsigned long *)&__ddrinit_start;
-	unsigned long *end = (unsigned long *)&__ddrinit_end;
-	uint32_t size = (unsigned long)end - (unsigned long)start;
+	/* Initialize and configure the TOP clock gate */
+	writel(SERV_TOP_CLK_GATE_URB_BASE, SERV_TOP_CLK_GATE_ALL_CH_MASK);
 
 	/* Once enabled, WDT cannot be disabled again even after
 	 * a system reset. Set WDT timeout to the maximum value (if it is
@@ -271,12 +245,10 @@ int main(void)
 		goto exit;
 
 	/* Relocate ddrinit */
+	unsigned long *start = (unsigned long *)&__ddrinit_start;
+	unsigned long *end = (unsigned long *)&__ddrinit_end;
+	uint32_t size = (unsigned long)end - (unsigned long)start;
 	memcpy((void *)DDRINIT_START_ADDR_VIRT, (void *)start, size);
-
-	void (*start_ddrinit)(void) = (void *)DDRINIT_START_ADDR_VIRT;
-
-	/* Enable ref clks */
-	writel(SERV_URB_TOP_CLKGATE, 0x115);
 
 	/* Note that ddrinit does memory mapping:
 	 * +----------------------------+-------------------------+
@@ -287,6 +259,7 @@ int main(void)
 	 * | 0x880200000 - 0x88FFFFFFF  | 0xC0200000 - 0xCFFFFFFF |
 	 * +----------------------------+-------------------------+
 	 */
+	void (*start_ddrinit)(void) = (void *)DDRINIT_START_ADDR_VIRT;
 	start_ddrinit();
 
 	/* Relocate TF-A */
