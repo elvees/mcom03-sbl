@@ -65,12 +65,13 @@ int ucg_set_divider(ucg_regs_t *ucg, uint32_t ch, uint32_t div, uint32_t max_ret
  * @brief Sync clocking enable and
  *        bypass disable function
  *
- * @param ucg       Pointer to UCG register address
- * @param ch_mask   UCG channel mask
+ * @param ucg         Pointer to UCG register address
+ * @param ch_mask     UCG channel mask
+ * @param sync_mask   UCG sync mask
  *
  * @return (0) - Success, (-1) - Error
  */
-int ucg_sync_and_disable_bp(ucg_regs_t *ucg, uint32_t ch_mask);
+int ucg_sync_and_disable_bp(ucg_regs_t *ucg, uint32_t ch_mask, uint32_t sync_mask);
 
 /**
  * @brief UCG channel state getting function

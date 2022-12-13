@@ -201,12 +201,12 @@ int top_set_clock(void)
 	}
 
 	/* Sync and disable interconnect UCG0 bypass */
-	ret = ucg_sync_and_disable_bp(top_ucg[0], TOP_UCG0_ALL_CH_MASK);
+	ret = ucg_sync_and_disable_bp(top_ucg[0], TOP_UCG0_ALL_CH_MASK, TOP_UCG0_SYNC_MASK);
 	if (ret)
 		return ret;
 
 	/* Sync and disable interconnect UCG1 bypass */
-	ret = ucg_sync_and_disable_bp(top_ucg[1], TOP_UCG1_ALL_CH_MASK);
+	ret = ucg_sync_and_disable_bp(top_ucg[1], TOP_UCG1_ALL_CH_MASK, TOP_UCG1_SYNC_MASK);
 	if (ret)
 		return ret;
 
@@ -245,7 +245,7 @@ int service_set_clock(void)
 	}
 
 	/* Sync and disable Service Sub UCG1 bypass */
-	ret = ucg_sync_and_disable_bp(serv_ucg, SERV_UCG1_ALL_CH_MASK);
+	ret = ucg_sync_and_disable_bp(serv_ucg, SERV_UCG1_ALL_CH_MASK, SERV_UCG1_SYNC_MASK);
 	if (ret)
 		return ret;
 
@@ -296,7 +296,7 @@ static int start_arm_cpu(void)
 	}
 
 	/* Sync and disable CPU UCG bypass */
-	ret = ucg_sync_and_disable_bp(cpu_ucg, CPU_UCG_ALL_CH_MASK);
+	ret = ucg_sync_and_disable_bp(cpu_ucg, CPU_UCG_ALL_CH_MASK, CPU_UCG_SYNC_MASK);
 	if (ret)
 		return ret;
 
