@@ -94,5 +94,8 @@
 #define HSP_SUBS_URB_BASE   0xb0400000
 #define HSP_SUBS_REFCLK_REG (HSP_SUBS_URB_BASE + 0xc)
 
+#define LSP1_SUBS_URB_BASE		    0xa17e0000
+#define LSP1_SUBS_I2S_UCG1_RSTN_PPOLICY_REG (LSP1_SUBS_URB_BASE + 0x8)
+
 /** @} */
 #endif /* __MCOM03_H__ */

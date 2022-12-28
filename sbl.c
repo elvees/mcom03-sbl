@@ -411,6 +411,9 @@ int main(void)
 	 */
 	writel(HSP_SUBS_REFCLK_REG, 0);
 
+	/* I2S RSTN must be deasserted before LSP1 UCGs setup */
+	set_ppolicy(LSP1_SUBS_I2S_UCG1_RSTN_PPOLICY_REG, PP_ON);
+
 	/* Initialize and configure the CPU clocking system and run it */
 	ret = start_arm_cpu();
 	if (ret)
