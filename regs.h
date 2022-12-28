@@ -91,5 +91,8 @@
 #define MASK_SECURE_REGION_LOW(num)  (DDR_SYS_URB_BASE + (0x98 + (num * 0x10)))
 #define MASK_SECURE_REGION_HIGH(num) (DDR_SYS_URB_BASE + (0x9C + (num * 0x10)))
 
+#define HSP_SUBS_URB_BASE   0xb0400000
+#define HSP_SUBS_REFCLK_REG (HSP_SUBS_URB_BASE + 0xc)
+
 /** @} */
 #endif /* __MCOM03_H__ */

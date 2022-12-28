@@ -400,6 +400,17 @@ int main(void)
 	size = (unsigned long)end - (unsigned long)start;
 	memcpy((void *)UBOOT_START_ADDR_VIRT, (void *)start, size);
 
+	/*
+	 * Set PLL as clock source for all HSPERIPH UCGs
+	 * Some HSperiph UCGs use CLK125 external pad as default source
+	 * (this is considered as chip bug).
+	 * Some boards might not have CLK125 routed so it's not possible
+	 * to read/write UCG registers (UCG configuration hangs).
+	 * This is a temporary solution.
+	 * All clocks should be configured by clock driver.
+	 */
+	writel(HSP_SUBS_REFCLK_REG, 0);
+
 	/* Initialize and configure the CPU clocking system and run it */
 	ret = start_arm_cpu();
 	if (ret)
