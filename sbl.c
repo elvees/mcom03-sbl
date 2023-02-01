@@ -90,18 +90,18 @@ static struct ucg_channel top_ucg_channels[] = {
 
 /* Service Subsystem PLL output frequency is 594 MHz, assuming that XTI = 27 MHz */
 static struct ucg_channel serv_ucg_channels[] = {
-	{ 1, SERV_UCG1_CHANNEL_CLK_APB, 12 }, /* 49.5 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_APB, 6 }, /* 99 MHz */
 	{ 1, SERV_UCG1_CHANNEL_CLK_CORE, 1 }, /* 594 MHz */
 	{ 1, SERV_UCG1_CHANNEL_CLK_QSPI0, 1 }, /* 594 MHz */
 	{ 1, SERV_UCG1_CHANNEL_CLK_BPAM, 1 }, /* 594 MHz */
 	{ 1, SERV_UCG1_CHANNEL_CLK_RISC0, 1 }, /* 594 MHz */
-	{ 1, SERV_UCG1_CHANNEL_CLK_MFBSP0, 12 }, /* 49.5 MHz */
-	{ 1, SERV_UCG1_CHANNEL_CLK_MFBSP1, 12 }, /* 49.5 MHz */
-	{ 1, SERV_UCG1_CHANNEL_CLK_MAILBOX0, 12 }, /* 49.5 MHz */
-	{ 1, SERV_UCG1_CHANNEL_CLK_PVTCTR, 12 }, /* 49.5 MHz */
-	{ 1, SERV_UCG1_CHANNEL_CLK_I2C4, 12 }, /* 49.5 MHz */
-	{ 1, SERV_UCG1_CHANNEL_CLK_TRNG, 12 }, /* 49.5 MHz */
-	{ 1, SERV_UCG1_CHANNEL_CLK_SPIOTP, 12 }, /* 49.5 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_MFBSP0, 6 }, /* 99 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_MFBSP1, 6 }, /* 99 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_MAILBOX0, 6 }, /* 99 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_PVTCTR, 6 }, /* 99 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_I2C4, 6 }, /* 99 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_TRNG, 6 }, /* 99 MHz */
+	{ 1, SERV_UCG1_CHANNEL_CLK_SPIOTP, 6 }, /* 99 MHz */
 	{ 1, SERV_UCG1_CHANNEL_CLK_I2C4_EXT, 12 }, /* 49.5 MHz */
 	{ 1, SERV_UCG1_CHANNEL_CLK_QSPI0_EXT, 22 }, /* 27 MHz */
 };
@@ -319,7 +319,7 @@ int main(void)
 	/* Once enabled, WDT cannot be disabled again even after
 	 * a system reset. Set WDT timeout to the maximum value (if it is
 	 * already enabled) as a workaround (2^31 clock cycles, assuming that
-	 * reference clock for WDT0 is 49.5 MHz the timeout value is ~43s).
+	 * reference clock for WDT0 is 99 MHz the timeout value is ~21s).
 	 */
 	if (readl(SERV_WDT0_BASE + SERV_WDT_CR) & SERV_WDT_EN) {
 		writel(SERV_WDT0_BASE + SERV_WDT_TORR, 0xff);
