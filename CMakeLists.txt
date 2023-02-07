@@ -6,6 +6,7 @@ set(CMAKE_BUILD_TYPE_INIT Release)
 
 project(sbl)
 
+add_subdirectory(sbl-s1)
 add_subdirectory(sbl-xip)
 
 install(FILES
