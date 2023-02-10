@@ -18,21 +18,21 @@ SECTIONS
 		*(.text.*)
 		. = ALIGN(4);
 		__ddrinit_start = ABSOLUTE(.);
-		ddrinit.o (.rodata*);
+		KEEP(ddrinit.o (.rodata*));
 		__ddrinit_end = ABSOLUTE(.);
 		. = ALIGN(4);
 		__tfa_start = ABSOLUTE(.);
-		tfa.o (.rodata*);
+		KEEP(tfa.o (.rodata*));
 		__tfa_end = ABSOLUTE(.);
 		. = ALIGN(4);
 #if defined(HAS_BL32)
 		__bl32_start = ABSOLUTE(.);
-		bl32.o (.rodata*);
+		KEEP(bl32.o (.rodata*));
 		__bl32_end = ABSOLUTE(.);
 		. = ALIGN(4);
 #endif
 		__uboot_start = ABSOLUTE(.);
-		u-boot.o (.rodata*);
+		KEEP(u-boot.o (.rodata*));
 		__uboot_end = ABSOLUTE(.);
 		. = ALIGN(4);
 	} > xip0

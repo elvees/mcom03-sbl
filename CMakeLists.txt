@@ -23,7 +23,7 @@ endif()
 
 add_compile_options(-Wall -Wno-nonnull -Werror -std=gnu99 -EL -mips32 -G0
                     -mabi=32 -fno-builtin-malloc -ffunction-sections -fdata-sections)
-add_link_options(-T ${CMAKE_CURRENT_BINARY_DIR}/link.ld
+add_link_options(-T ${CMAKE_CURRENT_BINARY_DIR}/link.ld -Wl,--gc-sections
                  -EL -nostdlib -nostartfiles -mips32 -mabi=32 -G0)
 
 if(BL32_PATH)
