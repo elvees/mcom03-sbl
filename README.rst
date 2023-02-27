@@ -1,3 +1,4 @@
+.. Copyright 2021-2023 RnD Center "ELVEES", JSC
 .. SPDX-License-Identifier: MIT
 
 ==========================
