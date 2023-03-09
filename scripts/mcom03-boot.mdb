@@ -1,66 +1,36 @@
 # SPDX-License-Identifier: MIT
 # Copyright 2023 RnD Center "ELVEES", JSC
 
-# MDB script to start ddrinit, TF-A and U-Boot on MCom-03 SoC. Script uses DDR0.
+# MDB script to start sbl-s1, ddrinit, TF-A and U-Boot on MCom-03 SoC. Script uses DDR0.
 
-set 0xbf000020 0x10
+pb python
+pb import os
+pb import sys
+pb sys.path.append('./buildroot/output/images/sbl/scripts')
+pb import helpers
+pb end
+
+# Load and run sbl-s1 to setup required clocks
+loadbin buildroot/output/images/sbl/sbl-s1.bin 0xa0000000
+hbp set 0xa0000188
+run 0xa0000000
+hbp unset 0xa0000188
+
+# Initialize and configure the TOP clock gate for MEDIA, CPU, SDR channels
+pb python
+pb top = helpers.get_32bit(0xbf001008)
+pb top_clk_gate_media = 1
+pb top_clk_gate_cpu = 2
+pb top_clk_gate_sdr = 3
+pb top |= (1 << top_clk_gate_media) | (1 << top_clk_gate_cpu) | (1 << top_clk_gate_sdr)
+pb helpers.set_32bit(0xbf001008, top)
+pb end
+
+# Load and run ddrinit to setup DDR memory
 loadbin buildroot/output/images/ddrinit-mcom03bub/ddrinit.bin 0xa0000000
-
-set 0xbf001008 0x115
-
-# All commutator clocks to bypass mode
-set 0xa1801040 0xff
-set 0xa1802040 0x1ff
-
-# Setup commutator PLL to 1188 MHz, assuming that XTI = 27 MHz
-# Should be the same as set in SBL
-set 0xa1800000 0x15c601
-
-# Don't wait for PLL lock since execution time for mdb command is quite enought.
-
-# Set dividers for commutator UCG0 and UCG1 (clocks are disabled)
-set 0xa1801000 0x1800  # 198 MHz
-set 0xa1801004 0x2000  # 148.5 MHz
-set 0xa1801008 0x1000  # 297 MHz
-set 0xa180100C 0x3000  # 99 MHz
-set 0xa1801010 0x1000  # 297 MHz
-set 0xa1801014 0x1000  # 297 MHz
-set 0xa1801018 0x3000  # 99 MHz
-set 0xa180101C 0x1000  # 297 MHz
-
-set 0xa1802000 0x3000  # 99 MHz
-set 0xa1802008 0x2000  # 148.5 MHz
-set 0xa1802010 0x1000  # 297 MHz
-set 0xa1802014 0x1000  # 297 MHz
-set 0xa1802018 0x3000  # 99 MHz
-set 0xa180201C 0x2000  # 148.5 MHz
-set 0xa1802020 0x1800  # 198 MHz
-
-# Enable UCG0 and UCG1 clocks
-set 0xa1801000 0x1802  # DDR_DP
-set 0xa1801004 0x2002  # DDR_VPU
-set 0xa1801008 0x1002  # DDR_GPU
-set 0xa180100C 0x3002  # DDR_ISP
-set 0xa1801010 0x1002  # DDR_CPU
-set 0xa1801014 0x1002  # DDR_ACP
-set 0xa1801018 0x3002  # DDR_LSPERIPH0
-set 0xa180101C 0x1002  # AXI_COH_COMM
-
-set 0xa1802000 0x3002  # AXI_SLOW_COMM
-set 0xa1802008 0x2002  # AXI_FAST_COMM
-set 0xa1802010 0x1002  # DDR_SDR_DSP
-set 0xa1802014 0x1002  # DDR_SDR_PCIE
-set 0xa1802018 0x3002  # DDR_LSPERIPH1
-set 0xa180201C 0x2002  # DDR_SERVICE
-set 0xa1802020 0x1802  # DDR_HSPERIPH
-
-# Disable bypass for commutator clocks
-set 0xa1801040 0x0
-set 0xa1802040 0x0
-
-set RISC.PC 0xa0000000
 hbp set 0xa0000100
-run
+run 0xa0000000
+hbp unset 0xa0000100
 
 # Load TF-A to 0x8_8030_0000 which is mapped to 0xc0300000
 loadbin buildroot/output/images/bl31.bin 0xc0300000

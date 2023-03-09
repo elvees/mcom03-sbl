@@ -13,7 +13,7 @@ repos:
           - --comment-style=//
       - id: insert-license
         files: ''
-        types: [cmake]
+        types_or: [cmake, python]
         args:
           - --license-filepath=.license-header
           - --comment-style=#
@@ -92,3 +92,20 @@ repos:
       - id: check-copyright
         types_or: [] # without that key check doesn't work
         files: ^.*\.mdb$
+  - repo: https://github.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        additional_dependencies:
+          - flake8-black
+  - repo: https://github.com/python/black
+    # This is the latest black version supporting Python 2.
+    # Python 2 is required for ELVEES MDB python scripts.
+    rev: 21.12b0
+    hooks:
+      - id: black
+        language_version: python3
+        additional_dependencies: ['click==8.0.4']
+        args:
+          - --line-length=100
+          - --target-version=py27
