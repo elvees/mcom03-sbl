@@ -65,4 +65,7 @@ add_custom_command(TARGET sbl.elf POST_BUILD COMMAND ${CMAKE_OBJCOPY}
 
 install(TARGETS sbl.elf DESTINATION .)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sbl.bin DESTINATION .)
-install(FILES scripts/mcom03-boot.mdb DESTINATION ./scripts)
+install(FILES
+        scripts/mcom03-boot.mdb
+        scripts/mcom03-boot-tl.mdb
+        DESTINATION ./scripts)
