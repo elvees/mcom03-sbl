@@ -42,7 +42,7 @@ setup_cpu:
 	or      a1, a1, a0
 	li      a0, (~KU_CACHE_MASK)
 	and     a1, a1, a0
-	li      a0, KU_CACHE_DISABLE
+	li      a0, KU_CACHE_ENABLE
 	or      a1, a1, a0
 	mtc0    a1, C0_CONFIG
 
