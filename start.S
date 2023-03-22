@@ -1,5 +1,5 @@
-/* Copyright 2021 RnD Center "ELVEES", JSC */
-/* SPDX-License-Identifier: MIT */
+// SPDX-License-Identifier: MIT
+// Copyright 2021 RnD Center "ELVEES", JSC
 
 #include "machine/asm.h"
 #include "machine/regdef.h"

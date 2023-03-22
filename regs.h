@@ -1,5 +1,4 @@
-/* SPDX-License-Identifier: MIT */
-
+// SPDX-License-Identifier: MIT
 // Copyright 2020-2021 RnD Center "ELVEES", JSC
 
 #ifndef __MCOM03_H__
