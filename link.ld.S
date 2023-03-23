@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: MIT */
+// Copyright 2022 RnD Center "ELVEES", JSC
 
 OUTPUT_ARCH("mips")
 

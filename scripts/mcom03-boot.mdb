@@ -1,3 +1,5 @@
+# Copyright 2023 RnD Center "ELVEES", JSC
+
 # MDB script to start ddrinit, TF-A and U-Boot on MCom-03 SoC. Script uses DDR0.
 
 set 0xbf000020 0x10

@@ -82,6 +82,9 @@ repos:
       - id: cppcheck
         args: [--enable=warning, --inline-suppr]
   - repo: https://review.elvees.com/pre-commit-hooks
-    rev: 316005076123772cef195737b0cffb4b74ca2bd0
+    rev: 53a24a4dec9736b5e4a625e75c3172299357cc22
     hooks:
       - id: check-copyright
+      - id: check-copyright
+        types_or: [] # without that key check doesn't work
+        files: ^.*\.mdb$
