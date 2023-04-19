@@ -22,8 +22,8 @@ loadbin buildroot/output/images/bl31.bin 0xc0300000
 # Load U-Boot to 0x8_9048_0000 which is mapped to 0xc0080000
 loadbin buildroot/output/images/u-boot.bin 0xc0080000
 
-# Load and run tl-common to launch TF-A and provide mailbox services
-loadbin buildroot/output/images/tl-common.bin 0x40003000
+# Load and run tl-core to launch TF-A and provide mailbox services
+loadbin buildroot/output/images/tl-core.bin 0x40003000
 set RISC.PC 0x40003000
 
 quit
