@@ -1,4 +1,4 @@
-// Copyright 2020-2021 RnD Center "ELVEES", JSC
+// Copyright 2020-2023 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
 
 #include <stdint.h>
@@ -23,6 +23,8 @@
 #define MAX_MEM_REGIONS	      4U
 #define MEM_REGIONS_VIRT_ADDR 0xC0000000
 
+#define UBOOT_DTB_VIRT_ADDR 0xC0002000
+
 #define SECURE_REGIONS_PHYS_ADDR_START 0x880000000ULL
 #define SECURE_REGIONS_PHYS_ADDR_SIZE  0x10000000ULL
 #define SECURE_REGIONS_PHYS_ADDR_MASK  (~(SECURE_REGIONS_PHYS_ADDR_SIZE - 1))
@@ -39,6 +41,7 @@
 
 extern unsigned long __ddrinit_start, __ddrinit_end;
 extern unsigned long __tfa_start, __tfa_end;
+extern unsigned long __dtb_start, __dtb_end;
 #if defined(HAS_BL32)
 extern unsigned long __bl32_start, __bl32_end;
 #endif
@@ -379,6 +382,12 @@ int main(void)
 			info->mem_regions[i].size = end - SECURE_REGIONS_PHYS_ADDR_END;
 		}
 	}
+
+	/* Relocate DTB */
+	start = (unsigned long *)&__dtb_start;
+	end = (unsigned long *)&__dtb_end;
+	size = (unsigned long)end - (unsigned long)start;
+	memcpy((void *)UBOOT_DTB_VIRT_ADDR, start, size);
 
 	/* Relocate TF-A */
 	start = (unsigned long *)&__tfa_start;

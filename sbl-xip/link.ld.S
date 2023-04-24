@@ -22,6 +22,10 @@ SECTIONS
 		KEEP(ddrinit.o (.rodata*));
 		__ddrinit_end = ABSOLUTE(.);
 		. = ALIGN(4);
+		__dtb_start = ABSOLUTE(.);
+		KEEP(dtb.o (.rodata*));
+		__dtb_end = ABSOLUTE(.);
+		. = ALIGN(4);
 		__tfa_start = ABSOLUTE(.);
 		KEEP(tfa.o (.rodata*));
 		__tfa_end = ABSOLUTE(.);

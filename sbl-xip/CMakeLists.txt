@@ -2,62 +2,95 @@
 
 project(SBL-XIP ASM C)
 
-set(DDRINIT_PATH CACHE STRING "Path to ddrinit binary")
-if(NOT DDRINIT_PATH)
-    message(FATAL_ERROR "DDRINIT_PATH is not specified")
+# The images directory must have the following structure:
+# ./<ddrinit_N>/ddrinit.bin
+# ./uboot-dtb/<dtb_name_N>.dtb
+# ./u-boot.bin
+# ./bl31.bin
+# ./bl32.bin (optionally)
+set(IMAGES_PATH CACHE STRING "Path to images directory")
+if(NOT IMAGES_PATH)
+    message(FATAL_ERROR "IMAGES_PATH is not specified")
 endif()
 
-set(TFA_PATH CACHE STRING "Path to TF-A binary")
-if(NOT TFA_PATH)
-    message(FATAL_ERROR "TFA_PATH is not specified")
-endif()
-
-set(UBOOT_PATH CACHE STRING "Path to U-Boot binary")
-if(NOT UBOOT_PATH)
-    message(FATAL_ERROR "UBOOT_PATH is not specified")
+set(DDRINIT_DTB_MAP CACHE STRING "ddrinit-DTB map")
+if(NOT DDRINIT_DTB_MAP)
+    message(FATAL_ERROR "DDRINIT_DTB_MAP is not specified")
 endif()
 
 add_compile_options(-Wall -Wno-nonnull -Werror -std=gnu99 -EL -mips32 -G0
                     -mabi=32 -fno-builtin-malloc -ffunction-sections -fdata-sections)
-add_link_options(-T ${CMAKE_CURRENT_BINARY_DIR}/link.ld -Wl,--gc-sections
-                 -EL -nostdlib -nostartfiles -mips32 -mabi=32 -G0)
 
-if(BL32_PATH)
+if(EXISTS ${IMAGES_PATH}/bl32.bin)
     add_compile_options(-DHAS_BL32=1)
 endif()
 
-add_executable(sbl-xip.elf start.S sbl.c pll.c ucg.c)
+set(BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-set_target_properties(sbl-xip.elf PROPERTIES LINK_FLAGS "-Wl,-Map=sbl-xip.map")
+string(STRIP ${DDRINIT_DTB_MAP} DDRINIT_DTB_MAP)
+string(REPLACE " " ";" DDRINIT_DTB_MAP ${DDRINIT_DTB_MAP})
 
-add_custom_command(TARGET sbl-xip.elf PRE_LINK COMMAND ${CMAKE_C_COMPILER}
-                   $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS)
-                   -E ${CMAKE_CURRENT_SOURCE_DIR}/link.ld.S -P
-                   -o ${CMAKE_CURRENT_BINARY_DIR}/link.ld)
+foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
+    # Make list from colon-divided pair to extract values
+    string(REPLACE ":" ";" DDRINIT_DTB_LIST ${DDRINIT_DTB_PAIR})
+    list(GET DDRINIT_DTB_LIST 0 DDRINIT_NAME)
+    list(GET DDRINIT_DTB_LIST 1 DTB_NAME)
 
-add_custom_command(TARGET sbl-xip.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
-                   -O elf32-littlemips -B mips --rename-section .data=.rodata
-                   ${DDRINIT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/ddrinit.o)
+    # We need to put 3rd-party artifacts to different directories
+    set(CMAKE_CURRENT_BINARY_DIR ${BINARY_DIR}/${DTB_NAME})
+    set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-add_custom_command(TARGET sbl-xip.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
-                   -O elf32-littlemips -B mips --rename-section .data=.rodata
-                   ${TFA_PATH} ${CMAKE_CURRENT_BINARY_DIR}/tfa.o)
+    add_executable(sbl-xip-${DTB_NAME}.elf start.S sbl.c pll.c ucg.c)
 
-if(BL32_PATH)
-    add_custom_command(TARGET sbl-xip.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
+    target_link_options(sbl-xip-${DTB_NAME}.elf PRIVATE -T ${CMAKE_CURRENT_BINARY_DIR}/link.ld
+                        -Wl,--gc-sections -EL -nostdlib -nostartfiles -mips32 -mabi=32 -G0)
+
+    target_link_directories(sbl-xip-${DTB_NAME}.elf PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+    set_target_properties(sbl-xip-${DTB_NAME}.elf PROPERTIES
+                          LINK_FLAGS "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/sbl-xip.map")
+
+    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_LINK COMMAND ${CMAKE_C_COMPILER}
+                       $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS)
+                       -E ${CMAKE_CURRENT_SOURCE_DIR}/link.ld.S -P
+                       -o ${CMAKE_CURRENT_BINARY_DIR}/link.ld)
+
+    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
                        -O elf32-littlemips -B mips --rename-section .data=.rodata
-                       ${BL32_PATH} ${CMAKE_CURRENT_BINARY_DIR}/bl32.o)
-endif()
+                       ${IMAGES_PATH}/ddrinit-${DDRINIT_NAME}/ddrinit.bin
+                       ${CMAKE_CURRENT_BINARY_DIR}/ddrinit.o)
 
-add_custom_command(TARGET sbl-xip.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
-                   -O elf32-littlemips -B mips --rename-section .data=.rodata
-                   ${UBOOT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/u-boot.o)
+    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
+                       -O elf32-littlemips -B mips --rename-section .data=.rodata
+                       ${IMAGES_PATH}/uboot-dtb/${DTB_NAME}.dtb
+                       ${CMAKE_CURRENT_BINARY_DIR}/dtb.o)
 
-add_custom_command(TARGET sbl-xip.elf POST_BUILD COMMAND ${CMAKE_OBJDUMP}
-                   -S sbl-xip.elf > sbl-xip.dis BYPRODUCTS sbl-xip.dis)
+    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
+                       -O elf32-littlemips -B mips --rename-section .data=.rodata
+                       ${IMAGES_PATH}/bl31.bin ${CMAKE_CURRENT_BINARY_DIR}/tfa.o)
 
-add_custom_command(TARGET sbl-xip.elf POST_BUILD COMMAND ${CMAKE_OBJCOPY}
-                   -O binary sbl-xip.elf sbl-xip.bin BYPRODUCTS sbl-xip.bin)
+    if(EXISTS ${IMAGES_PATH}/bl32.bin)
+        add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY}
+                           -I binary -O elf32-littlemips -B mips --rename-section .data=.rodata
+                           ${IMAGES_PATH}/bl32.bin ${CMAKE_CURRENT_BINARY_DIR}/bl32.o)
+    endif()
 
-install(TARGETS sbl-xip.elf DESTINATION .)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sbl-xip.bin DESTINATION .)
+    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_BUILD COMMAND ${CMAKE_OBJCOPY} -I binary
+                       -O elf32-littlemips -B mips --rename-section .data=.rodata
+                       ${IMAGES_PATH}/u-boot.bin ${CMAKE_CURRENT_BINARY_DIR}/u-boot.o)
+
+    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf POST_BUILD COMMAND ${CMAKE_OBJDUMP}
+                       -S sbl-xip-${DTB_NAME}.elf > ${CMAKE_CURRENT_BINARY_DIR}/sbl-xip.dis
+                       BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/sbl-xip.dis)
+
+    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf POST_BUILD COMMAND ${CMAKE_OBJCOPY}
+                       -O binary sbl-xip-${DTB_NAME}.elf sbl-xip-${DTB_NAME}.bin
+                       BYPRODUCTS sbl-xip-${DTB_NAME}.bin)
+
+    # Restore CMAKE_CURRENT_BINARY_DIR for successful artifacts installation
+    set(CMAKE_CURRENT_BINARY_DIR ${BINARY_DIR})
+
+    install(TARGETS sbl-xip-${DTB_NAME}.elf DESTINATION .)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sbl-xip-${DTB_NAME}.bin DESTINATION .)
+endforeach()
