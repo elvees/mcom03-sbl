@@ -16,6 +16,13 @@ hbp set 0xa0000100
 run 0xa0000000
 hbp unset 0xa0000100
 
+# Load and run set-secure-regions.elf to setup Secure Regions and
+# to take them into account in the DDR memory map
+loadelf buildroot/output/images/sbl/scripts/set-secure-regions.elf
+hbp set jtag
+run
+hbp unset jtag
+
 # Load U-Boots dtb to 0x8_9040_2000 which is mapped to 0xC0002000
 loadbin buildroot/output/images/uboot-dtb/mcom03-bub-r1.3.0.dtb 0xC0002000
 

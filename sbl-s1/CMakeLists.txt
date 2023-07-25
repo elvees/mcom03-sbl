@@ -12,6 +12,9 @@ execute_process(
 
 string(STRIP "${PROJECT_NAME} (${CMAKE_BUILD_TYPE}): ${COMMIT}" VERSION_STRING)
 
+# Get common library include path
+get_target_property(COMMON_INCLUDE_DIRECTORIES common INCLUDE_DIRECTORIES)
+
 add_executable(${PROJECT_NAME}.elf
                drivers/gpio.c
                drivers/hs-periph-urb.c
@@ -27,7 +30,8 @@ add_executable(${PROJECT_NAME}.elf
 
 target_include_directories(${PROJECT_NAME}.elf PRIVATE
                            ${CMAKE_CURRENT_SOURCE_DIR}
-                           ${CMAKE_CURRENT_SOURCE_DIR}/include)
+                           ${CMAKE_CURRENT_SOURCE_DIR}/include
+                           ${COMMON_INCLUDE_DIRECTORIES})
 
 if(PRESETUP_UARTS)
     target_compile_definitions(${PROJECT_NAME}.elf PRIVATE -DPRESETUP_UARTS)
