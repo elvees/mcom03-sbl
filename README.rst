@@ -1,6 +1,8 @@
 .. Copyright 2021-2023 RnD Center "ELVEES", JSC
 .. SPDX-License-Identifier: MIT
 
+.. Для просмотра документа в терминале использовать "rst2man README.rst | man -l -".
+
 ==========================
 Secondary Bootloader (SBL)
 ==========================
