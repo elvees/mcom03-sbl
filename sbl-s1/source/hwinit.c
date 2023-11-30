@@ -146,6 +146,11 @@ int main(void)
 		goto exit;
 	}
 
+#ifdef PRESETUP_UARTS
+	if (wdt_is_enabled(&wdt0))
+		uart_printf(&uart, "WDT0 is already enabled\r\n");
+#endif /* PRESETUP_UARTS */
+
 	ret_code = wdt_start(&wdt0);
 	if (ret_code != MCOM03_SUCCESS) {
 		goto exit;
