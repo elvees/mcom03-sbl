@@ -43,10 +43,10 @@ struct ucg_channel {
 /* Interconnect PLL output frequency is 1188 MHz, assuming that XTI = 27 MHz */
 static struct ucg_channel interconnect_ucg_channels[] = {
 	{ 0, 0, 6, true }, /* DP           198 MHz */
-	{ 0, 1, 8, true }, /* VPU        148.5 MHz */
+	{ 0, 1, 4, true }, /* VPU          297 MHz */
 	{ 0, 2, 4, true }, /* GPU          297 MHz */
-	{ 0, 3, 12, true }, /* ISP           99 MHz */
-	{ 0, 4, 4, true }, /* CPU          297 MHz */
+	{ 0, 3, 6, true }, /* ISP          198 MHz */
+	{ 0, 4, 2, true }, /* CPU          594 MHz */
 	{ 0, 5, 4, true }, /* ACP          297 MHz */
 	{ 0, 6, 12, true }, /* LSP0          99 MHz */
 	{ 0, 7, 2, true }, /* COH_COMM    594  MHz */
