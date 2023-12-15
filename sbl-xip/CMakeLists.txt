@@ -19,7 +19,7 @@ if(NOT DDRINIT_DTB_MAP)
 endif()
 
 add_compile_options(-Wall -Wno-nonnull -Werror -std=gnu99 -EL -mips32 -G0
-                    -mabi=32 -fno-builtin-malloc -ffunction-sections -fdata-sections)
+                    -mabi=32 -fno-builtin -ffunction-sections -fdata-sections)
 
 if(EXISTS ${IMAGES_PATH}/bl32.bin)
     add_compile_options(-DHAS_BL32=1)
@@ -41,7 +41,7 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-    add_executable(sbl-xip-${DTB_NAME}.elf start.S sbl.c pll.c ucg.c)
+    add_executable(sbl-xip-${DTB_NAME}.elf start.S sbl.c pll.c ucg.c printf.c)
 
     # Link common static library
     get_target_property(COMMON_INCLUDE_DIRECTORIES common INCLUDE_DIRECTORIES)

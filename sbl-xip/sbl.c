@@ -4,11 +4,16 @@
 #include <stdint.h>
 #include <string.h>
 #include <common.h>
+#include "printf.h"
 #include "mips/m32c0.h"
 #include "bitops.h"
 #include "ucg.h"
 #include "pll.h"
 #include "regs.h"
+
+#define PREFIX "SBL-XIP"
+
+#define INFO(msg, ...) printf(PREFIX ": " msg, ##__VA_ARGS__)
 
 #define PP_OFF	    0x01
 #define PP_WARM_RST 0x08
@@ -20,6 +25,47 @@
 #define BL32_START_ADDR_VIRT	0xC1380000
 #define UBOOT_START_ADDR_VIRT	0xC0080000
 #define UBOOT_DTB_ADDR_VIRT	0xC0002000
+
+#define TIMER_FREQ 27000000
+#define USEC	   1ULL
+#define MSEC	   1000ULL
+#define SEC	   1000000ULL
+
+#define UART0_SOUT_PIN	  GPIO_PIN_6
+#define UART0_SIN_PIN	  GPIO_PIN_7
+#define UART0_LCR_DEFAULT 3 /* 8 bit, no parity, 1 stop bit. */
+#define UART0_BASE_FREQ	  27000000
+#define UART0_BAUDRATE	  115200
+
+#define DIV_ROUND_UP(n, d) (((n) + (d)-1) / (d))
+#define DIV_ROUND_CLOSEST(x, divisor)                                             \
+	({                                                                        \
+		typeof(x) __x = x;                                                \
+		typeof(divisor) __d = divisor;                                    \
+		(((typeof(x))-1) > 0 || ((typeof(divisor))-1) > 0 || (__x) > 0) ? \
+			(((__x) + ((__d) / 2)) / (__d)) :                         \
+			(((__x) - ((__d) / 2)) / (__d));                          \
+	})
+
+#define read_poll_timeout(op, val, cond, sleep_us, timeout_us, args...) \
+	({                                                              \
+		int timeout = timer_get_usec() + timeout_us;            \
+		for (;;) {                                              \
+			(val) = op(args);                               \
+			if (cond)                                       \
+				break;                                  \
+			if (timer_get_usec() > timeout) {               \
+				(val) = op(args);                       \
+				break;                                  \
+			}                                               \
+			if (sleep_us)                                   \
+				delay_usec(sleep_us);                   \
+		}                                                       \
+		(cond) ? 0 : -1;                                        \
+	})
+
+#define readl_poll_timeout(val, cond, sleep_us, timeout_us, addr) \
+	read_poll_timeout(readl, val, cond, sleep_us, timeout_us, addr)
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -113,6 +159,65 @@ static inline ucg_regs_t *ucg_get_service_registers(void)
 static inline ucg_regs_t *ucg_get_cpu_registers(void)
 {
 	return (ucg_regs_t *)(CPU_UCG_BASE);
+}
+
+static inline ucg_regs_t *ucg_get_lsp1_registers(void)
+{
+	return (ucg_regs_t *)(LSP1_SUBS_UCG_BASE);
+}
+
+static uint64_t usec_to_tick(int usec)
+{
+	return (uint64_t)usec * TIMER_FREQ / SEC;
+}
+
+static uint64_t get_ticks(void)
+{
+	static uint32_t timebase_h, timebase_l;
+	uint32_t now = ~readl(DW_APB_CURRENT_VALUE(0));
+
+	/* Increment tbh if tbl has rolled over */
+	if (now < timebase_l)
+		timebase_h++;
+	timebase_l = now;
+	return ((uint64_t)timebase_h << 32) | timebase_l;
+}
+
+void delay_usec(int usec)
+{
+	uint64_t tmp;
+
+	/* Get current timestamp */
+	tmp = get_ticks() + usec_to_tick(usec);
+
+	/* Loop till event */
+	while (get_ticks() < tmp + 1)
+		/*NOP*/;
+}
+
+int timer_get_usec(void)
+{
+	return get_ticks() * SEC / TIMER_FREQ;
+}
+
+int putchar(int c)
+{
+	int ret;
+	uint32_t val = 0;
+
+	while (1) {
+		ret = readl_poll_timeout(val, val & UART_LSR_THRE, USEC, 100 * USEC, UART_LSR);
+		if (ret)
+			return ret;
+
+		writel(UART_THR, c);
+		if (c == '\n')
+			c = '\r';
+		else
+			break;
+	}
+
+	return 0;
 }
 
 void *memcpy(void *dest, const void *src, size_t count)
@@ -286,6 +391,96 @@ static int start_arm_cpu(void)
 	return 0;
 }
 
+int lsp1_set_clock(void)
+{
+	int ret;
+
+	/* Release reset signal of LS Peripheral 1 */
+	set_ppolicy(SERV_LSP1_PPOLICY, PP_ON);
+
+	/* Initialize the UCG register for clocking GPIO1 and UART0 */
+	ucg_regs_t *ucg = ucg_get_lsp1_registers();
+
+	ret = ucg_enable_bp(ucg, LSP1_SUBS_UCG_ALL_CH_MASK);
+	if (ret)
+		return ret;
+
+	ret = ucg_set_divider(ucg, LSP1_SUBS_UCG_CLK_GPIO1, 1, 1000);
+	if (ret)
+		return ret;
+
+	ret = ucg_set_divider(ucg, LSP1_SUBS_UCG_CLK_UART0, 1, 1000);
+	if (ret)
+		return ret;
+
+	ret = ucg_set_divider(ucg, LSP1_SUBS_UCG_CLK_TIMERS, 1, 1000);
+	if (ret)
+		return ret;
+
+	ret = ucg_sync_and_disable_bp(ucg, LSP1_SUBS_UCG_ALL_CH_MASK, LSP1_SUBS_UCG_SYNC_MASK);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+void uart0_gpio_init(unsigned int pin, unsigned int direction)
+{
+	unsigned int swportb_ddr = readl(LSP1_SUBS_GPIO1_SWPORTB_DDR);
+	unsigned int swportb_ctl = readl(LSP1_SUBS_GPIO1_SWPORTB_CTL);
+
+	/* Set pin direction */
+	if (direction == GPIO_DIR_OUTPUT)
+		swportb_ddr |= BIT(pin);
+	else
+		swportb_ddr &= ~(BIT(pin));
+
+	/* Set hw mode */
+	swportb_ctl |= BIT(pin);
+
+	writel(LSP1_SUBS_GPIO1_SWPORTB_DDR, swportb_ddr);
+	writel(LSP1_SUBS_GPIO1_SWPORTB_CTL, swportb_ctl);
+}
+
+int uart0_enable(void)
+{
+	uint16_t divisor;
+	uint32_t val;
+
+	/* Initialize GPIO1 PORTB PIN6 and PIN7 for UART 0 */
+	uart0_gpio_init(UART0_SOUT_PIN, GPIO_DIR_OUTPUT);
+	uart0_gpio_init(UART0_SIN_PIN, GPIO_DIR_INPUT);
+
+	val = FIELD_PREP(LSP1_SUBS_GPIO1_PORTBN_PADCTR_SL, 3) |
+	      FIELD_PREP(LSP1_SUBS_GPIO1_PORTBN_PADCTR_CTL, PAD_DRIVER_STREGTH_6mA);
+	writel(LSP1_SUBS_GPIO1_PORTBN_PADCTR(UART0_SOUT_PIN), val);
+
+	val |= FIELD_PREP(LSP1_SUBS_GPIO1_PORTBN_PADCTR_SUS, 1) |
+	       FIELD_PREP(LSP1_SUBS_GPIO1_PORTBN_PADCTR_E, 1);
+	writel(LSP1_SUBS_GPIO1_PORTBN_PADCTR(UART0_SIN_PIN), val);
+
+	/* Set baudrate */
+	divisor = DIV_ROUND_CLOSEST(UART0_BASE_FREQ, UART0_BAUDRATE * 16);
+	writel(UART_LCR, UART0_LCR_DEFAULT | UART_LCR_DLAB);
+	writel(UART_DLH, divisor >> 8);
+	writel(UART_DLL, divisor);
+	writel(UART_LCR, UART0_LCR_DEFAULT);
+
+	/* Make sure last LCR write wasn't ignored */
+	while (readl(UART_LCR) != UART0_LCR_DEFAULT) {
+		writel(UART_FCR, 0);
+		writel(UART_FCR, UART_FCR_FIFOE);
+		writel(UART_FCR, UART_FCR_FIFOE | UART_FCR_XFIFOR | UART_FCR_RFIFOR);
+		readl(UART_THR);
+		writel(UART_LCR, UART0_LCR_DEFAULT);
+	}
+
+	writel(UART_IER, 0);
+	writel(UART_MCR, UART_MCR_DTR | UART_MCR_RTS);
+
+	return 0;
+}
+
 int main(void)
 {
 	int ret;
@@ -313,7 +508,22 @@ int main(void)
 	if (ret)
 		goto exit;
 
+	/* Initialize and configure the LS Peripheral 1 clocking system */
+	ret = lsp1_set_clock();
+	if (ret)
+		goto exit;
+
+	/* Init timer */
+	writel(DW_APB_LOAD_COUNT(0), 0);
+	writel(DW_APB_CTRL(0), 0x5);
+
+	/* Initialize and configure the UART0 */
+	ret = uart0_enable();
+	if (ret)
+		return ret;
+
 	/* Relocate ddrinit */
+	INFO("Load images ... \n");
 	unsigned long *start = (unsigned long *)&__ddrinit_start;
 	unsigned long *end = (unsigned long *)&__ddrinit_end;
 	uint32_t size = (unsigned long)end - (unsigned long)start;
@@ -378,6 +588,7 @@ int main(void)
 	set_ppolicy(LSP1_SUBS_I2S_UCG1_RSTN_PPOLICY_REG, PP_ON);
 
 	/* Initialize and configure the CPU clocking system and run it */
+	INFO("Done.\nRun TF-A ... \n");
 	ret = start_arm_cpu();
 	if (ret)
 		goto exit;

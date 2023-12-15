@@ -2,6 +2,7 @@
 // Copyright 2022 RnD Center "ELVEES", JSC
 
 OUTPUT_ARCH("mips")
+GROUP(-lgcc)
 
 ENTRY(_start)
 
