@@ -9,7 +9,7 @@
 #include <stdbool.h>
 
 #include <mcom03-errors.h>
-#include <utils-def-exp.h>
+#include <utils-def.h>
 
 /* --------  PLL_CFG : (R/W 32) PLL Configuration Register -------- */
 typedef uint32_t pll_cfg_reg_t;

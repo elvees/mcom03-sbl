@@ -4,7 +4,7 @@
 #ifndef __HS_URB_H__
 #define __HS_URB_H__
 
-#include <utils-def-exp.h>
+#include <utils-def.h>
 #include <mcom03.h>
 
 /**

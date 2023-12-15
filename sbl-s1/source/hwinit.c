@@ -30,8 +30,6 @@
 #define UART1_SOUT_PIN GPIO_PIN_6
 #define UART1_SIN_PIN  GPIO_PIN_5
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
 #define INTERCONNECT_PLL_ADDR (BASE_ADDR_TOP_URB_BASE)
 #define SERVICE_PLL_ADDR      (BASE_ADDR_SERVICE_URB + 0x1000)
 
@@ -253,8 +251,9 @@ mcom_err_t uart_subs_init(void)
 	ucg_sync_and_disable_bp(lsp1_ucg, lsp1_ucg_mask);
 
 	/* Initialize GPIO for UART 0 */
-	gpio1_init(UART0_PORT, UART0_SIN_PIN, GPIO_MODE_HW, GPIO_DIR_INPUT);
-	gpio1_init(UART0_PORT, UART0_SOUT_PIN, GPIO_MODE_HW, GPIO_DIR_OUTPUT);
+	gpio_regs_t *gpio1 = gpio_get_registers((void *)BASE_ADDR_LS1_GPIO1_BASE);
+	gpio_init(gpio1, UART0_PORT, UART0_SIN_PIN, GPIO_MODE_HW, GPIO_DIR_INPUT);
+	gpio_init(gpio1, UART0_PORT, UART0_SOUT_PIN, GPIO_MODE_HW, GPIO_DIR_OUTPUT);
 
 	/* Initialize the UCG register for clocking LS Peripheral 0 */
 	ucg_regs_t *lsp0_ucg = ucg_get_ls_periph0_registers(0);
@@ -270,8 +269,9 @@ mcom_err_t uart_subs_init(void)
 	ucg_sync_and_disable_bp(lsp0_ucg, lsp0_ucg_mask);
 
 	/* Initialize GPIO for UART 1 */
-	gpio0_init(UART1_PORT, UART1_SIN_PIN, GPIO_MODE_HW, GPIO_DIR_INPUT);
-	gpio0_init(UART1_PORT, UART1_SOUT_PIN, GPIO_MODE_HW, GPIO_DIR_OUTPUT);
+	gpio_regs_t *gpio0 = gpio_get_registers((void *)BASE_ADDR_LS0_GPIO0_BASE);
+	gpio_init(gpio0, UART1_PORT, UART1_SIN_PIN, GPIO_MODE_HW, GPIO_DIR_INPUT);
+	gpio_init(gpio0, UART1_PORT, UART1_SOUT_PIN, GPIO_MODE_HW, GPIO_DIR_OUTPUT);
 
 	return ret_code;
 }

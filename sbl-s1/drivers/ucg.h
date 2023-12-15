@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include <utils-def-exp.h>
+#include <utils-def.h>
 #include <mcom03-errors.h>
 
 /**
