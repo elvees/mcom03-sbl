@@ -5,13 +5,6 @@ project(sbl-s1 ASM C)
 set(WDT_ENABLE TRUE CACHE BOOL "WDT is enabled")
 set(PRESETUP_UARTS TRUE CACHE BOOL "Pre-setup UART")
 
-execute_process(
-    COMMAND git describe --always --dirty
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    OUTPUT_VARIABLE COMMIT)
-
-string(STRIP "${PROJECT_NAME} (${CMAKE_BUILD_TYPE}): ${COMMIT}" VERSION_STRING)
-
 # Get common library include path
 get_target_property(COMMON_INCLUDE_DIRECTORIES common INCLUDE_DIRECTORIES)
 
@@ -48,9 +41,6 @@ else()
         target_compile_definitions(${PROJECT_NAME}.elf PRIVATE -DWDT_USE)
     endif()
 endif()
-
-target_compile_definitions(${PROJECT_NAME}.elf PRIVATE
-                           -DVERSION_STRING="${VERSION_STRING}")
 
 target_compile_options(${PROJECT_NAME}.elf PRIVATE
                        -Wall -Wno-nonnull -Werror -std=c99 -EL -mips32 -G0

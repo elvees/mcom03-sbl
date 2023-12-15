@@ -522,6 +522,11 @@ int main(void)
 	if (ret)
 		return ret;
 
+	printf(PREFIX " (" __DATE__ " - " __TIME__ "): " COMMIT "\r\n");
+#ifdef BUILD_ID
+	printf(PREFIX ": Build: %s\r\n", BUILD_ID);
+#endif
+
 	/* Relocate ddrinit */
 	INFO("Load images ... \n");
 	unsigned long *start = (unsigned long *)&__ddrinit_start;

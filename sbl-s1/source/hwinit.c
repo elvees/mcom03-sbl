@@ -20,6 +20,8 @@
 #include "drivers/ucg.h"
 #include "drivers/wdt.h"
 
+#define PREFIX "SBL-S1"
+
 #define UART0_PORT     GPIO_PORTB
 #define UART0_SOUT_PIN GPIO_PIN_6
 #define UART0_SIN_PIN  GPIO_PIN_7
@@ -123,7 +125,11 @@ int main(void)
 		goto exit;
 	}
 
-	uart_printf(&uart, "%s\r\n", VERSION_STRING);
+	uart_printf(&uart, PREFIX " (" __DATE__ " - " __TIME__ "): " COMMIT "\r\n");
+#ifdef BUILD_ID
+	uart_printf(&uart, PREFIX ": Build: %s\r\n", BUILD_ID);
+#endif
+
 #endif /* PRESETUP_UARTS */
 
 	/* Initialize and configure the RISC0 clocking system */
