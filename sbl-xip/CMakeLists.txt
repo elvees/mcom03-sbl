@@ -13,11 +13,6 @@ if(NOT IMAGES_PATH)
     message(FATAL_ERROR "IMAGES_PATH is not specified")
 endif()
 
-set(DDRINIT_DTB_MAP CACHE STRING "ddrinit-DTB map")
-if(NOT DDRINIT_DTB_MAP)
-    message(FATAL_ERROR "DDRINIT_DTB_MAP is not specified")
-endif()
-
 add_compile_options(-Wall -Wno-nonnull -Werror -std=gnu99 -EL -mips32 -G0
                     -mabi=32 -fno-builtin -ffunction-sections -fdata-sections)
 
@@ -27,8 +22,9 @@ endif()
 
 set(BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
+file(READ ${DDRINIT_DTB_MAP_FILE} DDRINIT_DTB_MAP)
 string(STRIP ${DDRINIT_DTB_MAP} DDRINIT_DTB_MAP)
-string(REPLACE " " ";" DDRINIT_DTB_MAP ${DDRINIT_DTB_MAP})
+string(REPLACE "\n" ";" DDRINIT_DTB_MAP ${DDRINIT_DTB_MAP})
 
 foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     # Make list from colon-divided pair to extract values

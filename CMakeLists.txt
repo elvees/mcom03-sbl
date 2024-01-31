@@ -6,6 +6,11 @@ set(CMAKE_BUILD_TYPE_INIT Release)
 
 project(sbl)
 
+set(DDRINIT_DTB_MAP_FILE CACHE PATH "ddrinit-DTB map file")
+if(NOT EXISTS ${DDRINIT_DTB_MAP_FILE})
+    message(FATAL_ERROR "Map file ${DDRINIT_DTB_MAP_FILE} doesn't exist")
+endif()
+
 set(GIT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "Git DIR")
 
 execute_process(

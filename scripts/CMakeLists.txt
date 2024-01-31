@@ -8,4 +8,5 @@ install(FILES
         helpers.py
         mcom03-boot.mdb
         mcom03-boot-tl.mdb
+        ${DDRINIT_DTB_MAP_FILE}
         DESTINATION ./scripts)
