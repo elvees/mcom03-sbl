@@ -6,8 +6,15 @@
 pb python
 pb import os
 pb import sys
-pb sys.path.append('./buildroot/output/images/sbl/scripts')
+pb IMAGES_PATH = 'buildroot/output/images'
+pb SCRIPTS_PATH = '%s/sbl/scripts' % IMAGES_PATH
+pb sys.path.append(SCRIPTS_PATH)
 pb import helpers
+pb end
+
+pb python
+pb dtb = os.environ.get('MDB_DTB_FILE', 'mcom03-bub-r1.3.0.dtb')
+pb board = helpers.parse_ddrinit_dtb_map('%s/ddrinit-dtb-map.txt' % SCRIPTS_PATH, dtb)
 pb end
 
 # Load and run sbl-s1 to setup required clocks
@@ -27,7 +34,7 @@ pb helpers.set_32bit(0xbf001008, top)
 pb end
 
 # Load and run ddrinit to setup DDR memory
-loadbin buildroot/output/images/ddrinit-mcom03bub/ddrinit.bin 0xa0000000
+py helpers.loadbin('%s/ddrinit-%s/ddrinit.bin' % (IMAGES_PATH, board), 0xa0000000)
 hbp set 0xa0000100
 run 0xa0000000
 hbp unset 0xa0000100
@@ -40,7 +47,7 @@ run
 hbp unset jtag
 
 # Load U-Boots dtb to 0x8_9040_2000 which is mapped to 0xC0002000
-loadbin buildroot/output/images/uboot-dtb/mcom03-bub-r1.3.0.dtb 0xC0002000
+py helpers.loadbin('%s/uboot-dtb/%s' % (IMAGES_PATH, dtb), 0xC0002000)
 
 # Load TF-A to 0x8_8030_0000 which is mapped to 0xc0300000
 loadbin buildroot/output/images/bl31.bin 0xc0300000

@@ -4,6 +4,27 @@
 import mdb
 
 
+def parse_ddrinit_dtb_map(map_file, dtb_file):
+    with open(map_file) as f:
+        map_ = f.read()
+    dtb = dtb_file.strip(".dtb")
+
+    board = None
+    for line in map_.splitlines():
+        if dtb not in line:
+            continue
+        board = line.split(":")[0]
+        break
+
+    if not board:
+        raise ValueError("{0} not in {1}".format(dtb, map_file))
+    return board
+
+
+def loadbin(file, addr):
+    mdb.execute("loadbin {0} 0x{1:x}".format(file, addr))
+
+
 # Declare setters and getters
 def set_32bit(addr, val):
     mdb.execute("set 0x{0:x} 0x{1:x}".format(addr, val & 0xFFFFFFFF))
