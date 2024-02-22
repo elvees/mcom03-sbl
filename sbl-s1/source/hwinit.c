@@ -441,8 +441,8 @@ mcom_err_t soc_debug_disable(void)
 
 	/* Disable Clock Service Subs UCG1 CH3 & CH15 */
 	if (bpam_enable || risc0_tck_enable) {
-		uint32_t ucg_ena_mask =
-			(SERVICE_UCG1_CHANNEL_CLK_BPAM | SERVICE_UCG1_CHANNEL_RISC0_TCK_UCG);
+		uint32_t ucg_ena_mask = (1 << SERVICE_UCG1_CHANNEL_CLK_BPAM) |
+					(1 << SERVICE_UCG1_CHANNEL_RISC0_TCK_UCG);
 
 		ucg_enable_bp(serv_ucg, ucg_ena_mask);
 
