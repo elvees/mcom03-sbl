@@ -65,7 +65,7 @@ void ucg_enable_bp(ucg_regs_t *ucg, uint32_t ch_mask)
 }
 
 mcom_err_t ucg_set_divider(ucg_regs_t *ucg, uint32_t ucg_id, uint32_t div, bool enable,
-			   uint32_t timeout)
+                           uint32_t timeout)
 {
 	if (ucg == NULL) {
 		return MCOM03_ERROR_NULL;
@@ -216,7 +216,7 @@ mcom_err_t ucg_get_state(ucg_regs_t *ucg, uint32_t ucg_id, uint32_t *div, bool *
 
 	if ((((ucg_ctr_reg & UCG_CTR_REG_CLK_EN) >> UCG_CTR_REG_CLK_EN_Pos) == 0) &&
 	    (ucg->UCG_CTR_REG[ucg_id] & UCG_CTR_REG_Q_FSM_STATE_Msk) ==
-		    UCG_CTR_REG_Q_FSM_STATE(UCG_Q_FSM_STATE_STOPPED)) {
+	            UCG_CTR_REG_Q_FSM_STATE(UCG_Q_FSM_STATE_STOPPED)) {
 		*enable = false;
 	}
 

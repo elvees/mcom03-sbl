@@ -15,27 +15,27 @@
 
 #define INFO(msg, ...) printf(PREFIX ": " msg, ##__VA_ARGS__)
 
-#define PP_OFF	    0x01
+#define PP_OFF      0x01
 #define PP_WARM_RST 0x08
-#define PP_ON	    0x10
+#define PP_ON       0x10
 
 #define DDRINIT_START_ADDR_VIRT 0xA0000000
-#define TFA_START_ADDR_VIRT	0xC0300000
-#define TFA_START_ADDR_PHYS	0x880300000
-#define BL32_START_ADDR_VIRT	0xC1380000
-#define UBOOT_START_ADDR_VIRT	0xC0080000
-#define UBOOT_DTB_ADDR_VIRT	0xC0002000
+#define TFA_START_ADDR_VIRT     0xC0300000
+#define TFA_START_ADDR_PHYS     0x880300000
+#define BL32_START_ADDR_VIRT    0xC1380000
+#define UBOOT_START_ADDR_VIRT   0xC0080000
+#define UBOOT_DTB_ADDR_VIRT     0xC0002000
 
 #define TIMER_FREQ 27000000
-#define USEC	   1ULL
-#define MSEC	   1000ULL
-#define SEC	   1000000ULL
+#define USEC       1ULL
+#define MSEC       1000ULL
+#define SEC        1000000ULL
 
-#define UART0_SOUT_PIN	  GPIO_PIN_6
-#define UART0_SIN_PIN	  GPIO_PIN_7
+#define UART0_SOUT_PIN    GPIO_PIN_6
+#define UART0_SIN_PIN     GPIO_PIN_7
 #define UART0_LCR_DEFAULT 3 /* 8 bit, no parity, 1 stop bit. */
-#define UART0_BASE_FREQ	  27000000
-#define UART0_BAUDRATE	  115200
+#define UART0_BASE_FREQ   27000000
+#define UART0_BAUDRATE    115200
 
 #define DIV_ROUND_UP(n, d) (((n) + (d)-1) / (d))
 #define DIV_ROUND_CLOSEST(x, divisor)                                             \
@@ -276,7 +276,7 @@ int top_set_clock(void)
 	/* Set dividers */
 	for (int i = 0; i < ARRAY_SIZE(top_ucg_channels); i++) {
 		ret = ucg_set_divider(top_ucg[top_ucg_channels[i].ucg_id],
-				      top_ucg_channels[i].chan_id, top_ucg_channels[i].div, 1000);
+		                      top_ucg_channels[i].chan_id, top_ucg_channels[i].div, 1000);
 		if (ret) {
 			return ret;
 		}
@@ -321,7 +321,7 @@ int service_set_clock(void)
 	/* Setup UCG1 Divider */
 	for (int i = 0; i < ARRAY_SIZE(serv_ucg_channels); i++) {
 		ret = ucg_set_divider(serv_ucg, serv_ucg_channels[i].chan_id,
-				      serv_ucg_channels[i].div, 1000);
+		                      serv_ucg_channels[i].div, 1000);
 		if (ret)
 			return ret;
 	}
@@ -371,7 +371,7 @@ static int start_arm_cpu(void)
 	/* Set dividers */
 	for (int i = 0; i < ARRAY_SIZE(cpu_ucg_channels); i++) {
 		ret = ucg_set_divider(cpu_ucg, cpu_ucg_channels[i].chan_id, cpu_ucg_channels[i].div,
-				      1000);
+		                      1000);
 		if (ret) {
 			return ret;
 		}

@@ -12,7 +12,7 @@
 	})
 
 int gpio_init(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned int mode,
-	      unsigned int direction)
+              unsigned int direction)
 {
 	if (!gpio)
 		return -1;

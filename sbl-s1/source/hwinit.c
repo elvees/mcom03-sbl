@@ -106,8 +106,8 @@ int main(void)
 
 	/* Initialize and configure the TOP clock gate */
 	uint32_t top_clkgate = (SERVICE_TOP_CLK_GATE_SERVICE) | (SERVICE_TOP_CLK_GATE_LSPERIPH0) |
-			       (SERVICE_TOP_CLK_GATE_LSPERIPH1) | (SERVICE_TOP_CLK_GATE_HSPERIPH) |
-			       (SERVICE_TOP_CLK_GATE_DDR) | (SERVICE_TOP_CLK_GATE_TOP_INTERCONNECT);
+	                       (SERVICE_TOP_CLK_GATE_LSPERIPH1) | (SERVICE_TOP_CLK_GATE_HSPERIPH) |
+	                       (SERVICE_TOP_CLK_GATE_DDR) | (SERVICE_TOP_CLK_GATE_TOP_INTERCONNECT);
 
 	mmio_write_32(SERV_URB_TOP_CLKGATE, top_clkgate);
 
@@ -221,7 +221,7 @@ mcom_err_t uart_subs_init(void)
 	uint32_t top_clkgate = mmio_read_32(SERV_URB_TOP_CLKGATE);
 
 	top_clkgate |= (SERVICE_TOP_CLK_GATE_LSPERIPH0) | (SERVICE_TOP_CLK_GATE_LSPERIPH1) |
-		       (SERVICE_TOP_CLK_GATE_HSPERIPH);
+	               (SERVICE_TOP_CLK_GATE_HSPERIPH);
 
 	mmio_write_32(SERV_URB_TOP_CLKGATE, top_clkgate);
 
@@ -312,8 +312,8 @@ mcom_err_t service_set_clock(void)
 	/* Setup UCG1 Divider */
 	for (int i = 0; i < ARRAY_SIZE(mcom03_risc0_ucg_param); i++) {
 		ret_code = ucg_set_divider(ucg, mcom03_risc0_ucg_param[i].chan_id,
-					   mcom03_risc0_ucg_param[i].div,
-					   mcom03_risc0_ucg_param[i].enable, 1000);
+		                           mcom03_risc0_ucg_param[i].div,
+		                           mcom03_risc0_ucg_param[i].enable, 1000);
 		if (ret_code != MCOM03_SUCCESS) {
 			return ret_code;
 		}
@@ -384,18 +384,18 @@ mcom_err_t interconnect_set_clock(void)
 	for (int i = 0; i < ARRAY_SIZE(interconnect_ucg_channels); i++) {
 		if (interconnect_ucg_channels[i].ucg_id == 0) {
 			ret_code = ucg_set_divider(interconnect_ucg0,
-						   interconnect_ucg_channels[i].chan_id,
-						   interconnect_ucg_channels[i].div,
-						   interconnect_ucg_channels[i].enable, 1000);
+			                           interconnect_ucg_channels[i].chan_id,
+			                           interconnect_ucg_channels[i].div,
+			                           interconnect_ucg_channels[i].enable, 1000);
 			if (ret_code != MCOM03_SUCCESS) {
 				return ret_code;
 			}
 		}
 		if (interconnect_ucg_channels[i].ucg_id == 1) {
 			ret_code = ucg_set_divider(interconnect_ucg1,
-						   interconnect_ucg_channels[i].chan_id,
-						   interconnect_ucg_channels[i].div,
-						   interconnect_ucg_channels[i].enable, 1000);
+			                           interconnect_ucg_channels[i].chan_id,
+			                           interconnect_ucg_channels[i].div,
+			                           interconnect_ucg_channels[i].enable, 1000);
 			if (ret_code != MCOM03_SUCCESS) {
 				return ret_code;
 			}
@@ -435,25 +435,25 @@ mcom_err_t soc_debug_disable(void)
 		return ret_code;
 
 	ret_code = ucg_get_state(serv_ucg, SERVICE_UCG1_CHANNEL_RISC0_TCK_UCG, &risc0_tck_div,
-				 &risc0_tck_enable);
+	                         &risc0_tck_enable);
 	if (ret_code != MCOM03_SUCCESS)
 		return ret_code;
 
 	/* Disable Clock Service Subs UCG1 CH3 & CH15 */
 	if (bpam_enable || risc0_tck_enable) {
 		uint32_t ucg_ena_mask = (1 << SERVICE_UCG1_CHANNEL_CLK_BPAM) |
-					(1 << SERVICE_UCG1_CHANNEL_RISC0_TCK_UCG);
+		                        (1 << SERVICE_UCG1_CHANNEL_RISC0_TCK_UCG);
 
 		ucg_enable_bp(serv_ucg, ucg_ena_mask);
 
 		ret_code = ucg_set_divider(serv_ucg, SERVICE_UCG1_CHANNEL_CLK_BPAM, bpam_div, false,
-					   1000);
+		                           1000);
 		if (ret_code != MCOM03_SUCCESS) {
 			return ret_code;
 		}
 
 		ret_code = ucg_set_divider(serv_ucg, SERVICE_UCG1_CHANNEL_RISC0_TCK_UCG,
-					   risc0_tck_div, false, 1000);
+		                           risc0_tck_div, false, 1000);
 		if (ret_code != MCOM03_SUCCESS) {
 			return ret_code;
 		}

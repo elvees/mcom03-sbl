@@ -9,12 +9,12 @@
 
 #define get_num_va_args(_args, _lcount)                   \
 	(((_lcount) > 1) ? va_arg(_args, long long int) : \
-			   (((_lcount) == 1) ? va_arg(_args, long int) : va_arg(_args, int)))
+	                   (((_lcount) == 1) ? va_arg(_args, long int) : va_arg(_args, int)))
 
 #define get_unum_va_args(_args, _lcount)                                          \
 	(((_lcount) > 1) ? va_arg(_args, unsigned long long int) :                \
-			   (((_lcount) == 1) ? va_arg(_args, unsigned long int) : \
-					       va_arg(_args, unsigned int)))
+	                   (((_lcount) == 1) ? va_arg(_args, unsigned long int) : \
+	                                       va_arg(_args, unsigned int)))
 
 static int string_print(uart_param_t *uart, const char *str)
 {
@@ -29,7 +29,7 @@ static int string_print(uart_param_t *uart, const char *str)
 }
 
 static int unsigned_num_print(uart_param_t *uart, unsigned long long int unum, unsigned int radix,
-			      char padc, int padn, unsigned char is_upper)
+                              char padc, int padn, unsigned char is_upper)
 {
 	/* Just need enough space to store 64 bit decimal integer */
 	char num_buf[20];

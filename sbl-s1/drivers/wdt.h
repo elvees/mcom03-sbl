@@ -24,7 +24,7 @@
 #define WDT_RST_PULSE_LEN_256 (7)
 
 #define WDT_OFF (0)
-#define WDT_ON	(1)
+#define WDT_ON  (1)
 
 #define WDT_MAX_TIMEOUT_COEF (0xFUL)
 #define WDT_MIN_TIMEOUT_COEF (0x0UL)
@@ -51,16 +51,16 @@
 //                                0: после таймаута генерируется системный сброс.
 //                                1: после таймаута генерируется прерывание. Если к следующему таймауту прерывание не будет сброшено, то генерируется системный сброс.
 // bit 0          WDT_EN             Бит включения WDT. Пока WDT не включен, его счетчик не декрементируется, а значит не генерирует прерывание и системный сброс. Будучи однажды включённым, WDT выключается только после генерации системного сброса.
-#define WDT_CR_OFFSET	  0UL
-#define WDT_CR_MASK	  0x1FUL
+#define WDT_CR_OFFSET     0UL
+#define WDT_CR_MASK       0x1FUL
 #define WDT_CR_RESETVALUE 0x2UL
 
-#define WDT_CR_RPL_POS	    2UL
-#define WDT_CR_RPL_MASK	    (0x7UL << WDT_CR_RPL_POS)
-#define WDT_CR_RPL(val)	    (((val)&0x7UL) << WDT_CR_RPL_POS)
+#define WDT_CR_RPL_POS      2UL
+#define WDT_CR_RPL_MASK     (0x7UL << WDT_CR_RPL_POS)
+#define WDT_CR_RPL(val)     (((val)&0x7UL) << WDT_CR_RPL_POS)
 #define WDT_CR_RPL_GET(reg) (((reg) >> WDT_CR_RPL_POS) & 0x7UL)
 
-#define WDT_CR_RMOD_POS	     1UL
+#define WDT_CR_RMOD_POS      1UL
 #define WDT_CR_RMOD_MASK     (0x1UL << WDT_CR_RMOD_POS)
 #define WDT_CR_RMOD(val)     (((val)&0x1UL) << WDT_CR_RMOD_POS)
 #define WDT_CR_RMOD_GET(reg) (((reg) >> WDT_CR_RMOD_POS) & 0x1UL)
@@ -81,12 +81,12 @@
 //                            Период таймаута рассчитывается следующим образом.
 //                            T = 2(16 + i), где T – период, выраженный в тактах опорной частоты, а i – значение поля TOP.
 #define WDT_TORR_OFFSET 0x4UL
-#define WDT_TORR_MASK	0xFF
+#define WDT_TORR_MASK   0xFF
 #define WDT_TORR_RESETVALUE
 
-#define WDT_TORR_TOP_INT_POS	  4UL
-#define WDT_TORR_TOP_INT_MASK	  (0xFUL << WDT_TORR_TOP_INT_POS)
-#define WDT_TORR_TOP_INT(val)	  (((val)&0xFUL) << WDT_TORR_TOP_INT_POS)
+#define WDT_TORR_TOP_INT_POS      4UL
+#define WDT_TORR_TOP_INT_MASK     (0xFUL << WDT_TORR_TOP_INT_POS)
+#define WDT_TORR_TOP_INT(val)     (((val)&0xFUL) << WDT_TORR_TOP_INT_POS)
 #define WDT_TORR_TOP_INT_GET(reg) (((reg) >> WDT_TORR_TOP_INT_POS) & 0xFUL)
 
 #define WDT_TORR_TOP_POS      (0UL)
@@ -96,21 +96,21 @@
 
 // регистра WDT_CCVR
 // bits 31:0       CCVR           Регистр содержит текущее значение счетчика WDT.
-#define WDT_CCVR_OFFSET	    0x8UL
+#define WDT_CCVR_OFFSET     0x8UL
 #define WDT_CCVR_RESETVALUE 0x7FFFFFFFUL
-#define WDT_CCVR_POS	    0UL
-#define WDT_CCVR_MASK	    (0xFFFFFFFFUL << WDT_CCVR_POS)
-#define WDT_CCVR(val)	    (((val)&0xFFFFFFFFUL) << WDT_CCVR_POS)
+#define WDT_CCVR_POS        0UL
+#define WDT_CCVR_MASK       (0xFFFFFFFFUL << WDT_CCVR_POS)
+#define WDT_CCVR(val)       (((val)&0xFFFFFFFFUL) << WDT_CCVR_POS)
 #define WDT_CCVR_GET(reg)   (((reg) >> WDT_CCVR_POS) & 0xFFFFFFFFUL)
 
 // регистра WDT_CRR
 // bits 31:8        -             Резерв
 // bits 7:0        CRR            Для перезапуска счётчика необходимо записать 0x76 в это поле. Также, это сбросит прерывание от WDT.
-#define WDT_CRR_OFFSET	   0xCUL
+#define WDT_CRR_OFFSET     0xCUL
 #define WDT_CRR_RESETVALUE 0UL
-#define WDT_CRR_POS	   0UL
-#define WDT_CRR_MASK	   (0xFFUL << WDT_CRR_POS)
-#define WDT_CRR(val)	   (((val)&0xFFUL) << WDT_CRR_POS)
+#define WDT_CRR_POS        0UL
+#define WDT_CRR_MASK       (0xFFUL << WDT_CRR_POS)
+#define WDT_CRR(val)       (((val)&0xFFUL) << WDT_CRR_POS)
 #define WDT_CRR_GET(reg)   (((reg) >> WDT_CRR_POS) & 0xFFUL)
 
 // регистра WDT_STAT
@@ -118,7 +118,7 @@
 // bits 0          ISR            Статус прерывания WDT:
 //                            1 – прерывание активно.
 //                            0 – прерывания не активно
-#define WDR_STAT_OFFSET	      0x10UL
+#define WDR_STAT_OFFSET       0x10UL
 #define WDT_STAT_RESETVALUE   0x0UL
 #define WDT_STAT_ISR_POS      0UL
 #define WDT_STAT_ISR_MASK     (0x1UL << WDT_STAT_ISR_POS)
@@ -128,9 +128,9 @@
 // регистра WDT_EOI
 // bits 31:1       -               Резерв
 // bits 0          ICR             Чтение этого регистра сбрасывает прерывание WDT.
-#define WDT_EOI_OFFSET	     0x14UL
+#define WDT_EOI_OFFSET       0x14UL
 #define WDT_EOI_RESETVALUE   0x0UL
-#define WDT_EOI_ICR_POS	     0UL
+#define WDT_EOI_ICR_POS      0UL
 #define WDT_EOI_ICR_MASK     (0x1UL << WDT_EOI_ICR_POS)
 #define WDT_EOI_ICR(val)     (((val)&0x1UL) << WDT_EOI_ICR_POS)
 #define WDT_EOI_ICR_GET(reg) (((reg) >> WDT_EOI_ICR_POS) & 0x1UL)

@@ -121,7 +121,7 @@ mcom_err_t wdt_start(wdt_dev_t *wdt_dev)
 		break;
 	case WDT_MAX_TIMEOUT:
 		wdt_dev->timeout = (1U << (WDT_NUM_TOPS + WDT_MAX_TIMEOUT_COEF)) /
-				   (wdt_dev->wdt_freq / 1000UL);
+		                   (wdt_dev->wdt_freq / 1000UL);
 		timeout_top = WDT_MAX_TIMEOUT_COEF;
 		break;
 	default:

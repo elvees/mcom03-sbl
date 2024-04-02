@@ -18,7 +18,7 @@
  * @brief Maximum pin current
  *
  */
-#define LS1_URB_PAD_CTR_CTL_Z_STATE	    U(0x00)
+#define LS1_URB_PAD_CTR_CTL_Z_STATE         U(0x00)
 #define LS1_URB_PAD_CTR_CTL_MAX_OUTPUT_2mA  U(0x01)
 #define LS1_URB_PAD_CTR_CTL_MAX_OUTPUT_4mA  U(0x03)
 #define LS1_URB_PAD_CTR_CTL_MAX_OUTPUT_6mA  U(0x07)
@@ -61,14 +61,14 @@ typedef struct {
 /* bit: 14..26  nf_man      */
 /* bit: 27..30  nr_man      */
 /* bit:     31  lock        */
-#define LS1_URB_PLL_CFG_OFFSET	   0x000
+#define LS1_URB_PLL_CFG_OFFSET     0x000
 #define LS1_URB_PLL_CFG_RESETVALUE U(0x00000000)
 
-#define LS1_URB_PLL_CFG_SEL_Pos	   0
-#define LS1_URB_PLL_CFG_SEL_Msk	   (U(0xFF) << LS1_URB_PLL_CFG_SEL_Pos)
+#define LS1_URB_PLL_CFG_SEL_Pos    0
+#define LS1_URB_PLL_CFG_SEL_Msk    (U(0xFF) << LS1_URB_PLL_CFG_SEL_Pos)
 #define LS1_URB_PLL_CFG_SEL(value) (LS1_URB_PLL_CFG_SEL_Msk & ((value) << LS1_URB_PLL_CFG_SEL_Pos))
-#define LS1_URB_PLL_CFG_MAN_Pos	   9
-#define LS1_URB_PLL_CFG_MAN	   (U(0x1) << LS1_URB_PLL_CFG_MAN_Pos)
+#define LS1_URB_PLL_CFG_MAN_Pos    9
+#define LS1_URB_PLL_CFG_MAN        (U(0x1) << LS1_URB_PLL_CFG_MAN_Pos)
 #define LS1_URB_PLL_CFG_OD_MAN_Pos 10
 #define LS1_URB_PLL_CFG_OD_MAN_Msk (U(0xF) << LS1_URB_PLL_CFG_OD_MAN_Pos)
 #define LS1_URB_PLL_CFG_OD_MAN(value) \
@@ -82,8 +82,8 @@ typedef struct {
 #define LS1_URB_PLL_CFG_NR_MAN(value) \
 	(LS1_URB_PLL_CFG_NR_MAN_Msk & ((value) << LS1_URB_PLL_CFG_NR_MAN_Pos))
 #define LS1_URB_PLL_CFG_LOCK_Pos 31
-#define LS1_URB_PLL_CFG_LOCK	 (U(0x1) << LS1_URB_PLL_CFG_LOCK_Pos)
-#define LS1_URB_PLL_CFG_MASK	 U(0xFFFFFEFF)
+#define LS1_URB_PLL_CFG_LOCK     (U(0x1) << LS1_URB_PLL_CFG_LOCK_Pos)
+#define LS1_URB_PLL_CFG_MASK     U(0xFFFFFEFF)
 
 /* --------  LS1_URB_PLL_DIAG : (R/W 32) PLL Diagnostic Register -------- */
 /* bit:      0  test        */
@@ -92,25 +92,25 @@ typedef struct {
 /* bit:      3  rfslip      */
 /* bit:      4  fbslip      */
 /* bit:  5..31  Reserved    */
-#define LS1_URB_PLL_DIAG_OFFSET	    0x004
+#define LS1_URB_PLL_DIAG_OFFSET     0x004
 #define LS1_URB_PLL_DIAG_RESETVALUE U(0x00000002)
 
 #define LS1_URB_PLL_DIAG_TEST_Pos   0
-#define LS1_URB_PLL_DIAG_TEST	    (U(0x1) << LS1_URB_PLL_DIAG_TEST_Pos)
+#define LS1_URB_PLL_DIAG_TEST       (U(0x1) << LS1_URB_PLL_DIAG_TEST_Pos)
 #define LS1_URB_PLL_DIAG_ENSAT_Pos  1
-#define LS1_URB_PLL_DIAG_ENSAT	    (U(0x1) << LS1_URB_PLL_DIAG_ENSAT_Pos)
+#define LS1_URB_PLL_DIAG_ENSAT      (U(0x1) << LS1_URB_PLL_DIAG_ENSAT_Pos)
 #define LS1_URB_PLL_DIAG_FASTEN_Pos 2
-#define LS1_URB_PLL_DIAG_FASTE	    (U(0x1) << LS1_URB_PLL_DIAG_FASTEN_Pos)
+#define LS1_URB_PLL_DIAG_FASTE      (U(0x1) << LS1_URB_PLL_DIAG_FASTEN_Pos)
 #define LS1_URB_PLL_DIAG_RFSLIP_Pos 3
-#define LS1_URB_PLL_DIAG_RFSLIP	    (U(0x1) << LS1_URB_PLL_DIAG_RFSLIP_Pos)
+#define LS1_URB_PLL_DIAG_RFSLIP     (U(0x1) << LS1_URB_PLL_DIAG_RFSLIP_Pos)
 #define LS1_URB_PLL_DIAG_FBSLIP_Pos 4
-#define LS1_URB_PLL_DIAG_FBSLIP	    (U(0x1) << LS1_URB_PLL_DIAG_FBSLIP_Pos)
-#define LS1_URB_PLL_DIAG_MASK	    U(0x0000001F)
+#define LS1_URB_PLL_DIAG_FBSLIP     (U(0x1) << LS1_URB_PLL_DIAG_FBSLIP_Pos)
+#define LS1_URB_PLL_DIAG_MASK       U(0x0000001F)
 
 /* --------  LS1_I2S_UCG_RSTN_PPOLICY : ( /W 32) I2S UCG Mode Control Register -------- */
 /* bit:  0.. 4  policy      */
 /* bit:  5..31  Reserved    */
-#define LS1_URB_I2S_UCG_RSTN_PPOLICY_OFFSET	0x008
+#define LS1_URB_I2S_UCG_RSTN_PPOLICY_OFFSET     0x008
 #define LS1_URB_I2S_UCG_RSTN_PPOLICY_RESETVALUE U(0x00000000)
 
 #define LS1_URB_I2S_UCG_RSTN_PPOLICY_Pos 0
@@ -122,7 +122,7 @@ typedef struct {
 /* --------  LS1_URB_I2S_UCG_RSTN_PSTATUS : (R/  32) I2S UCG Status Register -------- */
 /* bit:  0.. 4  policy      */
 /* bit:  5..31  Reserved    */
-#define LS1_URB_I2S_UCG_RSTN_PSTATUS_OFFSET	0x00C
+#define LS1_URB_I2S_UCG_RSTN_PSTATUS_OFFSET     0x00C
 #define LS1_URB_I2S_UCG_RSTN_PSTATUS_RESETVALUE U(0x00000000)
 
 #define LS1_URB_I2S_UCG_RSTN_PSTATUS_Pos 0
@@ -134,11 +134,11 @@ typedef struct {
 /* --------  LS1_URB_I2S_UCG_REF_CLK : (R/W 32) I2S UCG Reference Frequency Source Selection Register -------- */
 /* bit:      0  I2S_UCG_REF_CLK */
 /* bit:  1..31  Reserved        */
-#define LS1_URB_I2S_UCG_REF_CLK_OFFSET	   0x010
+#define LS1_URB_I2S_UCG_REF_CLK_OFFSET     0x010
 #define LS1_URB_I2S_UCG_REF_CLK_RESETVALUE U(0x00000000)
 
 #define LS1_URB_I2S_UCG_REF_CLK_Pos  0
-#define LS1_URB_I2S_UCG_REF_CLK	     (U(0x1) << LS1_URB_I2S_UCG_REF_CLK_Pos)
+#define LS1_URB_I2S_UCG_REF_CLK      (U(0x1) << LS1_URB_I2S_UCG_REF_CLK_Pos)
 #define LS1_URB_I2S_UCG_REF_CLK_MASK U(0x00000001)
 
 /* --------  LS1_URB_I2C_HIGHSPEED_PULL_ENABLE : (R/W 32) Hardware Control Register of the SCL I2C Interface Pull-up Lines -------- */
@@ -149,12 +149,12 @@ typedef struct {
 #define LS1_URB_I2C_HIGHSPEED_PULL_ENABLE_OFFSET     0x014
 #define LS1_URB_I2C_HIGHSPEED_PULL_ENABLE_RESETVALUE U(0x00000000)
 
-#define LS1_URB_I2C1_PULL_ENABLE_Pos	       0
-#define LS1_URB_I2C1_PULL_ENABLE	       (U(0x1) << LS1_URB_I2C1_PULL_ENABLE_Pos)
-#define LS1_URB_I2C2_PULL_ENABLE_Pos	       0
-#define LS1_URB_I2C2_PULL_ENABLE	       (U(0x1) << LS1_URB_I2C2_PULL_ENABLE_Pos)
-#define LS1_URB_I2C3_PULL_ENABLE_Pos	       0
-#define LS1_URB_I2C3_PULL_ENABLE	       (U(0x1) << LS1_URB_I2C3_PULL_ENABLE_Pos)
+#define LS1_URB_I2C1_PULL_ENABLE_Pos           0
+#define LS1_URB_I2C1_PULL_ENABLE               (U(0x1) << LS1_URB_I2C1_PULL_ENABLE_Pos)
+#define LS1_URB_I2C2_PULL_ENABLE_Pos           0
+#define LS1_URB_I2C2_PULL_ENABLE               (U(0x1) << LS1_URB_I2C2_PULL_ENABLE_Pos)
+#define LS1_URB_I2C3_PULL_ENABLE_Pos           0
+#define LS1_URB_I2C3_PULL_ENABLE               (U(0x1) << LS1_URB_I2C3_PULL_ENABLE_Pos)
 #define LS1_URB_I2C_HIGHSPEED_PULL_ENABLE_MASK U(0x00000003)
 
 /* --------  LS1_URB_GPIO1_PORT_X_PAD_N_CTR : (R/W 32) Port X Pin N Control Register -------- */
@@ -168,13 +168,13 @@ typedef struct {
 /* bit:     13  cle         */
 /* bit:     14  od          */
 /* bit: 15..31  Reserved    */
-#define LS1_URB_GPIO1_PORT_A_PAD_0_CTR_OFFSET	   0x20
+#define LS1_URB_GPIO1_PORT_A_PAD_0_CTR_OFFSET      0x20
 #define LS1_URB_GPIO1_PORT_A_PAD_CTR_OFFSET(value) (0x20 + (0x04 * (value)))
-#define LS1_URB_GPIO1_PORT_B_PAD_0_CTR_OFFSET	   0x40
+#define LS1_URB_GPIO1_PORT_B_PAD_0_CTR_OFFSET      0x40
 #define LS1_URB_GPIO1_PORT_B_PAD_CTR_OFFSET(value) (0x40 + (0x04 * (value)))
-#define LS1_URB_GPIO1_PORT_C_PAD_0_CTR_OFFSET	   0x60
+#define LS1_URB_GPIO1_PORT_C_PAD_0_CTR_OFFSET      0x60
 #define LS1_URB_GPIO1_PORT_C_PAD_CTR_OFFSET(value) (0x60 + (0x04 * (value)))
-#define LS1_URB_GPIO1_PORT_D_PAD_0_CTR_OFFSET	   0x80
+#define LS1_URB_GPIO1_PORT_D_PAD_0_CTR_OFFSET      0x80
 #define LS1_URB_GPIO1_PORT_D_PAD_CTR_OFFSET(value) (0x80 + (0x04 * (value)))
 #define LS1_URB_GPIO1_PORT_X_PAD_N_CTR_RESETVALUE  U(0x00000018)
 

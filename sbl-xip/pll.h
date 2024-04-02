@@ -16,8 +16,8 @@
 #define PLL_CFG_NR_MAN GENMASK(30, 27)
 #define PLL_CFG_LOCK   BIT(31)
 
-#define PLL_DIAG_TEST	BIT(0)
-#define PLL_DIAG_ENSAT	BIT(1)
+#define PLL_DIAG_TEST   BIT(0)
+#define PLL_DIAG_ENSAT  BIT(1)
 #define PLL_DIAG_FASTEN BIT(2)
 #define PLL_DIAG_RFSLIP BIT(3)
 #define PLL_DIAG_FBSLIP BIT(4)

@@ -29,11 +29,11 @@ typedef struct {
 /* bit: 14..26  nf_man   - Value NF for manual mode  */
 /* bit: 27..30  nr_man   - Value NR for manual mode  */
 /* bit:     31  lock     - Frequency capture signal  */
-#define PLL_CFG_SEL_Pos	      0
-#define PLL_CFG_SEL_Msk	      (U(0xFF) << PLL_CFG_SEL_Pos)
+#define PLL_CFG_SEL_Pos       0
+#define PLL_CFG_SEL_Msk       (U(0xFF) << PLL_CFG_SEL_Pos)
 #define PLL_CFG_SEL(value)    (PLL_CFG_SEL_Msk & ((value) << PLL_CFG_SEL_Pos))
-#define PLL_CFG_MAN_Pos	      9
-#define PLL_CFG_MAN	      (U(0x1) << PLL_CFG_MAN_Pos)
+#define PLL_CFG_MAN_Pos       9
+#define PLL_CFG_MAN           (U(0x1) << PLL_CFG_MAN_Pos)
 #define PLL_CFG_OD_MAN_Pos    10
 #define PLL_CFG_OD_MAN_Msk    (U(0xF) << PLL_CFG_OD_MAN_Pos)
 #define PLL_CFG_OD_MAN(value) (PLL_CFG_OD_MAN_Msk & ((value) << PLL_CFG_OD_MAN_Pos))
@@ -44,8 +44,8 @@ typedef struct {
 #define PLL_CFG_NR_MAN_Msk    (U(0xF) << PLL_CFG_NR_MAN_Pos)
 #define PLL_CFG_NR_MAN(value) (PLL_CFG_NR_MAN_Msk & ((value) << PLL_CFG_NR_MAN_Pos))
 #define PLL_CFG_LOCK_Pos      31
-#define PLL_CFG_LOCK	      (U(0x1) << PLL_CFG_LOCK_Pos)
-#define PLL_CFG_MASK	      U(0xFFFFFEFF)
+#define PLL_CFG_LOCK          (U(0x1) << PLL_CFG_LOCK_Pos)
+#define PLL_CFG_MASK          U(0xFFFFFEFF)
 
 /* --------  PLL_DIAG : (R/W 32) PLL Diagnostic Register -------- */
 typedef uint32_t pll_diag_reg_t;
@@ -56,16 +56,16 @@ typedef uint32_t pll_diag_reg_t;
 /* bit:      4  fbslip   - Registration feedback cycle slip   */
 /* bit:  5..31  Reserved    */
 #define PLL_DIAG_TEST_Pos   0
-#define PLL_DIAG_TEST	    (U(0x1) << PLL_DIAG_TEST_Pos)
+#define PLL_DIAG_TEST       (U(0x1) << PLL_DIAG_TEST_Pos)
 #define PLL_DIAG_ENSAT_Pos  1
-#define PLL_DIAG_ENSAT	    (U(0x1) << PLL_DIAG_ENSAT_Pos)
+#define PLL_DIAG_ENSAT      (U(0x1) << PLL_DIAG_ENSAT_Pos)
 #define PLL_DIAG_FASTEN_Pos 2
-#define PLL_DIAG_FASTE	    (U(0x1) << PLL_DIAG_FASTEN_Pos)
+#define PLL_DIAG_FASTE      (U(0x1) << PLL_DIAG_FASTEN_Pos)
 #define PLL_DIAG_RFSLIP_Pos 3
-#define PLL_DIAG_RFSLIP	    (U(0x1) << PLL_DIAG_RFSLIP_Pos)
+#define PLL_DIAG_RFSLIP     (U(0x1) << PLL_DIAG_RFSLIP_Pos)
 #define PLL_DIAG_FBSLIP_Pos 4
-#define PLL_DIAG_FBSLIP	    (U(0x1) << PLL_DIAG_FBSLIP_Pos)
-#define PLL_DIAG_MASK	    U(0x0000001F)
+#define PLL_DIAG_FBSLIP     (U(0x1) << PLL_DIAG_FBSLIP_Pos)
+#define PLL_DIAG_MASK       U(0x0000001F)
 
 /**
  * @brief PLL value setting function

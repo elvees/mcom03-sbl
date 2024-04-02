@@ -13,9 +13,9 @@ int pll_set_manual_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg, uint32_t max
 	uint32_t reg_value = 0;
 
 	reg_value = FIELD_PREP(PLL_CFG_SEL, 1) | FIELD_PREP(PLL_CFG_MAN, 1) |
-		    FIELD_PREP(PLL_CFG_OD_MAN, pll_cfg->od_value) |
-		    FIELD_PREP(PLL_CFG_NF_MAN, pll_cfg->nf_value) |
-		    FIELD_PREP(PLL_CFG_NR_MAN, pll_cfg->nr_value);
+	            FIELD_PREP(PLL_CFG_OD_MAN, pll_cfg->od_value) |
+	            FIELD_PREP(PLL_CFG_NF_MAN, pll_cfg->nf_value) |
+	            FIELD_PREP(PLL_CFG_NR_MAN, pll_cfg->nr_value);
 	*pll_reg = reg_value;
 
 	for (;;) {

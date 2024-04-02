@@ -66,7 +66,7 @@ mcom_err_t service_reset_ls_periph0_deassert(service_urb_regs_t *urb, uint32_t t
 }
 
 mcom_err_t service_reset_ls_periph0_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-					   uint32_t timeout)
+                                           uint32_t timeout)
 {
 	if (urb == NULL)
 		return MCOM03_ERROR_NULL;
@@ -141,7 +141,7 @@ mcom_err_t service_reset_ls_periph1_deassert(service_urb_regs_t *urb, uint32_t t
 }
 
 mcom_err_t service_reset_ls_periph1_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-					   uint32_t timeout)
+                                           uint32_t timeout)
 {
 	if (urb == NULL)
 		return MCOM03_ERROR_NULL;
@@ -191,7 +191,7 @@ mcom_err_t service_reset_hs_periph_deassert(service_urb_regs_t *urb, uint32_t ti
 	ucg_regs_t *interconnect_ucg1 = ucg_get_top_registers(1);
 
 	uint32_t bp_mask = (TOP_UCG1_CHANNEL_AXI_SLOW_COMM | TOP_UCG1_CHANNEL_AXI_FAST_COMM |
-			    TOP_UCG1_CHANNEL_DDR_HSPERIPH);
+	                    TOP_UCG1_CHANNEL_DDR_HSPERIPH);
 
 	ucg_enable_bp(interconnect_ucg1, bp_mask);
 
@@ -216,7 +216,7 @@ mcom_err_t service_reset_hs_periph_deassert(service_urb_regs_t *urb, uint32_t ti
 }
 
 mcom_err_t service_reset_hs_periph_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-					  uint32_t timeout)
+                                          uint32_t timeout)
 {
 	if (urb == NULL)
 		return MCOM03_ERROR_NULL;
@@ -227,7 +227,7 @@ mcom_err_t service_reset_hs_periph_assert(service_urb_regs_t *urb, uint32_t rese
 	ucg_regs_t *interconnect_ucg1 = ucg_get_top_registers(1);
 
 	uint32_t bp_mask = (TOP_UCG1_CHANNEL_AXI_SLOW_COMM | TOP_UCG1_CHANNEL_AXI_FAST_COMM |
-			    TOP_UCG1_CHANNEL_DDR_HSPERIPH);
+	                    TOP_UCG1_CHANNEL_DDR_HSPERIPH);
 
 	ucg_enable_bp(interconnect_ucg1, bp_mask);
 

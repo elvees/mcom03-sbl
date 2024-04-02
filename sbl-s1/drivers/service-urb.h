@@ -88,8 +88,8 @@ typedef struct
 /* bit: 2:2               fasten           0     */
 /* bit: 1:1               ensat            1     */
 /* bit: 0:0               test             0     */
-#define SERVICE_PLLDIAG_OFFSET	   0x1000UL
-#define SERVICE_PLLDIAG_MASK	   0x1FUL
+#define SERVICE_PLLDIAG_OFFSET     0x1000UL
+#define SERVICE_PLLDIAG_MASK       0x1FUL
 #define SERVICE_PLLDIAG_RESETVALUE 0x2UL
 
 #define SERVICE_PLLDIAG_TEST_POS      0UL
@@ -102,19 +102,19 @@ typedef struct
 #define SERVICE_PLLDIAG_ENSAT(val)     (((val)&0x1UL) << SERVICE_PLLDIAG_ENSAT_POS)
 #define SERVICE_PLLDIAG_ENSAT_GET(reg) (((reg) >> SERVICE_PLLDIAG_ENSAT_POS) & 0x1UL)
 
-#define SERVICE_PLLDIAG_FASTEN_POS	2UL
-#define SERVICE_PLLDIAG_FASTEN_MASK	(0x1UL << SERVICE_PLLDIAG_FASTEN_POS)
-#define SERVICE_PLLDIAG_FASTEN(val)	(((val)&0x1UL) << SERVICE_PLLDIAG_FASTEN_POS)
+#define SERVICE_PLLDIAG_FASTEN_POS      2UL
+#define SERVICE_PLLDIAG_FASTEN_MASK     (0x1UL << SERVICE_PLLDIAG_FASTEN_POS)
+#define SERVICE_PLLDIAG_FASTEN(val)     (((val)&0x1UL) << SERVICE_PLLDIAG_FASTEN_POS)
 #define SERVICE_PLLDIAG_FASTEN_GET(reg) (((reg) >> SERVICE_PLLDIAG_FASTEN_POS) & 0x1UL)
 
-#define SERVICE_PLLDIAG_RFSLIP_POS	3UL
-#define SERVICE_PLLDIAG_RFSLIP_MASK	(0x1UL << SERVICE_PLLDIAG_RFSLIP_POS)
-#define SERVICE_PLLDIAG_RFSLIP(val)	(((val)&0x1UL) << SERVICE_PLLDIAG_RFSLIP_POS)
+#define SERVICE_PLLDIAG_RFSLIP_POS      3UL
+#define SERVICE_PLLDIAG_RFSLIP_MASK     (0x1UL << SERVICE_PLLDIAG_RFSLIP_POS)
+#define SERVICE_PLLDIAG_RFSLIP(val)     (((val)&0x1UL) << SERVICE_PLLDIAG_RFSLIP_POS)
 #define SERVICE_PLLDIAG_RFSLIP_GET(reg) (((reg) >> SERVICE_PLLDIAG_RFSLIP_POS) & 0x1UL)
 
-#define SERVICE_PLLDIAG_FBSLIP_POS	4UL
-#define SERVICE_PLLDIAG_FBSLIP_MASK	(0x1UL << SERVICE_PLLDIAG_FBSLIP_POS)
-#define SERVICE_PLLDIAG_FBSLIP(val)	(((val)&0x1UL) << SERVICE_PLLDIAG_FBSLIP_POS)
+#define SERVICE_PLLDIAG_FBSLIP_POS      4UL
+#define SERVICE_PLLDIAG_FBSLIP_MASK     (0x1UL << SERVICE_PLLDIAG_FBSLIP_POS)
+#define SERVICE_PLLDIAG_FBSLIP(val)     (((val)&0x1UL) << SERVICE_PLLDIAG_FBSLIP_POS)
 #define SERVICE_PLLDIAG_FBSLIP_GET(reg) (((reg) >> SERVICE_PLLDIAG_FBSLIP_POS) & 0x1UL)
 
 /* register top_clkgate  offset 0x1008 (R/W 32)  Register for enabling subsystem reference frequencies */
@@ -129,30 +129,30 @@ typedef struct
 /* 1       media              0     */
 /* 0       service            1     */
 #define SERVICE_TOPCLKGATE_OFFSET     0x1008UL
-#define SERVICE_TOPCLKGATE_MASK	      0x1FFUL
+#define SERVICE_TOPCLKGATE_MASK       0x1FFUL
 #define SERVICE_TOPCLKGATE_RESETVALUE 0x111UL
 
-#define SERVICE_TOPCLKGATE_SERVICE_POS	    0UL
-#define SERVICE_TOPCLKGATE_SERVICE_MASK	    (0x1UL << SERVICE_TOPCLKGATE_SERVICE_POS)
-#define SERVICE_TOPCLKGATE_SERVICE(val)	    (((val)&0x1UL) << SERVICE_TOPCLKGATE_SERVICE_POS)
+#define SERVICE_TOPCLKGATE_SERVICE_POS      0UL
+#define SERVICE_TOPCLKGATE_SERVICE_MASK     (0x1UL << SERVICE_TOPCLKGATE_SERVICE_POS)
+#define SERVICE_TOPCLKGATE_SERVICE(val)     (((val)&0x1UL) << SERVICE_TOPCLKGATE_SERVICE_POS)
 #define SERVICE_TOPCLKGATE_SERVICE_GET(reg) (((reg) >> SERVICE_TOPCLKGATE_SERVICE_POS) & 0x1UL)
 
-#define SERVICE_TOPCLKGATE_MEDIA_POS	  1UL
-#define SERVICE_TOPCLKGATE_MEDIA_MASK	  (0x1UL << SERVICE_TOPCLKGATE_MEDIA_POS)
-#define SERVICE_TOPCLKGATE_MEDIA(val)	  (((val)&0x1UL) << SERVICE_TOPCLKGATE_MEDIA_POS)
+#define SERVICE_TOPCLKGATE_MEDIA_POS      1UL
+#define SERVICE_TOPCLKGATE_MEDIA_MASK     (0x1UL << SERVICE_TOPCLKGATE_MEDIA_POS)
+#define SERVICE_TOPCLKGATE_MEDIA(val)     (((val)&0x1UL) << SERVICE_TOPCLKGATE_MEDIA_POS)
 #define SERVICE_TOPCLKGATE_MEDIA_GET(reg) (((reg) >> SERVICE_TOPCLKGATE_MEDIA_POS) & 0x1UL)
 
-#define SERVICE_TOPCLKGATE_CPU_POS	2UL
-#define SERVICE_TOPCLKGATE_CPU_MASK	(0x1UL << SERVICE_TOPCLKGATE_CPU_POS)
-#define SERVICE_TOPCLKGATE_CPU(val)	(((val)&0x1UL) << SERVICE_TOPCLKGATE_CPU_POS)
+#define SERVICE_TOPCLKGATE_CPU_POS      2UL
+#define SERVICE_TOPCLKGATE_CPU_MASK     (0x1UL << SERVICE_TOPCLKGATE_CPU_POS)
+#define SERVICE_TOPCLKGATE_CPU(val)     (((val)&0x1UL) << SERVICE_TOPCLKGATE_CPU_POS)
 #define SERVICE_TOPCLKGATE_CPU_GET(reg) (((reg) >> SERVICE_TOPCLKGATE_CPU_POS) & 0x1UL)
 
-#define SERVICE_TOPCLKGATE_SDR_POS	3UL
-#define SERVICE_TOPCLKGATE_SDR_MASK	(0x1UL << SERVICE_TOPCLKGATE_SDR_POS)
-#define SERVICE_TOPCLKGATE_SDR(val)	(((val)&0x1UL) << SERVICE_TOPCLKGATE_SDR_POS)
+#define SERVICE_TOPCLKGATE_SDR_POS      3UL
+#define SERVICE_TOPCLKGATE_SDR_MASK     (0x1UL << SERVICE_TOPCLKGATE_SDR_POS)
+#define SERVICE_TOPCLKGATE_SDR(val)     (((val)&0x1UL) << SERVICE_TOPCLKGATE_SDR_POS)
 #define SERVICE_TOPCLKGATE_SDR_GET(reg) (((reg) >> SERVICE_TOPCLKGATE_SDR_POS) & 0x1UL)
 
-#define SERVICE_TOPCLKGATE_HSPERIPH_POS	     4UL
+#define SERVICE_TOPCLKGATE_HSPERIPH_POS      4UL
 #define SERVICE_TOPCLKGATE_HSPERIPH_MASK     (0x1UL << SERVICE_TOPCLKGATE_HSPERIPH_POS)
 #define SERVICE_TOPCLKGATE_HSPERIPH(val)     (((val)&0x1UL) << SERVICE_TOPCLKGATE_HSPERIPH_POS)
 #define SERVICE_TOPCLKGATE_HSPERIPH_GET(reg) (((reg) >> SERVICE_TOPCLKGATE_HSPERIPH_POS) & 0x1UL)
@@ -167,9 +167,9 @@ typedef struct
 #define SERVICE_TOPCLKGATE_LSPERIPH1(val)     (((val)&0x1UL) << SERVICE_TOPCLKGATE_LSPERIPH1_POS)
 #define SERVICE_TOPCLKGATE_LSPERIPH1_GET(reg) (((reg) >> SERVICE_TOPCLKGATE_LSPERIPH1_POS) & 0x1UL)
 
-#define SERVICE_TOPCLKGATE_DDR_POS	7UL
-#define SERVICE_TOPCLKGATE_DDR_MASK	(0x1UL << SERVICE_TOPCLKGATE_DDR_POS)
-#define SERVICE_TOPCLKGATE_DDR(val)	(((val)&0x1UL) << SERVICE_TOPCLKGATE_DDR_POS)
+#define SERVICE_TOPCLKGATE_DDR_POS      7UL
+#define SERVICE_TOPCLKGATE_DDR_MASK     (0x1UL << SERVICE_TOPCLKGATE_DDR_POS)
+#define SERVICE_TOPCLKGATE_DDR(val)     (((val)&0x1UL) << SERVICE_TOPCLKGATE_DDR_POS)
 #define SERVICE_TOPCLKGATE_DDR_GET(reg) (((reg) >> SERVICE_TOPCLKGATE_DDR_POS) & 0x1UL)
 
 #define SERVICE_TOPCLKGATE_INTERCONNECT_POS  8UL
@@ -182,39 +182,39 @@ typedef struct
 /* bits: 31:4              -               0         */
 /* bits: 3                 bs_en           0         */
 /* bits: 2:0               boot            0         */
-#define SERVICE_BOOT_OFFSET	0x2000UL
-#define SERVICE_BOOT_MASK	0x7UL
+#define SERVICE_BOOT_OFFSET     0x2000UL
+#define SERVICE_BOOT_MASK       0x7UL
 #define SERVICE_BOOT_RESETVALUE 0UL
 
-#define SERVICE_BOOT_BOOT_POS	   0UL
-#define SERVICE_BOOT_BOOT_MASK	   (3 << SERVICE_BOOT_BOOT_POS)
+#define SERVICE_BOOT_BOOT_POS      0UL
+#define SERVICE_BOOT_BOOT_MASK     (3 << SERVICE_BOOT_BOOT_POS)
 #define SERVICE_BOOT_BOOT_GET(reg) (((reg) >> SERVICE_BOOT_BOOT_POS) & 3)
 
-#define SERVICE_BOOT_BS_EN_POS	    3UL
-#define SERVICE_BOOT_BS_EN_MASK	    (0x1UL << SERVICE_BOOT_BS_EN_POS)
+#define SERVICE_BOOT_BS_EN_POS      3UL
+#define SERVICE_BOOT_BS_EN_MASK     (0x1UL << SERVICE_BOOT_BS_EN_POS)
 #define SERVICE_BOOT_BS_EN_GET(reg) (((reg) >> SERVICE_BOOT_BS_EN_POS) & 0x1UL)
 
 /* register xip_en_req         offset 0x2004 (R/W 32)  XIP Enable Register for QSPI0 */
 /* bits: 31:1            reserve            0           */
 /* bits: 0               en                 1           */ // To enable XIP mode, set the bit to 1
-#define SERVICE_XIP_EN_OFFSET	  0x2004UL
-#define SERVICE_XIP_EN_MASK	  1UL
+#define SERVICE_XIP_EN_OFFSET     0x2004UL
+#define SERVICE_XIP_EN_MASK       1UL
 #define SERVICE_XIP_EN_RESETVALUE 1UL
 
-#define SERVICE_XIP_EN_REQ_POS	    0UL
-#define SERVICE_XIP_EN_REQ_MASK	    (0x1UL << SERVICE_XIP_EN_REQ_POS)
-#define SERVICE_XIP_EN_REQ(val)	    (((val)&0x1UL) << SERVICE_XIP_EN_REQ_POS)
+#define SERVICE_XIP_EN_REQ_POS      0UL
+#define SERVICE_XIP_EN_REQ_MASK     (0x1UL << SERVICE_XIP_EN_REQ_POS)
+#define SERVICE_XIP_EN_REQ(val)     (((val)&0x1UL) << SERVICE_XIP_EN_REQ_POS)
 #define SERVICE_XIP_EN_REQ_GET(reg) (((reg) >> SERVICE_XIP_EN_REQ_POS) & 0x1UL)
 
 // register xip_en_out                offset 0x2008 (R/ 32)  XIP State Register for QSPI0 */
 /* bits: 31:1              reserve                  0    */
 /* bits: 0                 status                   0    */ //  XIP mode status, 0 - mode off, 1 - mode on
 #define SERVICE_XIP_EN_OUT_OFFSET     0x2008UL
-#define SERVICE_XIP_EN_OUT_MASK	      1UL
+#define SERVICE_XIP_EN_OUT_MASK       1UL
 #define SERVICE_XIP_EN_OUT_RESETVALUE 0UL
 
-#define SERVICE_XIP_EN_OUT_STATUS_POS	   0UL
-#define SERVICE_XIP_EN_OUT_STATUS_MASK	   (0x1UL << SERVICE_XIP_EN_OUT_STATUS_POS)
+#define SERVICE_XIP_EN_OUT_STATUS_POS      0UL
+#define SERVICE_XIP_EN_OUT_STATUS_MASK     (0x1UL << SERVICE_XIP_EN_OUT_STATUS_POS)
 #define SERVICE_XIP_EN_OUT_STATUS_GET(reg) (((reg) >> SERVICE_XIP_EN_OUT_STATUS_POS) & 0x1UL)
 
 /* register xip_cfg                      offset 0x200C (R/W 32)  XIP Setup Register for QSPI0 */
@@ -229,18 +229,18 @@ typedef struct
 /* bits 19:16             ssen                  1       */
 /* bits 15:8              hp_mode               0       */
 /* bits 7:0               cmd                   8'h03   */
-#define SERVICE_XIP_CFG_OFFSET	   0x200CUL
-#define SERVICE_XIP_CFG_MASK	   0x7fffffffUL
+#define SERVICE_XIP_CFG_OFFSET     0x200CUL
+#define SERVICE_XIP_CFG_MASK       0x7fffffffUL
 #define SERVICE_XIP_CFG_RESETVALUE 0x20010008UL
 
-#define SERVICE_XIP_CFG_CMD_POS	     0UL
+#define SERVICE_XIP_CFG_CMD_POS      0UL
 #define SERVICE_XIP_CFG_CMD_MASK     (0xffUL << SERVICE_XIP_CFG_CMD_POS)
 #define SERVICE_XIP_CFG_CMD(val)     (((val)&0xffUL) << SERVICE_XIP_CFG_CMD_POS)
 #define SERVICE_XIP_CFG_CMD_GET(reg) (((reg) >> SERVICE_XIP_CFG_CMD_POS) & 0xffUL)
 
-#define SERVICE_XIP_CFG_HP_MODE_POS	 8UL
-#define SERVICE_XIP_CFG_HP_MODE_MASK	 (0xffUL << SERVICE_XIP_CFG_HP_MODE_POS)
-#define SERVICE_XIP_CFG_HP_MODE(val)	 (((val)&0xffUL) << SERVICE_XIP_CFG_HP_MODE_POS)
+#define SERVICE_XIP_CFG_HP_MODE_POS      8UL
+#define SERVICE_XIP_CFG_HP_MODE_MASK     (0xffUL << SERVICE_XIP_CFG_HP_MODE_POS)
+#define SERVICE_XIP_CFG_HP_MODE(val)     (((val)&0xffUL) << SERVICE_XIP_CFG_HP_MODE_POS)
 #define SERVICE_XIP_CFG_HP_MODE_GET(reg) (((reg) >> SERVICE_XIP_CFG_HP_MODE_POS) & 0xffUL)
 
 #define SERVICE_XIP_CFG_SSEN_POS      16UL
@@ -289,28 +289,28 @@ typedef struct
 /* bits 5:4               dlock_mst         0     */ // Shows the master number for the transaction that caused the switch to hang
 /* bits 3:1               dlock_slv         0     */ // Shows the slave number for the transaction that caused the switch to hang
 /* bits 0                 dlock_wr          0     */ // Shows writing or reading caused the switch to hang
-#define SERVICE_AXICORE_OFFSET	   0x2010UL
-#define SERVICE_AXICORE_MASK	   0x7FUL
+#define SERVICE_AXICORE_OFFSET     0x2010UL
+#define SERVICE_AXICORE_MASK       0x7FUL
 #define SERVICE_AXICORE_RESETVALUE 0UL
 
-#define SERVICE_AXICORE_DLOCK_ID_POS	  6UL
-#define SERVICE_AXICORE_DLOCK_ID_MASK	  (0x1UL << SERVICE_AXICORE_DLOCK_ID_POS)
-#define SERVICE_AXICORE_DLOCK_ID(val)	  (((val)&0x1UL) << SERVICE_AXICORE_DLOCK_ID_POS)
+#define SERVICE_AXICORE_DLOCK_ID_POS      6UL
+#define SERVICE_AXICORE_DLOCK_ID_MASK     (0x1UL << SERVICE_AXICORE_DLOCK_ID_POS)
+#define SERVICE_AXICORE_DLOCK_ID(val)     (((val)&0x1UL) << SERVICE_AXICORE_DLOCK_ID_POS)
 #define SERVICE_AXICORE_DLOCK_ID_GET(reg) (((reg) >> SERVICE_AXICORE_DLOCK_ID_POS) & 0x1UL)
 
-#define SERVICE_AXICORE_DLOCK_MST_POS	   4UL
-#define SERVICE_AXICORE_DLOCK_MST_MASK	   (0x3UL << SERVICE_AXICORE_DLOCK_MST_POS)
-#define SERVICE_AXICORE_DLOCK_MST(val)	   (((val)&0x3UL) << SERVICE_AXICORE_DLOCK_MST_POS)
+#define SERVICE_AXICORE_DLOCK_MST_POS      4UL
+#define SERVICE_AXICORE_DLOCK_MST_MASK     (0x3UL << SERVICE_AXICORE_DLOCK_MST_POS)
+#define SERVICE_AXICORE_DLOCK_MST(val)     (((val)&0x3UL) << SERVICE_AXICORE_DLOCK_MST_POS)
 #define SERVICE_AXICORE_DLOCK_MST_GET(reg) (((reg) >> SERVICE_AXICORE_DLOCK_MST_POS) & 0x3UL)
 
-#define SERVICE_AXICORE_DLOCK_SLV_POS	   1UL
-#define SERVICE_AXICORE_DLOCK_SLV_MASK	   (0x7UL << SERVICE_AXICORE_DLOCK_SLV_POS)
-#define SERVICE_AXICORE_DLOCK_SLV(val)	   (((val)&0x7UL) << SERVICE_AXICORE_DLOCK_SLV_POS)
+#define SERVICE_AXICORE_DLOCK_SLV_POS      1UL
+#define SERVICE_AXICORE_DLOCK_SLV_MASK     (0x7UL << SERVICE_AXICORE_DLOCK_SLV_POS)
+#define SERVICE_AXICORE_DLOCK_SLV(val)     (((val)&0x7UL) << SERVICE_AXICORE_DLOCK_SLV_POS)
 #define SERVICE_AXICORE_DLOCK_SLV_GET(reg) (((reg) >> SERVICE_AXICORE_DLOCK_SLV_POS) & 0x7UL)
 
-#define SERVICE_AXICORE_DLOCK_WR_POS	  0UL
-#define SERVICE_AXICORE_DLOCK_WR_MASK	  (0x1UL << SERVICE_AXICORE_DLOCK_WR_POS)
-#define SERVICE_AXICORE_DLOCK_WR(val)	  (((val)&0x1UL) << SERVICE_AXICORE_DLOCK_WR_POS)
+#define SERVICE_AXICORE_DLOCK_WR_POS      0UL
+#define SERVICE_AXICORE_DLOCK_WR_MASK     (0x1UL << SERVICE_AXICORE_DLOCK_WR_POS)
+#define SERVICE_AXICORE_DLOCK_WR(val)     (((val)&0x1UL) << SERVICE_AXICORE_DLOCK_WR_POS)
 #define SERVICE_AXICORE_DLOCK_WR_GET(reg) (((reg) >> SERVICE_AXICORE_DLOCK_WR_POS) & 0x1UL)
 
 /* register axisys_dlock             offset 0x2014 (R/ 32)  Debug Register for axisys switch */
@@ -319,28 +319,28 @@ typedef struct
 /* bits 4                 dlock_mst          0   */ //Shows the master number for the transaction that caused the switch to hang
 /* bits 3:1               dlock_slv          0   */ //Shows the slave number for the transaction that caused the switch to hang
 /* bits 0                 dlock_wr           0   */ //Shows writing or reading caused the switch to hang
-#define SERVICE_AXISYS_OFFSET	  0x2014UL
-#define SERVICE_AXISYS_MASK	  0xFFUL
+#define SERVICE_AXISYS_OFFSET     0x2014UL
+#define SERVICE_AXISYS_MASK       0xFFUL
 #define SERVICE_AXISYS_RESETVALUE 0UL
 
-#define SERVICE_AXISYS_DLOCK_ID_POS	 5UL
-#define SERVICE_AXISYS_DLOCK_ID_MASK	 (0x7UL << SERVICE_AXISYS_DLOCK_ID_POS)
-#define SERVICE_AXISYS_DLOCK_ID(val)	 (((val)&0x7UL) << SERVICE_AXISYS_DLOCK_ID_POS)
+#define SERVICE_AXISYS_DLOCK_ID_POS      5UL
+#define SERVICE_AXISYS_DLOCK_ID_MASK     (0x7UL << SERVICE_AXISYS_DLOCK_ID_POS)
+#define SERVICE_AXISYS_DLOCK_ID(val)     (((val)&0x7UL) << SERVICE_AXISYS_DLOCK_ID_POS)
 #define SERVICE_AXISYS_DLOCK_ID_GET(reg) (((reg) >> SERVICE_AXISYS_DLOCK_ID_POS) & 0x7UL)
 
-#define SERVICE_AXISYS_DLOCK_MST_POS	  4UL
-#define SERVICE_AXISYS_DLOCK_MST_MASK	  (0x1UL << SERVICE_AXISYS_DLOCK_MST_POS)
-#define SERVICE_AXISYS_DLOCK_MST(val)	  (((val)&0x1UL) << SERVICE_AXISYS_DLOCK_MST_POS)
+#define SERVICE_AXISYS_DLOCK_MST_POS      4UL
+#define SERVICE_AXISYS_DLOCK_MST_MASK     (0x1UL << SERVICE_AXISYS_DLOCK_MST_POS)
+#define SERVICE_AXISYS_DLOCK_MST(val)     (((val)&0x1UL) << SERVICE_AXISYS_DLOCK_MST_POS)
 #define SERVICE_AXISYS_DLOCK_MST_GET(reg) (((reg) >> SERVICE_AXISYS_DLOCK_MST_POS) & 0x1UL)
 
-#define SERVICE_AXISYS_DLOCK_SLV_POS	  1UL
-#define SERVICE_AXISYS_DLOCK_SLV_MASK	  (0x7UL << SERVICE_AXISYS_DLOCK_SLV_POS)
-#define SERVICE_AXISYS_DLOCK_SLV(val)	  (((val)&0x7UL) << SERVICE_AXISYS_DLOCK_SLV_POS)
+#define SERVICE_AXISYS_DLOCK_SLV_POS      1UL
+#define SERVICE_AXISYS_DLOCK_SLV_MASK     (0x7UL << SERVICE_AXISYS_DLOCK_SLV_POS)
+#define SERVICE_AXISYS_DLOCK_SLV(val)     (((val)&0x7UL) << SERVICE_AXISYS_DLOCK_SLV_POS)
 #define SERVICE_AXISYS_DLOCK_SLV_GET(reg) (((reg) >> SERVICE_AXISYS_DLOCK_SLV_POS) & 0x7UL)
 
-#define SERVICE_AXISYS_DLOCK_WR_POS	 0UL
-#define SERVICE_AXISYS_DLOCK_WR_MASK	 (0x1UL << SERVICE_AXISYS_DLOCK_WR_POS)
-#define SERVICE_AXISYS_DLOCK_WR(val)	 (((val)&0x1UL) << SERVICE_AXISYS_DLOCK_WR_POS)
+#define SERVICE_AXISYS_DLOCK_WR_POS      0UL
+#define SERVICE_AXISYS_DLOCK_WR_MASK     (0x1UL << SERVICE_AXISYS_DLOCK_WR_POS)
+#define SERVICE_AXISYS_DLOCK_WR(val)     (((val)&0x1UL) << SERVICE_AXISYS_DLOCK_WR_POS)
 #define SERVICE_AXISYS_DLOCK_WR_GET(reg) (((reg) >> SERVICE_AXISYS_DLOCK_WR_POS) & 0x1UL)
 
 /* register extint_cfg    offset: 0x2020 (R/W 32)  EXTINT Output Setting Register */
@@ -348,12 +348,12 @@ typedef struct
 /* bits: 1:0                 outen            0  */
 // The field bits control the direction of the corresponding EXTINT [1: 0] pins of the microcircuit, 0 - the pin operates in the input mode, 1 - in the output mode
 #define SERVICE_EXTINT_CFG_OFFSET     0x2020UL
-#define SERVICE_EXTINT_CFG_MASK	      0x3UL
+#define SERVICE_EXTINT_CFG_MASK       0x3UL
 #define SERVICE_EXTINT_CFG_RESETVALUE 0UL
 
-#define SERVICE_EXTINT_CFG_OUTEN_POS	  0UL
-#define SERVICE_EXTINT_CFG_OUTEN_MASK	  (0x3UL << SERVICE_EXTINT_CFG_OUTEN_POS)
-#define SERVICE_EXTINT_CFG_OUTEN(val)	  (((val)&0x3UL) << SERVICE_EXTINT_CFG_OUTEN_POS)
+#define SERVICE_EXTINT_CFG_OUTEN_POS      0UL
+#define SERVICE_EXTINT_CFG_OUTEN_MASK     (0x3UL << SERVICE_EXTINT_CFG_OUTEN_POS)
+#define SERVICE_EXTINT_CFG_OUTEN(val)     (((val)&0x3UL) << SERVICE_EXTINT_CFG_OUTEN_POS)
 #define SERVICE_EXTINT_CFG_OUTEN_GET(reg) (((reg) >> SERVICE_EXTINT_CFG_OUTEN_POS) & 0x3UL)
 
 /* register pads_ren     offset: 0x2024 (R/W 32)  Pull-up resistor enable register for subsystem pins */
@@ -363,33 +363,33 @@ typedef struct
 /* bits 2                   i2c4_ren             0  */ //    1'b0 - pull-up is on; 1'b1 - pull-up is off
 /* bits 1                   qspi0_ren            0  */ //    1'b0 - pull-up is on; 1'b1 - pull-up is off
 /* bits 0                   sysio_ren            0  */
-#define SERVICE_PADS_REN_OFFSET	    0x2024UL
-#define SERVICE_PADS_REN_MASK	    0x1FUL
+#define SERVICE_PADS_REN_OFFSET     0x2024UL
+#define SERVICE_PADS_REN_MASK       0x1FUL
 #define SERVICE_PADS_REN_RESETVALUE 0UL
 
-#define SERVICE_PADS_REN_MFBSP0_REN_POS	     4UL
+#define SERVICE_PADS_REN_MFBSP0_REN_POS      4UL
 #define SERVICE_PADS_REN_MFBSP0_REN_MASK     (0x1UL << SERVICE_PADS_REN_MFBSP0_REN_POS)
 #define SERVICE_PADS_REN_MFBSP0_REN(val)     (((val)&0x1UL) << SERVICE_PADS_REN_MFBSP0_REN_POS)
 #define SERVICE_PADS_REN_MFBSP0_REN_GET(reg) (((reg) >> SERVICE_PADS_REN_MFBSP0_REN_POS) & 0x1UL)
 
-#define SERVICE_PADS_REN_MFBSP1_REN_POS	     3UL
+#define SERVICE_PADS_REN_MFBSP1_REN_POS      3UL
 #define SERVICE_PADS_REN_MFBSP1_REN_MASK     (0x1UL << SERVICE_PADS_REN_MFBSP1_REN_POS)
 #define SERVICE_PADS_REN_MFBSP1_REN(val)     (((val)&0x1UL) << SERVICE_PADS_REN_MFBSP1_REN_POS)
 #define SERVICE_PADS_REN_MFBSP1_REN_GET(reg) (((reg) >> SERVICE_PADS_REN_MFBSP1_REN_POS) & 0x1UL)
 
-#define SERVICE_PADS_REN_I2C4_REN_POS	   2UL
-#define SERVICE_PADS_REN_I2C4_REN_MASK	   (0x1UL << SERVICE_PADS_REN_I2C4_REN_POS)
-#define SERVICE_PADS_REN_I2C4_REN(val)	   (((val)&0x1UL) << SERVICE_PADS_REN_I2C4_REN_POS)
+#define SERVICE_PADS_REN_I2C4_REN_POS      2UL
+#define SERVICE_PADS_REN_I2C4_REN_MASK     (0x1UL << SERVICE_PADS_REN_I2C4_REN_POS)
+#define SERVICE_PADS_REN_I2C4_REN(val)     (((val)&0x1UL) << SERVICE_PADS_REN_I2C4_REN_POS)
 #define SERVICE_PADS_REN_I2C4_REN_GET(reg) (((reg) >> SERVICE_PADS_REN_I2C4_REN_POS) & 0x1UL)
 
-#define SERVICE_PADS_REN_QSPI0_REN_POS	    1UL
-#define SERVICE_PADS_REN_QSPI0_REN_MASK	    (0x1UL << SERVICE_PADS_REN_QSPI0_REN_POS)
-#define SERVICE_PADS_REN_QSPI0_REN(val)	    (((val)&0x1UL) << SERVICE_PADS_REN_QSPI0_REN_POS)
+#define SERVICE_PADS_REN_QSPI0_REN_POS      1UL
+#define SERVICE_PADS_REN_QSPI0_REN_MASK     (0x1UL << SERVICE_PADS_REN_QSPI0_REN_POS)
+#define SERVICE_PADS_REN_QSPI0_REN(val)     (((val)&0x1UL) << SERVICE_PADS_REN_QSPI0_REN_POS)
 #define SERVICE_PADS_REN_QSPI0_REN_GET(reg) (((reg) >> SERVICE_PADS_REN_QSPI0_REN_POS) & 0x1UL)
 
-#define SERVICE_PADS_REN_SYSIO_REN_POS	    0UL
-#define SERVICE_PADS_REN_SYSIO_REN_MASK	    (0x1UL << SERVICE_PADS_REN_SYSIO_REN_POS)
-#define SERVICE_PADS_REN_SYSIO_REN(val)	    (((val)&0x1UL) << SERVICE_PADS_REN_SYSIO_REN_POS)
+#define SERVICE_PADS_REN_SYSIO_REN_POS      0UL
+#define SERVICE_PADS_REN_SYSIO_REN_MASK     (0x1UL << SERVICE_PADS_REN_SYSIO_REN_POS)
+#define SERVICE_PADS_REN_SYSIO_REN(val)     (((val)&0x1UL) << SERVICE_PADS_REN_SYSIO_REN_POS)
 #define SERVICE_PADS_REN_SYSIO_REN_GET(reg) (((reg) >> SERVICE_PADS_REN_SYSIO_REN_POS) & 0x1UL)
 
 /* register fuse0                 offset 0x3000 (R/ 32)  Fuse 0 Register */
@@ -425,13 +425,13 @@ typedef struct
 /* bit 2            boot2                      0     */ // Specifies the source for initial loading of the microcircuit
 /* bit 1            boot1                      0     */ // Specifies the source for initial loading of the microcircuit
 /* bit 0            boot0                      0     */ // Specifies the source for initial loading of the microcircuit
-#define SERVICE_FUSE0_OFFSET	 0x3000UL
-#define SERVICE_FUSE0_MASK	 0x8FFF3FFFUL
+#define SERVICE_FUSE0_OFFSET     0x3000UL
+#define SERVICE_FUSE0_MASK       0x8FFF3FFFUL
 #define SERVICE_FUSE0_RESETVALUE 0UL
 
-#define SERVICE_FUSE0_LOCK_POS	    31UL
-#define SERVICE_FUSE0_LOCK_MASK	    (0x1UL << SERVICE_FUSE0_LOCK_POS)
-#define SERVICE_FUSE0_LOCK(val)	    (((val)&0x1UL) << SERVICE_FUSE0_LOCK_POS)
+#define SERVICE_FUSE0_LOCK_POS      31UL
+#define SERVICE_FUSE0_LOCK_MASK     (0x1UL << SERVICE_FUSE0_LOCK_POS)
+#define SERVICE_FUSE0_LOCK(val)     (((val)&0x1UL) << SERVICE_FUSE0_LOCK_POS)
 #define SERVICE_FUSE0_LOCK_GET(reg) (((reg) >> SERVICE_FUSE0_LOCK_POS) & 0x1UL)
 
 #define SERVICE_FUSE0_TOP_SUBS_DISABLE_POS  27UL
@@ -530,14 +530,14 @@ typedef struct
 #define SERVICE_FUSE0_TRUSTEDTOSECURE_DISABLE_GET(reg) \
 	(((reg) >> SERVICE_FUSE0_TRUSTEDTOSECURE_DISABLE_POS) & 0x1UL)
 
-#define SERVICE_FUSE0_DPM_ENABLE_POS	  12UL
-#define SERVICE_FUSE0_DPM_ENABLE_MASK	  (0x1UL << SERVICE_FUSE0_DPM_ENABLE_POS)
-#define SERVICE_FUSE0_DPM_ENABLE(val)	  (((val)&0x1UL) << SERVICE_FUSE0_DPM_ENABLE_POS)
+#define SERVICE_FUSE0_DPM_ENABLE_POS      12UL
+#define SERVICE_FUSE0_DPM_ENABLE_MASK     (0x1UL << SERVICE_FUSE0_DPM_ENABLE_POS)
+#define SERVICE_FUSE0_DPM_ENABLE(val)     (((val)&0x1UL) << SERVICE_FUSE0_DPM_ENABLE_POS)
 #define SERVICE_FUSE0_DPM_ENABLE_GET(reg) (((reg) >> SERVICE_FUSE0_DPM_ENABLE_POS) & 0x1UL)
 
-#define SERVICE_FUSE0_RESERVED_POS	11UL
-#define SERVICE_FUSE0_RESERVED_MASK	(0x1UL << SERVICE_FUSE0_RESERVED_POS)
-#define SERVICE_FUSE0_RESERVED(val)	(((val)&0x1UL) << SERVICE_FUSE0_RESERVED_POS)
+#define SERVICE_FUSE0_RESERVED_POS      11UL
+#define SERVICE_FUSE0_RESERVED_MASK     (0x1UL << SERVICE_FUSE0_RESERVED_POS)
+#define SERVICE_FUSE0_RESERVED(val)     (((val)&0x1UL) << SERVICE_FUSE0_RESERVED_POS)
 #define SERVICE_FUSE0_RESERVED_GET(reg) (((reg) >> SERVICE_FUSE0_RESERVED_POS) & 0x1UL)
 
 #define SERVICE_FUSE0_DPM_LOCK_SECURE_POS  10UL
@@ -546,9 +546,9 @@ typedef struct
 #define SERVICE_FUSE0_DPM_LOCK_SECURE_GET(reg) \
 	(((reg) >> SERVICE_FUSE0_DPM_LOCK_SECURE_POS) & 0x1UL)
 
-#define SERVICE_FUSE0_DPM_LOCK_SDR_POS	    9UL
-#define SERVICE_FUSE0_DPM_LOCK_SDR_MASK	    (0x1UL << SERVICE_FUSE0_DPM_LOCK_SDR_POS)
-#define SERVICE_FUSE0_DPM_LOCK_SDR(val)	    (((val)&0x1UL) << SERVICE_FUSE0_DPM_LOCK_SDR_POS)
+#define SERVICE_FUSE0_DPM_LOCK_SDR_POS      9UL
+#define SERVICE_FUSE0_DPM_LOCK_SDR_MASK     (0x1UL << SERVICE_FUSE0_DPM_LOCK_SDR_POS)
+#define SERVICE_FUSE0_DPM_LOCK_SDR(val)     (((val)&0x1UL) << SERVICE_FUSE0_DPM_LOCK_SDR_POS)
 #define SERVICE_FUSE0_DPM_LOCK_SDR_GET(reg) (((reg) >> SERVICE_FUSE0_DPM_LOCK_SDR_POS) & 0x1UL)
 
 #define SERVICE_FUSE0_DPM_LOCK_TRUSTED_POS  8UL
@@ -563,7 +563,7 @@ typedef struct
 #define SERVICE_FUSE0_BS_EN_PADOVERRIDE_GET(reg) \
 	(((reg) >> SERVICE_FUSE0_BS_EN_PADOVERRIDE_POS) & 0x1UL)
 
-#define SERVICE_FUSE0_BS_EN_POS	     6UL
+#define SERVICE_FUSE0_BS_EN_POS      6UL
 #define SERVICE_FUSE0_BS_EN_MASK     (0x1UL << SERVICE_FUSE0_BS_EN_POS)
 #define SERVICE_FUSE0_BS_EN(val)     (((val)&0x1UL) << SERVICE_FUSE0_BS_EN_POS)
 #define SERVICE_FUSE0_BS_EN_GET(reg) (((reg) >> SERVICE_FUSE0_BS_EN_POS) & 0x1UL)
@@ -574,7 +574,7 @@ typedef struct
 #define SERVICE_FUSE0_VS_EN_PADOVERRIDE_GET(reg) \
 	(((reg) >> SERVICE_FUSE0_VS_EN_PADOVERRIDE_POS) & 0x1UL)
 
-#define SERVICE_FUSE0_VS_EN_POS	     4UL
+#define SERVICE_FUSE0_VS_EN_POS      4UL
 #define SERVICE_FUSE0_VS_EN_MASK     (0x1UL << SERVICE_FUSE0_VS_EN_POS)
 #define SERVICE_FUSE0_VS_EN(val)     (((val)&0x1UL) << SERVICE_FUSE0_VS_EN_POS)
 #define SERVICE_FUSE0_VS_EN_GET(reg) (((reg) >> SERVICE_FUSE0_VS_EN_POS) & 0x1UL)
@@ -585,9 +585,9 @@ typedef struct
 #define SERVICE_FUSE0_BOOT_PADSOVERRIDE_GET(reg) \
 	(((reg) >> SERVICE_FUSE0_BOOT_PADSOVERRIDE_POS) & 0x1UL)
 
-#define SERVICE_FUSE0_BOOT_POS	    0UL
-#define SERVICE_FUSE0_BOOT_MASK	    (0x7UL << SERVICE_FUSE0_BOOT_POS)
-#define SERVICE_FUSE0_BOOT(val)	    (((val)&0x7UL) << SERVICE_FUSE0_BOOT_POS)
+#define SERVICE_FUSE0_BOOT_POS      0UL
+#define SERVICE_FUSE0_BOOT_MASK     (0x7UL << SERVICE_FUSE0_BOOT_POS)
+#define SERVICE_FUSE0_BOOT(val)     (((val)&0x7UL) << SERVICE_FUSE0_BOOT_POS)
 #define SERVICE_FUSE0_BOOT_GET(reg) (((reg) >> SERVICE_FUSE0_BOOT_POS) & 0x7UL)
 
 // register fuse1                    offset 0x3004 (R/ 32)  Fuse 1 Register */
@@ -595,13 +595,13 @@ typedef struct
 /* bits: 30:30                lock_fw                      */ // Setting the bit blocks the 0xBC-FF OTP memory area from being overwritten
 /* bits: 29:29                lock_bootrom                 */ // Setting the bit blocks the area 0x08 - 0x43 OTP memory from being overwritten
 /* bits: 28:0                 user                   0     */
-#define SERVICE_FUSE1_OFFSET	 0x3004UL
-#define SERVICE_FUSE1_MASK	 0xFFFFFFFFUL
+#define SERVICE_FUSE1_OFFSET     0x3004UL
+#define SERVICE_FUSE1_MASK       0xFFFFFFFFUL
 #define SERVICE_FUSE1_RESETVALUE 0UL
 
-#define SERVICE_FUSE1_LOCK_POS	    31UL
-#define SERVICE_FUSE1_LOCK_MASK	    (0x1UL << SERVICE_FUSE1_LOCK_POS)
-#define SERVICE_FUSE1_LOCK(val)	    (((val)&0x1UL) << SERVICE_FUSE1_LOCK_POS)
+#define SERVICE_FUSE1_LOCK_POS      31UL
+#define SERVICE_FUSE1_LOCK_MASK     (0x1UL << SERVICE_FUSE1_LOCK_POS)
+#define SERVICE_FUSE1_LOCK(val)     (((val)&0x1UL) << SERVICE_FUSE1_LOCK_POS)
 #define SERVICE_FUSE1_LOCK_GET(reg) (((reg) >> SERVICE_FUSE1_LOCK_POS) & 0x1UL)
 
 #define SERVICE_FUSE1_LOCK_FW_POS      30UL
@@ -609,14 +609,14 @@ typedef struct
 #define SERVICE_FUSE1_LOCK_FW(val)     (((val)&0x1UL) << SERVICE_FUSE1_LOCK_FW_POS)
 #define SERVICE_FUSE1_LOCK_FW_GET(reg) (((reg) >> SERVICE_FUSE1_LOCK_FW_POS) & 0x1UL)
 
-#define SERVICE_FUSE1_LOCK_BOOTROM_POS	    29UL
-#define SERVICE_FUSE1_LOCK_BOOTROM_MASK	    (0x1UL << SERVICE_FUSE1_LOCK_BOOTROM_POS)
-#define SERVICE_FUSE1_LOCK_BOOTROM(val)	    (((val)&0x1UL) << SERVICE_FUSE1_LOCK_BOOTROM_POS)
+#define SERVICE_FUSE1_LOCK_BOOTROM_POS      29UL
+#define SERVICE_FUSE1_LOCK_BOOTROM_MASK     (0x1UL << SERVICE_FUSE1_LOCK_BOOTROM_POS)
+#define SERVICE_FUSE1_LOCK_BOOTROM(val)     (((val)&0x1UL) << SERVICE_FUSE1_LOCK_BOOTROM_POS)
 #define SERVICE_FUSE1_LOCK_BOOTROM_GET(reg) (((reg) >> SERVICE_FUSE1_LOCK_BOOTROM_POS) & 0x1UL)
 
-#define SERVICE_FUSE1_USER_POS	    0UL
-#define SERVICE_FUSE1_USER_MASK	    (0x1fffffffUL << SERVICE_FUSE1_USER_POS)
-#define SERVICE_FUSE1_USER(val)	    (((val)&0x1fffffffUL) << SERVICE_FUSE1_USER_POS)
+#define SERVICE_FUSE1_USER_POS      0UL
+#define SERVICE_FUSE1_USER_MASK     (0x1fffffffUL << SERVICE_FUSE1_USER_POS)
+#define SERVICE_FUSE1_USER(val)     (((val)&0x1fffffffUL) << SERVICE_FUSE1_USER_POS)
 #define SERVICE_FUSE1_USER_GET(reg) (((reg) >> SERVICE_FUSE1_USER_POS) & 0x1fffffffUL)
 
 // register otp_mode           offset 0x3008 (R/W 32)  OTP Mode Register */
@@ -624,21 +624,21 @@ typedef struct
 /* bits: 2                 pd                1  */ // Cut off the otp power line needed to read it
 /* bits: 1                 dctrl             0  */ // Bit allows direct reading from otp via apb bus. The bit value must be changed when spi_otp cs == 0, or when spi_otp cs == 1 and NOP on the data bus
 /* bits: 0                 sp                0  */ // Operation mode otp c spi_otp 1 - sequential; 0 - parallel
-#define SERVICE_OTP_MODE_OFFSET	    0x3008UL
-#define SERVICE_OTP_MODE_MASK	    0x7UL
+#define SERVICE_OTP_MODE_OFFSET     0x3008UL
+#define SERVICE_OTP_MODE_MASK       0x7UL
 #define SERVICE_OTP_MODE_RESETVALUE 0x4UL
 
-#define SERVICE_OTP_MODE_PD_POS	     2UL
+#define SERVICE_OTP_MODE_PD_POS      2UL
 #define SERVICE_OTP_MODE_PD_MASK     (0x1UL << SERVICE_OTP_MODE_PD_POS)
 #define SERVICE_OTP_MODE_PD(val)     (((val)&0x1UL) << SERVICE_OTP_MODE_PD_POS)
 #define SERVICE_OTP_MODE_PD_GET(reg) (((reg) >> SERVICE_OTP_MODE_PD_POS) & 0x1UL)
 
-#define SERVICE_OTP_MODE_DCTRL_POS	1UL
-#define SERVICE_OTP_MODE_DCTRL_MASK	(0x1UL << SERVICE_OTP_MODE_DCTRL_POS)
-#define SERVICE_OTP_MODE_DCTRL(val)	(((val)&0x1UL) << SERVICE_OTP_MODE_DCTRL_POS)
+#define SERVICE_OTP_MODE_DCTRL_POS      1UL
+#define SERVICE_OTP_MODE_DCTRL_MASK     (0x1UL << SERVICE_OTP_MODE_DCTRL_POS)
+#define SERVICE_OTP_MODE_DCTRL(val)     (((val)&0x1UL) << SERVICE_OTP_MODE_DCTRL_POS)
 #define SERVICE_OTP_MODE_DCTRL_GET(reg) (((reg) >> SERVICE_OTP_MODE_DCTRL_POS) & 0x1UL)
 
-#define SERVICE_OTP_MODE_SP_POS	     0UL
+#define SERVICE_OTP_MODE_SP_POS      0UL
 #define SERVICE_OTP_MODE_SP_MASK     (0x1UL << SERVICE_OTP_MODE_SP_POS)
 #define SERVICE_OTP_MODE_SP(val)     (((val)&0x1UL) << SERVICE_OTP_MODE_SP_POS)
 #define SERVICE_OTP_MODE_SP_GET(reg) (((reg) >> SERVICE_OTP_MODE_SP_POS) & 0x1UL)
@@ -647,13 +647,13 @@ typedef struct
 /* bits: 31:2              -                           0        */
 /* bits: 1                 boot_done                   0 -> 1   */ // Reflects the status of completion of the process of initialization of the otp memory when resetting and the validity of the fuse0 and fuse1 registers
 /* bits: 0                 flag                        0        */ // Reflects the states of the FLAG otp pin
-#define SERVICE_OTP_FLAG_OFFSET	    0x300CUL
-#define SERVICE_OTP_FLAG_MASK	    0x3UL
+#define SERVICE_OTP_FLAG_OFFSET     0x300CUL
+#define SERVICE_OTP_FLAG_MASK       0x3UL
 #define SERVICE_OTP_FLAG_RESETVALUE 0UL
 
-#define SERVICE_OTP_FLAG_BOOT_DONE_POS	    1UL
-#define SERVICE_OTP_FLAG_BOOT_DONE_MASK	    (0x1UL << SERVICE_OTP_FLAG_BOOT_DONE_POS)
-#define SERVICE_OTP_FLAG_BOOT_DONE(val)	    (((val)&0x1UL) << SERVICE_OTP_FLAG_BOOT_DONE_POS)
+#define SERVICE_OTP_FLAG_BOOT_DONE_POS      1UL
+#define SERVICE_OTP_FLAG_BOOT_DONE_MASK     (0x1UL << SERVICE_OTP_FLAG_BOOT_DONE_POS)
+#define SERVICE_OTP_FLAG_BOOT_DONE(val)     (((val)&0x1UL) << SERVICE_OTP_FLAG_BOOT_DONE_POS)
 #define SERVICE_OTP_FLAG_BOOT_DONE_GET(reg) (((reg) >> SERVICE_OTP_FLAG_BOOT_DONE_POS) & 0x1UL)
 
 #define SERVICE_OTP_FLAG_FLAG_POS      0UL
@@ -668,7 +668,7 @@ typedef struct
 /* bits 7:6               brp                   0     */ //    BRP Bits (Bit Repair by Polarity)
 /* bits 5:0               ecc                   0     */ //    ECC validation bits
 #define SERVICE_FUSE0_ECC_OFFSET     0x3019UL
-#define SERVICE_FUSE0_ECC_MASK	     0xFFUL
+#define SERVICE_FUSE0_ECC_MASK       0xFFUL
 #define SERVICE_FUSE0_ECC_RESETVALUE 0UL
 
 #define SERVICE_FUSE0_ECC_BRP_POS      6UL
@@ -686,7 +686,7 @@ typedef struct
 /* bits 7:6               brp       0    */ //  BRP Bits (Bit Repair by Polarity)
 /* bits 5:0               ecc       0    */ //  ECC validation bits
 #define SERVICE_FUSE1_ECC_OFFSET     0x3014UL
-#define SERVICE_FUSE1_ECC_MASK	     0xFFUL
+#define SERVICE_FUSE1_ECC_MASK       0xFFUL
 #define SERVICE_FUSE1_ECC_RESETVALUE 0UL
 
 #define SERVICE_FUSE1_ECC_BRP_POS      6UL
@@ -703,16 +703,16 @@ typedef struct
 /* bits 31:8              reserve     0         reserve                                */
 /* bits 7:6               brp                   BRP Bits (Bit Repair by Polarity)      */
 /* bits 5:0               ecc         0         ECC validation bits                    */
-#define SERVICE_OTP_ECC_OFFSET	   0x3018UL
-#define SERVICE_OTP_ECC_MASK	   0UL
+#define SERVICE_OTP_ECC_OFFSET     0x3018UL
+#define SERVICE_OTP_ECC_MASK       0UL
 #define SERVICE_OTP_ECC_RESETVALUE 0UL
 
-#define SERVICE_OTP_ECC_BRP_POS	     6UL
+#define SERVICE_OTP_ECC_BRP_POS      6UL
 #define SERVICE_OTP_ECC_BRP_MASK     (0x3UL << SERVICE_OTP_ECC_BRP_POS)
 #define SERVICE_OTP_ECC_BRP(val)     (((val)&0x3UL) << SERVICE_OTP_ECC_BRP_POS)
 #define SERVICE_OTP_ECC_BRP_GET(reg) (((reg) >> SERVICE_OTP_ECC_BRP_POS) & 0x3UL)
 
-#define SERVICE_OTP_ECC_ECC_POS	     0UL
+#define SERVICE_OTP_ECC_ECC_POS      0UL
 #define SERVICE_OTP_ECC_ECC_MASK     (0x3fUL << SERVICE_OTP_ECC_ECC_POS)
 #define SERVICE_OTP_ECC_ECC(val)     (((val)&0x3fUL) << SERVICE_OTP_ECC_ECC_POS)
 #define SERVICE_OTP_ECC_ECC_GET(reg) (((reg) >> SERVICE_OTP_ECC_ECC_POS) & 0x3fUL)
@@ -721,8 +721,8 @@ typedef struct
 /* bits 31:5              res0                 ?             */
 /* bits 4:1               privileged           0             */ // If the bit of the field is set to 1, calls to the slave with the bit number are allowed only for secure transactions Default 'b1100
 /* bit 0                  reserve              0             */ //
-#define SERVICE_AXICORE_INTERNAL_PRIV_OFFSET	 0x3020UL
-#define SERVICE_AXICORE_INTERNAL_PRIV_MASK	 0x1FUL
+#define SERVICE_AXICORE_INTERNAL_PRIV_OFFSET     0x3020UL
+#define SERVICE_AXICORE_INTERNAL_PRIV_MASK       0x1FUL
 #define SERVICE_AXICORE_INTERNAL_PRIV_RESETVALUE 0UL
 
 #define SERVICE_AXICORE_INTERNAL_PRIV_PRIVILEGED_POS 1UL
@@ -737,8 +737,8 @@ typedef struct
 /* bits 31:6              res0               ?               */
 /* bits 5:1               privileged         0               */ // If the field bit is set to 1, calls to
 /* bits 0                 reserve            0               */ // slave with bit number are allowed only for secure transactions Default - 'b11111
-#define SERVICE_AXISYS_INTERNAL_PRIV_OFFSET	0x3024UL
-#define SERVICE_AXISYS_INTERNAL_PRIV_MASK	0x3FUL
+#define SERVICE_AXISYS_INTERNAL_PRIV_OFFSET     0x3024UL
+#define SERVICE_AXISYS_INTERNAL_PRIV_MASK       0x3FUL
 #define SERVICE_AXISYS_INTERNAL_PRIV_RESETVALUE 0UL
 
 #define SERVICE_AXISYS_INTERNAL_PRIV_PRIVILEGED_POS 1UL
@@ -752,8 +752,8 @@ typedef struct
 // register tp_dbgen     offset: 0x3030 (R/W 32)  Debug Access Control Register for DPM_TP */
 /* bits 31:1              -                      0      */ //     reserve
 /* bits 0                 risc0_dbgen            0      */ //     Allows UltraSoC debugging via RISC0
-#define SERVICE_TP_DBGEN_OFFSET	    0x3030UL
-#define SERVICE_TP_DBGEN_MASK	    1UL
+#define SERVICE_TP_DBGEN_OFFSET     0x3030UL
+#define SERVICE_TP_DBGEN_MASK       1UL
 #define SERVICE_TP_DBGEN_RESETVALUE 0UL
 
 #define SERVICE_TP_DBGEN_RISC0_DBGEN_POS      0UL
@@ -767,7 +767,7 @@ typedef struct
 /* bits 1                      dsp0_dbgen                 0   */ //  Allows UltraSoC DSP0 debugging
 /* bits 0                      risc1_dbgen                0   */ //  Allows UltraSoC RISC1 debugging
 #define SERVICE_SDR_DBGEN_OFFSET     0x3034UL
-#define SERVICE_SDR_DBGEN_MASK	     0x7UL
+#define SERVICE_SDR_DBGEN_MASK       0x7UL
 #define SERVICE_SDR_DBGEN_RESETVALUE 0UL
 
 #define SERVICE_SDR_DBGEN_DSP1_DBGEN_POS      2UL
@@ -791,11 +791,11 @@ typedef struct
 /* bits 2                      res0                         ?     */ //
 /* bits 1                      cpu_spiden                   0     */ //          Monitors the SPIDEN CPU input
 /* bits 0                      cpu_spinden                  0     */ //          Monitors the SPINDEN CPU input
-#define SERVICE_SP_DBGEN_OFFSET	    0x3038UL
-#define SERVICE_SP_DBGEN_MASK	    0x7UL
+#define SERVICE_SP_DBGEN_OFFSET     0x3038UL
+#define SERVICE_SP_DBGEN_MASK       0x7UL
 #define SERVICE_SP_DBGEN_RESETVALUE 0UL
 
-#define SERVICE_SP_DBGEN_CPU_SPIDEN_POS	     1UL
+#define SERVICE_SP_DBGEN_CPU_SPIDEN_POS      1UL
 #define SERVICE_SP_DBGEN_CPU_SPIDEN_MASK     (0x1UL << SERVICE_SP_DBGEN_CPU_SPIDEN_POS)
 #define SERVICE_SP_DBGEN_CPU_SPIDEN(val)     (((val)&0x1UL) << SERVICE_SP_DBGEN_CPU_SPIDEN_POS)
 #define SERVICE_SP_DBGEN_CPU_SPIDEN_GET(reg) (((reg) >> SERVICE_SP_DBGEN_CPU_SPIDEN_POS) & 0x1UL)
@@ -810,23 +810,23 @@ typedef struct
 /* bits 2                      cpu_suniden                   0      */ //     Monitors the SUNIDEN CPU input
 /* bits 1                      cpu_dbgen                     0      */ //     Monitors the DBGEN CPU input
 /* bits 0                      cpu_niden                     0      */ //     Monitors the NIDEN CPU input
-#define SERVICE_S_DBGEN_OFFSET	   0x303CUL
-#define SERVICE_S_DBGEN_MASK	   0x7UL
+#define SERVICE_S_DBGEN_OFFSET     0x303CUL
+#define SERVICE_S_DBGEN_MASK       0x7UL
 #define SERVICE_S_DBGEN_RESETVALUE 0UL
 
-#define SERVICE_S_DBGEN_CPU_SUNIDEN_POS	     2UL
+#define SERVICE_S_DBGEN_CPU_SUNIDEN_POS      2UL
 #define SERVICE_S_DBGEN_CPU_SUNIDEN_MASK     (0x1UL << SERVICE_S_DBGEN_CPU_SUNIDEN_POS)
 #define SERVICE_S_DBGEN_CPU_SUNIDEN(val)     (((val)&0x1) << SERVICE_S_DBGEN_CPU_SUNIDEN_POS)
 #define SERVICE_S_DBGEN_CPU_SUNIDEN_GET(reg) (((reg) >> SERVICE_S_DBGEN_CPU_SUNIDEN_POS) & 0x1)
 
-#define SERVICE_S_DBGEN_CPU_DBGEN_POS	   1UL
-#define SERVICE_S_DBGEN_CPU_DBGEN_MASK	   (0x1UL << SERVICE_S_DBGEN_CPU_DBGEN_POS)
-#define SERVICE_S_DBGEN_CPU_DBGEN(val)	   (((val)&0x1UL) << SERVICE_S_DBGEN_CPU_DBGEN_POS)
+#define SERVICE_S_DBGEN_CPU_DBGEN_POS      1UL
+#define SERVICE_S_DBGEN_CPU_DBGEN_MASK     (0x1UL << SERVICE_S_DBGEN_CPU_DBGEN_POS)
+#define SERVICE_S_DBGEN_CPU_DBGEN(val)     (((val)&0x1UL) << SERVICE_S_DBGEN_CPU_DBGEN_POS)
 #define SERVICE_S_DBGEN_CPU_DBGEN_GET(reg) (((reg) >> SERVICE_S_DBGEN_CPU_DBGEN_POS) & 0x1UL)
 
-#define SERVICE_S_DBGEN_CPU_NIDEN_POS	   0UL
-#define SERVICE_S_DBGEN_CPU_NIDEN_MASK	   (0x1UL << SERVICE_S_DBGEN_CPU_NIDEN_POS)
-#define SERVICE_S_DBGEN_CPU_NIDEN(val)	   (((val)&0x1UL) << SERVICE_S_DBGEN_CPU_NIDEN_POS)
+#define SERVICE_S_DBGEN_CPU_NIDEN_POS      0UL
+#define SERVICE_S_DBGEN_CPU_NIDEN_MASK     (0x1UL << SERVICE_S_DBGEN_CPU_NIDEN_POS)
+#define SERVICE_S_DBGEN_CPU_NIDEN(val)     (((val)&0x1UL) << SERVICE_S_DBGEN_CPU_NIDEN_POS)
 #define SERVICE_S_DBGEN_CPU_NIDEN_GET(reg) (((reg) >> SERVICE_S_DBGEN_CPU_NIDEN_POS) & 0x1UL)
 
 /* register ust_dbgen  offset:  0x3040 (R/W 32)  Debug Access Control Register for UltraSoC */
@@ -840,10 +840,10 @@ typedef struct
 /* bits 1              ustc_sdr_en                   0    */ // Allowing work for UltraSoC components as part of the sdr subsystem (with vs_en == 1, this bit is ignored and work is allowed)
 /* bits 0              ustc_ddr_en                   0    */ // Allowing work for UltraSoC components as part of the ddr subsystem (with vs_en == 1, this bit is ignored and work is allowed)
 #define SERVICE_UST_DBGEN_OFFSET     0x3040UL
-#define SERVICE_UST_DBGEN_MASK	     0xFFUL
+#define SERVICE_UST_DBGEN_MASK       0xFFUL
 #define SERVICE_UST_DBGEN_RESETVALUE 0
 
-#define SERVICE_UST_DBGEN_USTC_VIRT_CONS_EN_POS	 7UL
+#define SERVICE_UST_DBGEN_USTC_VIRT_CONS_EN_POS  7UL
 #define SERVICE_UST_DBGEN_USTC_VIRT_CONS_EN_MASK (0x1UL << SERVICE_UST_DBGEN_USTC_VIRT_CONS_EN_POS)
 #define SERVICE_UST_DBGEN_USTC_VIRT_CONS_EN(val) \
 	(((val)&0x1UL) << SERVICE_UST_DBGEN_USTC_VIRT_CONS_EN_POS)
@@ -857,7 +857,7 @@ typedef struct
 #define SERVICE_UST_DBGEN_USTC_DMA_SMB_EN_GET(reg) \
 	(((reg) >> SERVICE_UST_DBGEN_USTC_DMA_SMB_EN_POS) & 0x1UL)
 
-#define SERVICE_UST_DBGEN_USTC_USB_JTAG_EN_POS	5UL
+#define SERVICE_UST_DBGEN_USTC_USB_JTAG_EN_POS  5UL
 #define SERVICE_UST_DBGEN_USTC_USB_JTAG_EN_MASK (0x1UL << SERVICE_UST_DBGEN_USTC_USB_JTAG_EN_POS)
 #define SERVICE_UST_DBGEN_USTC_USB_JTAG_EN(val) \
 	(((val)&0x1UL) << SERVICE_UST_DBGEN_USTC_USB_JTAG_EN_POS)
@@ -870,7 +870,7 @@ typedef struct
 #define SERVICE_UST_DBGEN_USTC_ACOM_EN_GET(reg) \
 	(((reg) >> SERVICE_UST_DBGEN_USTC_ACOM_EN_POS) & 0x1UL)
 
-#define SERVICE_UST_DBGEN_USTC_BPAM_CPU_EN_POS	3UL
+#define SERVICE_UST_DBGEN_USTC_BPAM_CPU_EN_POS  3UL
 #define SERVICE_UST_DBGEN_USTC_BPAM_CPU_EN_MASK (0x1UL << SERVICE_UST_DBGEN_USTC_BPAM_CPU_EN_POS)
 #define SERVICE_UST_DBGEN_USTC_BPAM_CPU_EN(val) \
 	(((val)&0x1UL) << SERVICE_UST_DBGEN_USTC_BPAM_CPU_EN_POS)
@@ -951,7 +951,7 @@ mcom_err_t service_reset_ls_periph0_deassert(service_urb_regs_t *urb, uint32_t t
  * @return Error value
  */
 mcom_err_t service_reset_ls_periph0_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-					   uint32_t timeout);
+                                           uint32_t timeout);
 
 /**
  * @brief The function clocks and releases the ls_periph 1 subsystem reset
@@ -973,7 +973,7 @@ mcom_err_t service_reset_ls_periph1_deassert(service_urb_regs_t *urb, uint32_t t
  * @return Error value
  */
 mcom_err_t service_reset_ls_periph1_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-					   uint32_t timeout);
+                                           uint32_t timeout);
 
 /**
  * @brief The function clocks and releases the hs_periph subsystem reset
@@ -995,7 +995,7 @@ mcom_err_t service_reset_hs_periph_deassert(service_urb_regs_t *urb, uint32_t ti
  * @return Error value
  */
 mcom_err_t service_reset_hs_periph_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-					  uint32_t timeout);
+                                          uint32_t timeout);
 
 /**
  * @brief The function return state of boot register.

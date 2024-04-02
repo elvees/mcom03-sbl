@@ -52,16 +52,16 @@ typedef struct {
 #define GPIO_PORTC U(0x0002) /**< \brief Port C selected */
 #define GPIO_PORTD U(0x0003) /**< \brief Port D selected */
 
-#define GPIO_DIR_INPUT	U(0x0)
+#define GPIO_DIR_INPUT  U(0x0)
 #define GPIO_DIR_OUTPUT U(0x1)
-#define GPIO_MODE_HW	U(0x1)
-#define GPIO_MODE_SW	U(0x0)
+#define GPIO_MODE_HW    U(0x1)
+#define GPIO_MODE_SW    U(0x0)
 
 #define GPIO_PIN_RESET U(0x0)
 #define GPIO_PIN_SET   U(0x1)
 
 #define GPIO_ACTIVE_HIGH BIT(0)
-#define GPIO_ACTIVE_LOW	 BIT(1)
+#define GPIO_ACTIVE_LOW  BIT(1)
 
 static inline gpio_regs_t *gpio_get_registers(void *base)
 {
@@ -69,7 +69,7 @@ static inline gpio_regs_t *gpio_get_registers(void *base)
 }
 
 int gpio_init(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned int mode,
-	      unsigned int direction);
+              unsigned int direction);
 int gpio_read_pin(gpio_regs_t *gpio, unsigned int port, unsigned int pin);
 int gpio_write_pin(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned int pin_state);
 

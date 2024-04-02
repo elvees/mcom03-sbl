@@ -7,11 +7,11 @@
 #include "common.h"
 
 #define DDRMC_MAX_NUMBER      2U
-#define MAX_MEM_REGIONS	      4U
+#define MAX_MEM_REGIONS       4U
 #define MEM_REGIONS_VIRT_ADDR 0xC0000000
 
-#define DDR_SYS_URB_BASE	     0xac000000
-#define CTR_SECURE_REGION	     (DDR_SYS_URB_BASE + 0x80)
+#define DDR_SYS_URB_BASE             0xac000000
+#define CTR_SECURE_REGION            (DDR_SYS_URB_BASE + 0x80)
 #define BASE_SECURE_REGION_LOW(num)  (DDR_SYS_URB_BASE + (0x90 + (num * 0x10)))
 #define BASE_SECURE_REGION_HIGH(num) (DDR_SYS_URB_BASE + (0x94 + (num * 0x10)))
 #define MASK_SECURE_REGION_LOW(num)  (DDR_SYS_URB_BASE + (0x98 + (num * 0x10)))

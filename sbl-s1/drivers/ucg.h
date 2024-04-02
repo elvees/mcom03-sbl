@@ -25,12 +25,12 @@
  *        of a synchronisation system
  *
  */
-#define UCG_Q_FSM_STATE_STOPPED	 U(0x00)
-#define UCG_Q_FSM_STATE_CLK_EN	 U(0x01)
-#define UCG_Q_FSM_STATE_REQUEST	 U(0x02)
-#define UCG_Q_FSM_STATE_DENIED	 U(0x03)
-#define UCG_Q_FSM_STATE_EXIT	 U(0x04)
-#define UCG_Q_FSM_STATE_RUN	 U(0x06)
+#define UCG_Q_FSM_STATE_STOPPED  U(0x00)
+#define UCG_Q_FSM_STATE_CLK_EN   U(0x01)
+#define UCG_Q_FSM_STATE_REQUEST  U(0x02)
+#define UCG_Q_FSM_STATE_DENIED   U(0x03)
+#define UCG_Q_FSM_STATE_EXIT     U(0x04)
+#define UCG_Q_FSM_STATE_RUN      U(0x06)
 #define UCG_Q_FSM_STATE_CONTINUE U(0x07)
 
 /**
@@ -60,10 +60,10 @@ typedef struct {
 #define UCG_CTR_REG_OFFSET     0x000
 #define UCG_CTR_REG_RESETVALUE U(0x00000000)
 
-#define UCG_CTR_REG_LPI_EN_Pos	   0
-#define UCG_CTR_REG_LPI_EN	   (U(0x1) << UCG_CTR_REG_LPI_EN_Pos)
-#define UCG_CTR_REG_CLK_EN_Pos	   1
-#define UCG_CTR_REG_CLK_EN	   (U(0x1) << UCG_CTR_REG_CLK_EN_Pos)
+#define UCG_CTR_REG_LPI_EN_Pos     0
+#define UCG_CTR_REG_LPI_EN         (U(0x1) << UCG_CTR_REG_LPI_EN_Pos)
+#define UCG_CTR_REG_CLK_EN_Pos     1
+#define UCG_CTR_REG_CLK_EN         (U(0x1) << UCG_CTR_REG_CLK_EN_Pos)
 #define UCG_CTR_REG_CLK_EN_STS_Pos 2
 #define UCG_CTR_REG_CLK_EN_STS_Msk (U(0x7) << UCG_CTR_REG_CLK_EN_STS_Pos)
 #define UCG_CTR_REG_CLK_EN_STS(value) \
@@ -79,8 +79,8 @@ typedef struct {
 #define UCG_CTR_REG_DIV_COEFF(value) \
 	(UCG_CTR_REG_DIV_COEFF_Msk & ((value) << UCG_CTR_REG_DIV_COEFF_Pos))
 #define UCG_CTR_REG_DIV_LOCK_Pos 30
-#define UCG_CTR_REG_DIV_LOCK	 (U(0x1) << UCG_CTR_REG_DIV_LOCK_Pos)
-#define UCG_CTR_REG_MASK	 U(0x7FFFFFDF)
+#define UCG_CTR_REG_DIV_LOCK     (U(0x1) << UCG_CTR_REG_DIV_LOCK_Pos)
+#define UCG_CTR_REG_MASK         U(0x7FFFFFDF)
 
 /* --------  UCG_BP_CTR_REG : (R/W 32) UCG BYPASS Mode Register -------- */
 /*!< bit:      0  Bypass Mode Channel  0 Enable */
@@ -100,7 +100,7 @@ typedef struct {
 /*!< bit:     14  Bypass Mode Channel 14 Enable */
 /*!< bit:     15  Bypass Mode Channel 15 Enable */
 /*!< bit: 16..31  Reserved                      */
-#define UCG_BP_CTR_REG_OFFSET	  0x040
+#define UCG_BP_CTR_REG_OFFSET     0x040
 #define UCG_BP_CTR_REG_RESETVALUE U(0x00000000)
 
 #define UCG_BP_CTR_REG_XTI_EN_CH0_Pos  0
@@ -135,7 +135,7 @@ typedef struct {
 #define UCG_BP_CTR_REG_XTI_EN_CH14     (U(0x1) << UCG_BP_CTR_REG_XTI_EN_CH14_Pos)
 #define UCG_BP_CTR_REG_XTI_EN_CH15_Pos 15
 #define UCG_BP_CTR_REG_XTI_EN_CH15     (U(0x1) << UCG_BP_CTR_REG_XTI_EN_CH15_Pos)
-#define UCG_BP_CTR_REG_MASK	       U(0x0000FFFF)
+#define UCG_BP_CTR_REG_MASK            U(0x0000FFFF)
 
 /* --------  UCG_SYNC_CLK_REG : ( /W 32) Channel Synchronization Register -------- */
 /*!< bit:      0  Request Sync CLK Channel  0 */
@@ -155,41 +155,41 @@ typedef struct {
 /*!< bit:     14  Request Sync CLK Channel 14 */
 /*!< bit:     15  Request Sync CLK Channel 15 */
 /*!< bit: 16..31  Reserved                    */
-#define UCG_SYNC_CLK_REG_OFFSET	    0x044
+#define UCG_SYNC_CLK_REG_OFFSET     0x044
 #define UCG_SYNC_CLK_REG_RESETVALUE U(0x00000000)
 
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH0_Pos  0
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH0	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH0_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH0      (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH0_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH1_Pos  1
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH1	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH1_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH1      (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH1_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH2_Pos  2
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH2	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH2_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH2      (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH2_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH3_Pos  3
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH3	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH3_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH3      (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH3_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH4_Pos  4
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH4	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH4_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH4      (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH4_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH5_Pos  5
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH5	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH5_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH5      (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH5_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH6_Pos  6
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH6	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH6_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH6      (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH6_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH7_Pos  7
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH7	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH7_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH7      (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH7_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH8_Pos  8
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH8	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH8_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH8      (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH8_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH9_Pos  9
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH9	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH9_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH9      (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH9_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH10_Pos 10
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH10	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH10_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH10     (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH10_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH11_Pos 11
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH11	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH11_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH11     (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH11_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH12_Pos 12
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH12	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH12_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH12     (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH12_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH13_Pos 13
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH13	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH13_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH13     (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH13_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH14_Pos 14
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH14	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH14_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH14     (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH14_Pos)
 #define UCG_SYNC_CLK_REG_SYNC_CLK_CH15_Pos 15
-#define UCG_SYNC_CLK_REG_SYNC_CLK_CH15	   (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH15_Pos)
+#define UCG_SYNC_CLK_REG_SYNC_CLK_CH15     (U(0x1) << UCG_SYNC_CLK_REG_SYNC_CLK_CH15_Pos)
 
 /**
  * @name Processor subsystems
@@ -320,7 +320,7 @@ void ucg_enable_bp(ucg_regs_t *ucg, uint32_t ch_mask);
  * @return Error value
  */
 mcom_err_t ucg_set_divider(ucg_regs_t *ucg, uint32_t ucg_id, uint32_t div, bool enable,
-			   uint32_t timeout);
+                           uint32_t timeout);
 
 /**
  * @brief Sync clocking enable and

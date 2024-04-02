@@ -9,12 +9,12 @@
 
 #include <mcom03-errors.h>
 
-#define UART0		 (0U)
-#define UART1		 (1U)
-#define UART2		 (2U)
-#define UART3		 (3U)
-#define UART_MAX_NUMBER	 (3U)
-#define UART_DEFAULT	 UART0
+#define UART0            (0U)
+#define UART1            (1U)
+#define UART2            (2U)
+#define UART3            (3U)
+#define UART_MAX_NUMBER  (3U)
+#define UART_DEFAULT     UART0
 #define BAUDRATE_DEFAULT (115200)
 
 #define ON  1
@@ -33,9 +33,9 @@
 // Range                    Name              Description
 // bits [31:8]        -           reserve
 // bits [7:0]        RBR          The register of input data
-#define UART_RBR_OFFSET	    0
+#define UART_RBR_OFFSET     0
 #define UART_RBR_RESETVALUE 0
-#define UART_RBR_MASK	    0xFF
+#define UART_RBR_MASK       0xFF
 
 #define UART_RBR_RBR_POS      0
 #define UART_RBR_RBR_MASK     (0xff << UART_RBR_RBR_POS)
@@ -47,9 +47,9 @@
 // Range                    Name              Description
 // bits [31:8]              -              reserve
 // bits [7:0]               THR            The register of output data
-#define UART_THR_OFFSET	    0
+#define UART_THR_OFFSET     0
 #define UART_THR_RESETVALUE 0
-#define UART_RBR_MASK	    0xFF
+#define UART_RBR_MASK       0xFF
 
 #define UART_THR_THR_POS      0
 #define UART_THR_THR_MASK     (0xff << UART_THR_THR_POS)
@@ -62,9 +62,9 @@
 // bits [31:8]              -               reserve
 // bits [7:0]               DLL             Lowest 8 bits of the frequency divider register
 
-#define UART_DLL_OFFSET	    0
+#define UART_DLL_OFFSET     0
 #define UART_DLL_RESETVALUE 0
-#define UART_DLL_MASK	    0xFF
+#define UART_DLL_MASK       0xFF
 
 #define UART_DLL_DLL_POS      0
 #define UART_DLL_DLL_MASK     (0xff << UART_DLL_DLL_POS)
@@ -79,9 +79,9 @@
 // bits [31:8]              -               reserve
 // bits [7:0]               DLH             High 8 bits of the frequency divider register
 
-#define UART_DLH_OFFSET	    0x4
+#define UART_DLH_OFFSET     0x4
 #define UART_DLH_RESETVALUE 0
-#define UART_DHL_MASK	    0xFF
+#define UART_DHL_MASK       0xFF
 
 #define UART_DLH_DLH_POS      0
 #define UART_DLH_DLH_MASK     (0xff << UART_DLH_DLH_POS)
@@ -100,23 +100,23 @@
 // bits [1]                ETBEI            THRE register interrupt enabl. 0x1 – enable 0x0 – disable
 // bits [0]                ERBFI            Enable Received Data Available Interrupt 0x1 - enable 0x0 - disable
 
-#define UART_IER_OFFSET	    0x4
+#define UART_IER_OFFSET     0x4
 #define UART_IER_RESETVALUE 0
-#define UART_IER_MASK	    0xFF
+#define UART_IER_MASK       0xFF
 
-#define UART_IER_PTIME_POS	7
-#define UART_IER_PTIME_MASK	(0x1 << UART_IER_PTIME_POS)
-#define UART_IER_PTIME(val)	(((val)&0x1) << UART_IER_PTIME_POS)
+#define UART_IER_PTIME_POS      7
+#define UART_IER_PTIME_MASK     (0x1 << UART_IER_PTIME_POS)
+#define UART_IER_PTIME(val)     (((val)&0x1) << UART_IER_PTIME_POS)
 #define UART_IER_PTIME_GET(reg) (((reg) >> UART_IER_PTIME_POS) & 0x1)
 
-#define UART_IER_ELCOLR_POS	 4
-#define UART_IER_ELCOLR_MASK	 (0x1 << UART_IER_ELCOLR_POS)
-#define UART_IER_ELCOLR(val)	 (((val)&0x1) << UART_IER_ELCOLR_POS)
+#define UART_IER_ELCOLR_POS      4
+#define UART_IER_ELCOLR_MASK     (0x1 << UART_IER_ELCOLR_POS)
+#define UART_IER_ELCOLR(val)     (((val)&0x1) << UART_IER_ELCOLR_POS)
 #define UART_IER_ELCOLR_GET(reg) (((reg) >> UART_IER_ELCOLR_POS) & 0x1)
 
-#define UART_IER_EDSSI_POS	3
-#define UART_IER_EDSSI_MASK	(0x1 << UART_IER_EDSSI_POS)
-#define UART_IER_EDSSI(val)	(((val)&0x1) << UART_IER_EDSSI_POS)
+#define UART_IER_EDSSI_POS      3
+#define UART_IER_EDSSI_MASK     (0x1 << UART_IER_EDSSI_POS)
+#define UART_IER_EDSSI(val)     (((val)&0x1) << UART_IER_EDSSI_POS)
 #define UART_IER_EDSSI_GET(reg) (((reg) >> UART_IER_EDSSI_POS) & 0x1)
 
 #define UART_IER_ELSI_POS      2
@@ -124,14 +124,14 @@
 #define UART_IER_ELSI(val)     (((val)&0x1) << UART_IER_ELSI_POS)
 #define UART_IER_ELSI_GET(reg) (((reg) >> UART_IER_ELSI_POS) & 0x1)
 
-#define UART_IER_ETBEI_POS	1
-#define UART_IER_ETBEI_MASK	(0x1 << UART_IER_ETBEI_POS)
-#define UART_IER_ETBEI(val)	(((val)&0x1) << UART_IER_ETBEI_POS)
+#define UART_IER_ETBEI_POS      1
+#define UART_IER_ETBEI_MASK     (0x1 << UART_IER_ETBEI_POS)
+#define UART_IER_ETBEI(val)     (((val)&0x1) << UART_IER_ETBEI_POS)
 #define UART_IER_ETBEI_GET(reg) (((reg) >> UART_IER_ETBEI_POS) & 0x1)
 
-#define UART_IER_ERBFI_POS	0
-#define UART_IER_ERBFI_MASK	(0x1 << UART_IER_ERBFI_POS)
-#define UART_IER_ERBFI(val)	(((val)&0x1) << UART_IER_ERBFI_POS)
+#define UART_IER_ERBFI_POS      0
+#define UART_IER_ERBFI_MASK     (0x1 << UART_IER_ERBFI_POS)
+#define UART_IER_ERBFI(val)     (((val)&0x1) << UART_IER_ERBFI_POS)
 #define UART_IER_ERBFI_GET(reg) (((reg) >> UART_IER_ERBFI_POS) & 0x1)
 
 /*----------- FCR ( reset value 0, offset 0x8 ) ( R/W???? )  FIFO control register  -----------*/
@@ -144,11 +144,11 @@
 // bits [1]                 RFIFOR           Resetting the FIFO of the receiver.
 // bits [0]                 FIFOE            Control FIFO 0 - FIFO off 1 - FIFO on
 
-#define UART_FCR_OFFSET	    0x8
+#define UART_FCR_OFFSET     0x8
 #define UART_FCR_RESETVALUE 0
-#define UART_FCR_MASK	    0xFF
+#define UART_FCR_MASK       0xFF
 
-#define UART_FCR_RT_POS	     6
+#define UART_FCR_RT_POS      6
 #define UART_FCR_RT_MASK     (0x3 << UART_FCR_RT_POS)
 #define UART_FCR_RT(val)     (((val)&0x3) << UART_FCR_RT_POS)
 #define UART_FCR_RT_GET(reg) (((reg) >> UART_FCR_RT_POS) & 0x3)
@@ -163,19 +163,19 @@
 #define UART_FCR_DMAM(val)     (((val)&0x3) << UART_FCR_DMAM_POS)
 #define UART_FCR_DMAM_GET(reg) (((reg) >> UART_FCR_DMAM_POS) & 0x3)
 
-#define UART_FCR_XFIFOR_POS	 2
-#define UART_FCR_XFIFOR_MASK	 (0x1 << UART_FCR_XFIFOR_POS)
-#define UART_FCR_XFIFOR(val)	 (((val)&0x1) << UART_FCR_XFIFOR_POS)
+#define UART_FCR_XFIFOR_POS      2
+#define UART_FCR_XFIFOR_MASK     (0x1 << UART_FCR_XFIFOR_POS)
+#define UART_FCR_XFIFOR(val)     (((val)&0x1) << UART_FCR_XFIFOR_POS)
 #define UART_FCR_XFIFOR_GET(reg) (((reg) >> UART_FCR_XFIFOR_POS) & 0x1)
 
-#define UART_FCR_RFIFOR_POS	 1
-#define UART_FCR_RFIFOR_MASK	 (0x1 << UART_FCR_RFIFOR_POS)
-#define UART_FCR_RFIFOR(val)	 (((val)&0x1) << UART_FCR_RFIFOR_POS)
+#define UART_FCR_RFIFOR_POS      1
+#define UART_FCR_RFIFOR_MASK     (0x1 << UART_FCR_RFIFOR_POS)
+#define UART_FCR_RFIFOR(val)     (((val)&0x1) << UART_FCR_RFIFOR_POS)
 #define UART_FCR_RFIFOR_GET(reg) (((reg) >> UART_FCR_RFIFOR_POS) & 0x1)
 
-#define UART_FCR_FIFOE_POS	0
-#define UART_FCR_FIFOE_MASK	(0x1 << UART_FCR_FIFOE_POS)
-#define UART_FCR_FIFOE(val)	(((val)&0x1) << UART_FCR_FIFOE_POS)
+#define UART_FCR_FIFOE_POS      0
+#define UART_FCR_FIFOE_MASK     (0x1 << UART_FCR_FIFOE_POS)
+#define UART_FCR_FIFOE(val)     (((val)&0x1) << UART_FCR_FIFOE_POS)
 #define UART_FCR_FIFOE_GET(reg) (((reg) >> UART_FCR_FIFOE_POS) & 0x1)
 
 /*------  IIR ( reset value 0, offset 0x8 ) ( R/W )  Interrupt identification register ------*/
@@ -190,13 +190,13 @@
 //                                   0x0010 – interrupt THRE
 //                                   0x0000 – modem status
 //                                   0x0111 – write attempt detection
-#define UART_IIR_OFFSET	    0x8
+#define UART_IIR_OFFSET     0x8
 #define UART_IIR_RESETVALUE 0
-#define UART_IIR_MASK	    0xFF
+#define UART_IIR_MASK       0xFF
 
-#define UART_IIR_FIFOSE_POS	 6
-#define UART_IIR_FIFOSE_MASK	 (0x3 << UART_IIR_FIFOSE_POS)
-#define UART_IIR_FIFOSE(val)	 (((val)&0x3) << UART_IIR_FIFOSE_POS)
+#define UART_IIR_FIFOSE_POS      6
+#define UART_IIR_FIFOSE_MASK     (0x3 << UART_IIR_FIFOSE_POS)
+#define UART_IIR_FIFOSE(val)     (((val)&0x3) << UART_IIR_FIFOSE_POS)
 #define UART_IIR_FIFOSE_GET(reg) (((reg) >> UART_IIR_FIFOSE_POS) & 0x3)
 
 #define UART_IIR_IID_POS      0
@@ -219,21 +219,21 @@
 //                                      0x10 – 7 bit
 //                                      0x11 – 8 bit
 
-#define UART_LCR_OFFSET	    0xC
+#define UART_LCR_OFFSET     0xC
 #define UART_LCR_RESETVALUE 0
-#define UART_LCR_MASK	    0xFF
+#define UART_LCR_MASK       0xFF
 
 #define UART_LCR_DLAB_POS      7
 #define UART_LCR_DLAB_MASK     (0x1 << UART_LCR_DLAB_POS)
 #define UART_LCR_DLAB(val)     (((val)&0x1) << UART_LCR_DLAB_POS)
 #define UART_LCR_DLAB_GET(reg) (((reg) >> UART_LCR_DLAB_POS) & 0x1)
 
-#define UART_LCR_BC_POS	     6
+#define UART_LCR_BC_POS      6
 #define UART_LCR_BC_MASK     (0x1 << UART_LCR_BC_POS)
 #define UART_LCR_BC(val)     (((val)&0x1) << UART_LCR_BC_POS)
 #define UART_LCR_BC_GET(reg) (((reg) >> UART_LCR_BC_POS) & 0x1)
 
-#define UART_LCR_SP_POS	     5
+#define UART_LCR_SP_POS      5
 #define UART_LCR_SP_MASK     (0x1 << UART_LCR_SP_POS)
 #define UART_LCR_SP(val)     (((val)&0x1) << UART_LCR_SP_POS)
 #define UART_LCR_SP_GET(reg) (((reg) >> UART_LCR_SP_POS) & 0x1)
@@ -268,9 +268,9 @@
 //  bits [2]                OUT1           Programmable output 1 The value written in the field is inverted and transmitted to the output
 //  bits [1]                RTS            Request for sending data. This bit is used to control the RTS_N pin. The RTS_N pin is used to inform the terminal modem that the UART is ready to communicate.
 //  bits [0]                DTR            Dtr_n line control Used to directly control the dtr_n signal.
-#define UART_MCR_OFFSET	    0x10
+#define UART_MCR_OFFSET     0x10
 #define UART_MCR_RESETVALUE 0
-#define UART_MCR_MASK	    0x7F
+#define UART_MCR_MASK       0x7F
 
 #define UART_MCR_SIRE_POS      6
 #define UART_MCR_SIRE_MASK     (0x1 << UART_MCR_SIRE_POS)
@@ -282,9 +282,9 @@
 #define UART_MCR_AFCE(val)     (((val)&0x1) << UART_MCR_AFCE_POS)
 #define UART_MCR_AFCE_GET(reg) (((reg) >> UART_MCR_AFCE_POS) & 0x1)
 
-#define UART_MCR_LOOPBACK_POS	   4
-#define UART_MCR_LOOPBACK_MASK	   (0x1 << UART_MCR_LOOPBACK_POS)
-#define UART_MCR_LOOPBACK(val)	   (((val)&0x1) << UART_MCR_LOOPBACK_POS)
+#define UART_MCR_LOOPBACK_POS      4
+#define UART_MCR_LOOPBACK_MASK     (0x1 << UART_MCR_LOOPBACK_POS)
+#define UART_MCR_LOOPBACK(val)     (((val)&0x1) << UART_MCR_LOOPBACK_POS)
 #define UART_MCR_LOOPBACK_GET(reg) (((reg) >> UART_MCR_LOOPBACK_POS) & 0x1)
 
 #define UART_MCR_OUT2_POS      3
@@ -318,9 +318,9 @@
 // bits [2]                 PE              Parity (check bit) error. The bit is cleared when the contents of the LSR are read.
 // bits [1]                 OE              Overflow error. The bit is cleared when the contents of the LSR are read. 0x0
 // bits [0]                 DR              Data Ready Bit Indicates the presence of data in the receiver that has not yet been read.
-#define UART_LSR_OFFSET	    0x14
+#define UART_LSR_OFFSET     0x14
 #define UART_LSR_RESETVALUE 0
-#define UART_LSR_MASK	    0xFF
+#define UART_LSR_MASK       0xFF
 
 #define UART_LSR_RFE_POS      7
 #define UART_LSR_RFE_MASK     (0x1 << UART_LSR_RFE_POS)
@@ -337,27 +337,27 @@
 #define UART_LSR_THRE(val)     (((val)&0x1) << UART_LSR_THRE_POS)
 #define UART_LSR_THRE_GET(reg) (((reg) >> UART_LSR_THRE_POS) & 0x1)
 
-#define UART_LSR_BI_POS	     4
+#define UART_LSR_BI_POS      4
 #define UART_LSR_BI_MASK     (0x1 << UART_LSR_BI_POS)
 #define UART_LSR_BI(val)     (((val)&0x1) << UART_LSR_BI_POS)
 #define UART_LSR_BI_GET(reg) (((reg) >> UART_LSR_BI_POS) & 0x1)
 
-#define UART_LSR_FE_POS	     3
+#define UART_LSR_FE_POS      3
 #define UART_LSR_FE_MASK     (0x1 << UART_LSR_FE_POS)
 #define UART_LSR_FE(val)     (((val)&0x1) << UART_LSR_FE_POS)
 #define UART_LSR_FE_GET(reg) (((reg) >> UART_LSR_FE_POS) & 0x1)
 
-#define UART_LSR_PE_POS	     2
+#define UART_LSR_PE_POS      2
 #define UART_LSR_PE_MASK     (0x1 << UART_LSR_PE_POS)
 #define UART_LSR_PE(val)     (((val)&0x1) << UART_LSR_PE_POS)
 #define UART_LSR_PE_GET(reg) (((reg) >> UART_LSR_PE_POS) & 0x1)
 
-#define UART_LSR_OE_POS	     1
+#define UART_LSR_OE_POS      1
 #define UART_LSR_OE_MASK     (0x1 << UART_LSR_OE_POS)
 #define UART_LSR_OE(val)     (((val)&0x1) << UART_LSR_OE_POS)
 #define UART_LSR_OE_GET(reg) (((reg) >> UART_LSR_OE_POS) & 0x1)
 
-#define UART_LSR_DR_POS	     0
+#define UART_LSR_DR_POS      0
 #define UART_LSR_DR_MASK     (0x1 << UART_LSR_DR_POS)
 #define UART_LSR_DR(val)     (((val)&0x1) << UART_LSR_DR_POS)
 #define UART_LSR_DR_GET(reg) (((reg) >> UART_LSR_DR_POS) & 0x1)
@@ -380,16 +380,16 @@
 // bits [1]                  DDSR            Detection of line change dsr_n. Determines if the dsr_n line has changed since the last read of the MSR register.
 // bits [0]                  DCTS            Cts_n line change detection. Determines if the cts_n line has changed since the last read of the MSR register.
 
-#define UART_MSR_OFFSET	    0x18
+#define UART_MSR_OFFSET     0x18
 #define UART_MSR_RESETVALUE 0
-#define UART_MSR_MASK	    0xFF
+#define UART_MSR_MASK       0xFF
 
 #define UART_MSR_DCD_POS      7
 #define UART_MSR_DCD_MASK     (0x1 << UART_MSR_DCD_POS)
 #define UART_MSR_DCD(val)     (((val)&0x1) << UART_MSR_DCD_POS)
 #define UART_MSR_DCD_GET(reg) (((reg) >> UART_MSR_DCD_POS) & 0x1)
 
-#define UART_MSR_RI_POS	     6
+#define UART_MSR_RI_POS      6
 #define UART_MSR_RI_MASK     (0x1 << UART_MSR_RI_POS)
 #define UART_MSR_RI(val)     (((val)&0x1) << UART_MSR_RI_POS)
 #define UART_MSR_RI_GET(reg) (((reg) >> UART_MSR_RI_POS) & 0x1)
@@ -428,9 +428,9 @@
 // Range                    Name             Description
 // bits  [31:8]              reserved
 // bits  [7:0]               SCR             This register is for temporary storage of data. Has no specific purpose in controlling the controller.
-#define UART_SCR_OFFSET	    0x1c
+#define UART_SCR_OFFSET     0x1c
 #define UART_SCR_RESETVALUE 0
-#define UART_SCR_MASK	    0xFF
+#define UART_SCR_MASK       0xFF
 
 #define UART_SCR_SCR_POS      0
 #define UART_SCR_SCR_MASK     (0xff << UART_SCR_SCR_POS)
@@ -443,20 +443,20 @@
 // bits [7:0]               SRBRn           This register duplicates the RBR register. You can contact him at one of the 32 addresses.
 #define UART_SRBR_OFFSET(n)  (0x30 + (n)*4)
 #define UART_SRBR_RESETVALUE 0
-#define UART_SRBB_MASK	     0xFF
+#define UART_SRBB_MASK       0xFF
 
-#define UART_SRBR_POS	   0
-#define UART_SRBR_MASK	   (0xff << UART_SRBR_POS)
-#define UART_SRBR(val)	   (((val)&0xff) << UART_SRBR_POS)
+#define UART_SRBR_POS      0
+#define UART_SRBR_MASK     (0xff << UART_SRBR_POS)
+#define UART_SRBR(val)     (((val)&0xff) << UART_SRBR_POS)
 #define UART_SRBR_GET(reg) (((reg) >> UART_SRBR_POS) & 0xff)
 
 /*--------- FAR ( reset value 0, offset 0x70 )  ( R/W  ) FIFO access register --------*/
 // Range                    Name          Description
 // bits [31:1]              reserved
 // bits [0]                 FAR           FIFO access register. Allows to allow direct access to FIFO buffers
-#define UART_FAR_OFFSET	    0x70
+#define UART_FAR_OFFSET     0x70
 #define UART_FAR_RESETVALUE 0
-#define UART_FAR_MASK	    0x1
+#define UART_FAR_MASK       0x1
 
 #define UART_FAR_FAR_POS      0
 #define UART_FAR_FAR_MASK     (0x1 << UART_FAR_FAR_POS)
@@ -467,9 +467,9 @@
 // Range                    Name              Description
 // bits [31:8]              reserved
 // bits [7:0]               TFR             Reading transmitter FIFO data Available in FIFO access mode (FAR [0] = 1).
-#define UART_TFR_OFFSET	    0x74
+#define UART_TFR_OFFSET     0x74
 #define UART_TFR_RESETVALUE 0
-#define UART_TFR_MASK	    0xFF
+#define UART_TFR_MASK       0xFF
 
 #define UART_TFR_TFR_POS      0
 #define UART_TFR_TFR_MASK     (0xff << UART_TFR_TFR_POS)
@@ -483,9 +483,9 @@
 // bits [8]                RFPE            Parity error recording. When the FIFO mode is disabled, it writes an error to the RBR register.
 // bits [7:0]              RFWD            Writing to the FIFO of the receiver Available in FIFO access mode (FAR [0] = 1)
 
-#define UART_RFW_OFFSET	    0x78
+#define UART_RFW_OFFSET     0x78
 #define UART_RFW_RESETVALUE 0
-#define UART_RFW_MASK	    0x3FF
+#define UART_RFW_MASK       0x3FF
 
 #define UART_RFW_RFFE_POS      9
 #define UART_RFW_RFFE_MASK     (0x1 << UART_RFW_RFFE_POS)
@@ -514,9 +514,9 @@
 //          2. Register THR contains data for transmission, with non-zero value of the frequency divider ({DLH, DLL} ~ = 0) and LCR.DLAB = 0.
 //          3. Currently, data is being received via the serial interface.
 //          4. Register RBR contains data to be received.
-#define UART_USR_OFFSET	    0x7c
+#define UART_USR_OFFSET     0x7c
 #define UART_USR_RESETVALUE 0
-#define UART_USR_MASK	    0x1F
+#define UART_USR_MASK       0x1F
 
 #define UART_USR_RFF_POS      4
 #define UART_USR_RFF_MASK     (0x1 << UART_USR_RFF_POS)
@@ -548,9 +548,9 @@
 // bits [31:6]              reserve
 // bits [5:0]               tfl             FIFO level of the transmitter. Displays the number of data words in the transmitter FIFO.
 
-#define UART_TFL_OFFSET	    0x80
+#define UART_TFL_OFFSET     0x80
 #define UART_TFL_RESETVALUE 0
-#define UART_TFL_MASK	    0x3F
+#define UART_TFL_MASK       0x3F
 
 #define UART_TFL_TFL_POS      0
 #define UART_TFL_TFL_MASK     (0x3f << UART_TFL_TFL_POS)
@@ -561,9 +561,9 @@
 // Range                    Name            Description
 // bits [31:6]              reserve
 // bits [5:0]               rfl             Receiver FIFO level. Displays the number of data words in the receiver FIFO.
-#define UART_RFL_OFFSET	    0x84
+#define UART_RFL_OFFSET     0x84
 #define UART_RFL_RESETVALUE 0
-#define UART_RFL_MASK	    0x3F
+#define UART_RFL_MASK       0x3F
 
 #define UART_RFL_RFL_POS      0
 #define UART_RFL_RFL_MASK     (0x3f << UART_RFL_RFL_POS)
@@ -576,9 +576,9 @@
 // bits [2]                 XFR             Duplicates FCR [2]
 // bits [1]                 RFR             Duplicates FCR [1]
 // bits [0]                 UR              UART soft reset
-#define UART_SRR_OFFSET	    0x88
+#define UART_SRR_OFFSET     0x88
 #define UART_SRR_RESETVALUE 0
-#define UART_SRR_MASK	    0x7
+#define UART_SRR_MASK       0x7
 
 #define UART_SRR_XFR_POS      2
 #define UART_SRR_XFR_MASK     (0x1 << UART_SRR_XFR_POS)
@@ -590,7 +590,7 @@
 #define UART_SRR_RFR(val)     (((val)&0x1) << UART_SRR_RFR_POS)
 #define UART_SRR_RFR_GET(reg) (((reg) >> UART_SRR_RFR_POS) & 0x1)
 
-#define UART_SRR_UR_POS	     0
+#define UART_SRR_UR_POS      0
 #define UART_SRR_UR_MASK     (0x1 << UART_SRR_UR_POS)
 #define UART_SRR_UR(val)     (((val)&0x1) << UART_SRR_UR_POS)
 #define UART_SRR_UR_GET(reg) (((reg) >> UART_SRR_UR_POS) & 0x1)
@@ -601,11 +601,11 @@
 // bits [0]                 SRTS          Duplicates MCR[1]
 #define UART_SRTS_OFFSET     0x8C
 #define UART_SRTS_RESETVALUE 0
-#define UART_SRTS_MASK	     0x1
+#define UART_SRTS_MASK       0x1
 
-#define UART_SRTS_SRTS_POS	0
-#define UART_SRTS_SRTS_MASK	(0x1 << UART_SRTS_SRTS_POS)
-#define UART_SRTS_SRTS(val)	(((val)&0x1) << UART_SRTS_SRTS_POS)
+#define UART_SRTS_SRTS_POS      0
+#define UART_SRTS_SRTS_MASK     (0x1 << UART_SRTS_SRTS_POS)
+#define UART_SRTS_SRTS(val)     (((val)&0x1) << UART_SRTS_SRTS_POS)
 #define UART_SRTS_SRTS_GET(reg) (((reg) >> UART_SRTS_SRTS_POS) & 0x1)
 
 /*-------- SBCR ( reset value 0, offset 0x90 )  ( R/W ) Shadow Break Control Register ----------*/
@@ -614,11 +614,11 @@
 // bits [0]                 SBCB            Duplicates LCR[6]
 #define UART_SBCR_OFFSET     0x90
 #define UART_SBCR_RESETVALUE 0
-#define UART_SBCR_MASK	     0x1
+#define UART_SBCR_MASK       0x1
 
-#define UART_SBCR_SBCB_POS	0
-#define UART_SBCR_SBCB_MASK	(0x1 << UART_SBCR_SBCB_POS)
-#define UART_SBCR_SBCB(val)	(((val)&0x1) << UART_SBCR_SBCB_POS)
+#define UART_SBCR_SBCB_POS      0
+#define UART_SBCR_SBCB_MASK     (0x1 << UART_SBCR_SBCB_POS)
+#define UART_SBCR_SBCB(val)     (((val)&0x1) << UART_SBCR_SBCB_POS)
 #define UART_SBCR_SBCB_GET(reg) (((reg) >> UART_SBCR_SBCB_POS) & 0x1)
 
 /*------ SDMAM ( reset value 0, offset 0x94 )  ( R/W )  Shadow DMA Mode --------------------*/
@@ -627,20 +627,20 @@
 // bits [0]                 SDMAM           Duplicates FCR[3]            0x0
 #define UART_SDMAM_OFFSET     0x94
 #define UART_SDMAM_RESETVALUE 0
-#define UART_SDMAM_MASK	      0x1
+#define UART_SDMAM_MASK       0x1
 
-#define UART_SDMAM_SDMAM_POS	  0
-#define UART_SDMAM_SDMAM_MASK	  (0x1 << UART_SDMAM_SDMAM_POS)
-#define UART_SDMAM_SDMAM(val)	  (((val)&0x1) << UART_SDMAM_SDMAM_POS)
+#define UART_SDMAM_SDMAM_POS      0
+#define UART_SDMAM_SDMAM_MASK     (0x1 << UART_SDMAM_SDMAM_POS)
+#define UART_SDMAM_SDMAM(val)     (((val)&0x1) << UART_SDMAM_SDMAM_POS)
 #define UART_SDMAM_SDMAM_GET(reg) (((reg) >> UART_SDMAM_SDMAM_POS) & 0x1)
 
 /*----- SFE ( reset value 0, offset 0x98 )  ( R/W )  Shadow FIFO Enable ---------------*/
 // Range                    Name              Description
 // bits [31:1]              reserved
 // bit  [0]                 SFE             Duplicates FCR[0]            0x0
-#define UART_SFE_OFFSET	    0x98
+#define UART_SFE_OFFSET     0x98
 #define UART_SFE_RESETVALUE 0
-#define UART_SFE_MASK	    0x1
+#define UART_SFE_MASK       0x1
 
 #define UART_SFE_SFE_POS      0
 #define UART_SFE_SFE_MASK     (0x1 << UART_SFE_SFE_POS)
@@ -651,9 +651,9 @@
 // Range                    Name              Description
 // bits [31:2]              reserved
 // bits [1:0]               SRT             Duplicates FCR[7:6]          0x0
-#define UART_SRT_OFFSET	    0x9C
+#define UART_SRT_OFFSET     0x9C
 #define UART_SRT_RESETVALUE 0
-#define UART_SRT_MASK	    0x1
+#define UART_SRT_MASK       0x1
 
 #define UART_SRT_SRT_POS      0
 #define UART_SRT_SRT_MASK     (0x3 << UART_SRT_SRT_POS)
@@ -666,11 +666,11 @@
 // bits [1:0]               STET          Duplicates FCR[5:4]                                  0x0
 #define UART_STET_OFFSET     0xa0
 #define UART_STET_RESETVALUE 0
-#define UART_STET_MASK	     0x1
+#define UART_STET_MASK       0x1
 
-#define UART_STET_STET_POS	0
-#define UART_STET_STET_MASK	(0x3 << UART_STET_STET_POS)
-#define UART_STET_STET(val)	(((val)&0x3) << UART_STET_STET_POS)
+#define UART_STET_STET_POS      0
+#define UART_STET_STET_MASK     (0x3 << UART_STET_STET_POS)
+#define UART_STET_STET(val)     (((val)&0x3) << UART_STET_STET_POS)
 #define UART_STET_STET_GET(reg) (((reg) >> UART_STET_STET_POS) & 0x3)
 
 /* HTX ( reset value 0, offset 0xA4 )  ( R/W ) Halt TX ------------*/
@@ -678,9 +678,9 @@
 // bits [31:1]              reserved
 // bits [0]                 HTX            Stop transmission                                  0x0
 
-#define UART_HTX_OFFSET	    0xa4
+#define UART_HTX_OFFSET     0xa4
 #define UART_HTX_RESETVALUE 0
-#define UART_HTX_MASK	    0x1
+#define UART_HTX_MASK       0x1
 
 #define UART_HTX_HTX_POS      0
 #define UART_HTX_HTX_MASK     (0x1 << UART_HTX_HTX_POS)
@@ -693,11 +693,11 @@
 // bits [0]                 DMASA          DMA software alerts                          0x0
 #define UART_DMASA_OFFSET     0xa8
 #define UART_DMASA_RESETVALUE 0
-#define UART_DMASA_MASK	      0x1
+#define UART_DMASA_MASK       0x1
 
-#define UART_DMASA_DMASA_POS	  0
-#define UART_DMASA_DMASA_MASK	  (0x1 << UART_DMASA_DMASA_POS)
-#define UART_DMASA_DMASA(val)	  (((val)&0x1) << UART_DMASA_DMASA_POS)
+#define UART_DMASA_DMASA_POS      0
+#define UART_DMASA_DMASA_MASK     (0x1 << UART_DMASA_DMASA_POS)
+#define UART_DMASA_DMASA(val)     (((val)&0x1) << UART_DMASA_DMASA_POS)
 #define UART_DMASA_DMASA_GET(reg) (((reg) >> UART_DMASA_DMASA_POS) & 0x1)
 
 /*---------- TCR ( reset value 0, offset 0xAC )  ( R/W ) Transmission Control Register --------*/
@@ -707,28 +707,28 @@
 // bits [2]                 DE_POL         Signal polarity DE 0x0 - active high state 0x1 - active low state
 // bits [1]                 RE_POL         RE signal polarity 0x0 - active high state 0x1 - active low state
 // bits [0]                 RS485_EN       RS485 mode 0x0 - disabled 0x1 - enabled
-#define UART_TCR_OFFSET	    0xAC
+#define UART_TCR_OFFSET     0xAC
 #define UART_TCR_RESETVALUE 0
-#define UART_TCR_MASK	    0x1F
+#define UART_TCR_MASK       0x1F
 
-#define UART_TCR_XFER_MODE_POS	    3
-#define UART_TCR_XFER_MODE_MASK	    (0x3 << UART_TCR_XFER_MODE_POS)
-#define UART_TCR_XFER_MODE(val)	    (((val)&0x3) << UART_TCR_XFER_MODE_POS)
+#define UART_TCR_XFER_MODE_POS      3
+#define UART_TCR_XFER_MODE_MASK     (0x3 << UART_TCR_XFER_MODE_POS)
+#define UART_TCR_XFER_MODE(val)     (((val)&0x3) << UART_TCR_XFER_MODE_POS)
 #define UART_TCR_XFER_MODE_GET(reg) (((reg) >> UART_TCR_XFER_MODE_POS) & 0x3)
 
-#define UART_TCR_DE_POL_POS	 2
-#define UART_TCR_DE_POL_MASK	 (0x1 << UART_TCR_DE_POL_POS)
-#define UART_TCR_DE_POL(val)	 (((val)&0x1) << UART_TCR_DE_POL_POS)
+#define UART_TCR_DE_POL_POS      2
+#define UART_TCR_DE_POL_MASK     (0x1 << UART_TCR_DE_POL_POS)
+#define UART_TCR_DE_POL(val)     (((val)&0x1) << UART_TCR_DE_POL_POS)
 #define UART_TCR_DE_POL_GET(reg) (((reg) >> UART_TCR_DE_POL_POS) & 0x1)
 
-#define UART_TCR_RE_POL_POS	 1
-#define UART_TCR_RE_POL_MASK	 (0x1 << UART_TCR_RE_POL_POS)
-#define UART_TCR_RE_POL(val)	 (((val)&0x1) << UART_TCR_RE_POL_POS)
+#define UART_TCR_RE_POL_POS      1
+#define UART_TCR_RE_POL_MASK     (0x1 << UART_TCR_RE_POL_POS)
+#define UART_TCR_RE_POL(val)     (((val)&0x1) << UART_TCR_RE_POL_POS)
 #define UART_TCR_RE_POL_GET(reg) (((reg) >> UART_TCR_RE_POL_POS) & 0x1)
 
-#define UART_TCR_RS485_EN_POS	   0
-#define UART_TCR_RS485_EN_MASK	   (0x1 << UART_TCR_RS485_EN_POS)
-#define UART_TCR_RS485_EN(val)	   (((val)&0x1) << UART_TCR_RS485_EN_POS)
+#define UART_TCR_RS485_EN_POS      0
+#define UART_TCR_RS485_EN_MASK     (0x1 << UART_TCR_RS485_EN_POS)
+#define UART_TCR_RS485_EN(val)     (((val)&0x1) << UART_TCR_RS485_EN_POS)
 #define UART_TCR_RS485_EN_GET(reg) (((reg) >> UART_TCR_RS485_EN_POS) & 0x1)
 
 /*------ DE_EN ( reset value 0, offset 0xB0 ) ( R/W ) Signal control register DE -------*/
@@ -737,7 +737,7 @@
 // bits [0]                 DE_ENABLE        Signal control register DE 0x0 - reset 0x1 - set
 #define UART_DE_EN_OFFSET     0xB0
 #define UART_DE_EN_RESETVALUE 0
-#define UART_DE_EN_MASK	      0x1
+#define UART_DE_EN_MASK       0x1
 
 #define UART_DE_EN_DE_ENABLE_POS      0
 #define UART_DE_EN_DE_ENABLE_MASK     (0x1 << UART_DE_EN_DE_ENABLE_POS)
@@ -751,7 +751,7 @@
 
 #define UART_RE_EN_OFFSET     0xB4
 #define UART_RE_EN_RESETVALUE 0
-#define UART_RE_EN_MASK	      0x1
+#define UART_RE_EN_MASK       0x1
 
 #define UART_RE_EN_RE_ENABLE_POS      0
 #define UART_RE_EN_RE_ENABLE_MASK     (0x1 << UART_RE_EN_RE_ENABLE_POS)
@@ -764,45 +764,45 @@
 // bits [23:16]             DE_DEASSERTION_TIME            Reset timer control DE
 // bits [15:8]              reserved
 // bits [7:0]               DE_ASSERTION_TIME              DE setting timer control
-#define UART_DET_OFFSET	    0xB8
+#define UART_DET_OFFSET     0xB8
 #define UART_DET_RESETVALUE 0
-#define UART_DET_MASK	    0xFF00FF
+#define UART_DET_MASK       0xFF00FF
 
 #define UART_DET_DE_DEASSERTION_TIME_POS      16
 #define UART_DET_DE_DEASSERTION_TIME_MASK     (0xff << UART_DET_DE_DEASSERTION_TIME_POS)
 #define UART_DET_DE_DEASSERTION_TIME(val)     (((val)&0xff) << UART_DET_DE_DEASSERTION_TIME_POS)
 #define UART_DET_DE_DEASSERTION_TIME_GET(reg) (((reg) >> UART_DET_DE_DEASSERTION_TIME_POS) & 0xff)
 
-#define UART_DET_DE_ASSERTION_TIME_POS	    0
-#define UART_DET_DE_ASSERTION_TIME_MASK	    (0xff << UART_DET_DE_ASSERTION_TIME_POS)
-#define UART_DET_DE_ASSERTION_TIME(val)	    (((val)&0xff) << UART_DET_DE_ASSERTION_TIME_POS)
+#define UART_DET_DE_ASSERTION_TIME_POS      0
+#define UART_DET_DE_ASSERTION_TIME_MASK     (0xff << UART_DET_DE_ASSERTION_TIME_POS)
+#define UART_DET_DE_ASSERTION_TIME(val)     (((val)&0xff) << UART_DET_DE_ASSERTION_TIME_POS)
 #define UART_DET_DE_ASSERTION_TIME_GET(reg) (((reg) >> UART_DET_DE_ASSERTION_TIME_POS) & 0xff)
 
 /*------- TAT ( reset value 0, offset 0xBC )  ( R/W )  turn around time -------*/
 // Range                    Name              Description
 // bits [31:16]             RE_TO_DE          Delay for switching from RE to DE
 // bits [15:0]              DE_TO_RE          Delay for switching from RE to DE
-#define UART_TAT_OFFSET	    0xBC
+#define UART_TAT_OFFSET     0xBC
 #define UART_TAT_RESETVALUE 0
-#define UART_TAT_MASK	    0xFFFFFFFF
+#define UART_TAT_MASK       0xFFFFFFFF
 
-#define UART_TAT_RE_TO_DE_POS	   16
-#define UART_TAT_RE_TO_DE_MASK	   (0xffff << UART_TAT_RE_TO_DE_POS)
-#define UART_TAT_RE_TO_DE(val)	   (((val)&0xffff) << UART_TAT_RE_TO_DE_POS)
+#define UART_TAT_RE_TO_DE_POS      16
+#define UART_TAT_RE_TO_DE_MASK     (0xffff << UART_TAT_RE_TO_DE_POS)
+#define UART_TAT_RE_TO_DE(val)     (((val)&0xffff) << UART_TAT_RE_TO_DE_POS)
 #define UART_TAT_RE_TO_DE_GET(reg) (((reg) >> UART_TAT_RE_TO_DE_POS) & 0xffff)
 
-#define UART_TAT_DE_TO_RE_POS	   0
-#define UART_TAT_DE_TO_RE_MASK	   (0xffff << UART_TAT_DE_TO_RE_POS)
-#define UART_TAT_DE_TO_RE(val)	   (((val)&0xffff) << UART_TAT_DE_TO_RE_POS)
+#define UART_TAT_DE_TO_RE_POS      0
+#define UART_TAT_DE_TO_RE_MASK     (0xffff << UART_TAT_DE_TO_RE_POS)
+#define UART_TAT_DE_TO_RE(val)     (((val)&0xffff) << UART_TAT_DE_TO_RE_POS)
 #define UART_TAT_DE_TO_RE_GET(reg) (((reg) >> UART_TAT_DE_TO_RE_POS) & 0xffff)
 
 /*------- DLF ( reset value 0, offset 0xC0 )  ( R/W )  Fractional divider register ------*/
 // Range                    Name              Description
 // bits [31:4]              reserved
 // bits [3:0]               DLF               Fractional part of the frequency divider. Defined as DLF * (2 ^ DLF_SIZE)
-#define UART_DLF_OFFSET	    0xC0
+#define UART_DLF_OFFSET     0xC0
 #define UART_DLF_RESETVALUE 0
-#define UART_DLF_MASK	    0xF
+#define UART_DLF_MASK       0xF
 
 #define UART_DLF_DLF_POS      0
 #define UART_DLF_DLF_MASK     (0xf << UART_DLF_DLF_POS)
@@ -826,23 +826,23 @@
 // bits [3:2]               reserved
 // bits [1:0]               APB_DATA_WIDTH              Encoding of APB_DATA_WIDTH configuration parameter value.
 
-#define UART_CPR_OFFSET	    0xF4
+#define UART_CPR_OFFSET     0xF4
 #define UART_CPR_RESETVALUE 0xFFFF3FF3
 #define UART_CPR_MASK
 
-#define UART_CPR_FIFO_MODE_POS	    16
-#define UART_CPR_FIFO_MODE_MASK	    (0xff << UART_CPR_FIFO_MODE_POS)
-#define UART_CPR_FIFO_MODE(val)	    (((val)&0xff) << UART_CPR_FIFO_MODE_POS)
+#define UART_CPR_FIFO_MODE_POS      16
+#define UART_CPR_FIFO_MODE_MASK     (0xff << UART_CPR_FIFO_MODE_POS)
+#define UART_CPR_FIFO_MODE(val)     (((val)&0xff) << UART_CPR_FIFO_MODE_POS)
 #define UART_CPR_FIFO_MODE_GET(reg) (((reg) >> UART_CPR_FIFO_MODE_POS) & 0xff)
 
-#define UART_CPR_RESERVED_POS	   14
-#define UART_CPR_RESERVED_MASK	   (0x3 << UART_CPR_RESERVED_POS)
-#define UART_CPR_RESERVED(val)	   (((val)&0x3) << UART_CPR_RESERVED_POS)
+#define UART_CPR_RESERVED_POS      14
+#define UART_CPR_RESERVED_MASK     (0x3 << UART_CPR_RESERVED_POS)
+#define UART_CPR_RESERVED(val)     (((val)&0x3) << UART_CPR_RESERVED_POS)
 #define UART_CPR_RESERVED_GET(reg) (((reg) >> UART_CPR_RESERVED_POS) & 0x3)
 
-#define UART_CPR_DMA_EXTRA_POS	    13
-#define UART_CPR_DMA_EXTRA_MASK	    (0x1 << UART_CPR_DMA_EXTRA_POS)
-#define UART_CPR_DMA_EXTRA(val)	    (((val)&0x1) << UART_CPR_DMA_EXTRA_POS)
+#define UART_CPR_DMA_EXTRA_POS      13
+#define UART_CPR_DMA_EXTRA_MASK     (0x1 << UART_CPR_DMA_EXTRA_POS)
+#define UART_CPR_DMA_EXTRA(val)     (((val)&0x1) << UART_CPR_DMA_EXTRA_POS)
 #define UART_CPR_DMA_EXTRA_GET(reg) (((reg) >> UART_CPR_DMA_EXTRA_POS) & 0x1)
 
 #define UART_CPR_UART_ADD_ENCODED_PARAMS_POS  12
@@ -851,14 +851,14 @@
 #define UART_CPR_UART_ADD_ENCODED_PARAMS_GET(reg) \
 	(((reg) >> UART_CPR_UART_ADD_ENCODED_PARAMS_POS) & 0x1)
 
-#define UART_CPR_SHADOW_POS	 11
-#define UART_CPR_SHADOW_MASK	 (0x1 << UART_CPR_SHADOW_POS)
-#define UART_CPR_SHADOW(val)	 (((val)&0x1) << UART_CPR_SHADOW_POS)
+#define UART_CPR_SHADOW_POS      11
+#define UART_CPR_SHADOW_MASK     (0x1 << UART_CPR_SHADOW_POS)
+#define UART_CPR_SHADOW(val)     (((val)&0x1) << UART_CPR_SHADOW_POS)
 #define UART_CPR_SHADOW_GET(reg) (((reg) >> UART_CPR_SHADOW_POS) & 0x1)
 
-#define UART_CPR_FIFO_STAT_POS	    10
-#define UART_CPR_FIFO_STAT_MASK	    (0x1 << UART_CPR_FIFO_STAT_POS)
-#define UART_CPR_FIFO_STAT(val)	    (((val)&0x1) << UART_CPR_FIFO_STAT_POS)
+#define UART_CPR_FIFO_STAT_POS      10
+#define UART_CPR_FIFO_STAT_MASK     (0x1 << UART_CPR_FIFO_STAT_POS)
+#define UART_CPR_FIFO_STAT(val)     (((val)&0x1) << UART_CPR_FIFO_STAT_POS)
 #define UART_CPR_FIFO_STAT_GET(reg) (((reg) >> UART_CPR_FIFO_STAT_POS) & 0x1)
 
 #define UART_CPR_FIFO_ACCESS_POS      9
@@ -866,9 +866,9 @@
 #define UART_CPR_FIFO_ACCESS(val)     (((val)&0x1) << UART_CPR_FIFO_ACCESS_POS)
 #define UART_CPR_FIFO_ACCESS_GET(reg) (((reg) >> UART_CPR_FIFO_ACCESS_POS) & 0x1)
 
-#define UART_CPR_ADDITIONAL_FEAT_POS	  8
-#define UART_CPR_ADDITIONAL_FEAT_MASK	  (0x1 << UART_CPR_ADDITIONAL_FEAT_POS)
-#define UART_CPR_ADDITIONAL_FEAT(val)	  (((val)&0x1) << UART_CPR_ADDITIONAL_FEAT_POS)
+#define UART_CPR_ADDITIONAL_FEAT_POS      8
+#define UART_CPR_ADDITIONAL_FEAT_MASK     (0x1 << UART_CPR_ADDITIONAL_FEAT_POS)
+#define UART_CPR_ADDITIONAL_FEAT(val)     (((val)&0x1) << UART_CPR_ADDITIONAL_FEAT_POS)
 #define UART_CPR_ADDITIONAL_FEAT_GET(reg) (((reg) >> UART_CPR_ADDITIONAL_FEAT_POS) & 0x1)
 
 #define UART_CPR_SIR_LP_MODE_POS      7
@@ -876,38 +876,38 @@
 #define UART_CPR_SIR_LP_MODE(val)     (((val)&0x1) << UART_CPR_SIR_LP_MODE_POS)
 #define UART_CPR_SIR_LP_MODE_GET(reg) (((reg) >> UART_CPR_SIR_LP_MODE_POS) & 0x1)
 
-#define UART_CPR_SIR_MODE_POS	   6
-#define UART_CPR_SIR_MODE_MASK	   (0x1 << UART_CPR_SIR_MODE_POS)
-#define UART_CPR_SIR_MODE(val)	   (((val)&0x1) << UART_CPR_SIR_MODE_POS)
+#define UART_CPR_SIR_MODE_POS      6
+#define UART_CPR_SIR_MODE_MASK     (0x1 << UART_CPR_SIR_MODE_POS)
+#define UART_CPR_SIR_MODE(val)     (((val)&0x1) << UART_CPR_SIR_MODE_POS)
 #define UART_CPR_SIR_MODE_GET(reg) (((reg) >> UART_CPR_SIR_MODE_POS) & 0x1)
 
-#define UART_CPR_THRE_MODE_POS	    5
-#define UART_CPR_THRE_MODE_MASK	    (0x1 << UART_CPR_THRE_MODE_POS)
-#define UART_CPR_THRE_MODE(val)	    (((val)&0x1) << UART_CPR_THRE_MODE_POS)
+#define UART_CPR_THRE_MODE_POS      5
+#define UART_CPR_THRE_MODE_MASK     (0x1 << UART_CPR_THRE_MODE_POS)
+#define UART_CPR_THRE_MODE(val)     (((val)&0x1) << UART_CPR_THRE_MODE_POS)
 #define UART_CPR_THRE_MODE_GET(reg) (((reg) >> UART_CPR_THRE_MODE_POS) & 0x1)
 
-#define UART_CPR_AFCE_MODE_POS	    4
-#define UART_CPR_AFCE_MODE_MASK	    (0x1 << UART_CPR_AFCE_MODE_POS)
-#define UART_CPR_AFCE_MODE(val)	    (((val)&0x1) << UART_CPR_AFCE_MODE_POS)
+#define UART_CPR_AFCE_MODE_POS      4
+#define UART_CPR_AFCE_MODE_MASK     (0x1 << UART_CPR_AFCE_MODE_POS)
+#define UART_CPR_AFCE_MODE(val)     (((val)&0x1) << UART_CPR_AFCE_MODE_POS)
 #define UART_CPR_AFCE_MODE_GET(reg) (((reg) >> UART_CPR_AFCE_MODE_POS) & 0x1)
 
-#define UART_CPR_APB_DATA_WIDTH_POS	 0
-#define UART_CPR_APB_DATA_WIDTH_MASK	 (0x3 << UART_CPR_APB_DATA_WIDTH_POS)
-#define UART_CPR_APB_DATA_WIDTH(val)	 (((val)&0x3) << UART_CPR_APB_DATA_WIDTH_POS)
+#define UART_CPR_APB_DATA_WIDTH_POS      0
+#define UART_CPR_APB_DATA_WIDTH_MASK     (0x3 << UART_CPR_APB_DATA_WIDTH_POS)
+#define UART_CPR_APB_DATA_WIDTH(val)     (((val)&0x3) << UART_CPR_APB_DATA_WIDTH_POS)
 #define UART_CPR_APB_DATA_WIDTH_GET(reg) (((reg) >> UART_CPR_APB_DATA_WIDTH_POS) & 0x3)
 
 /*------- UCV ( reset value = 0 , offset 0xF8 )  ( Read only ) Component Version -------*/
-#define UART_UCV_OFFSET	    0xF8
+#define UART_UCV_OFFSET     0xF8
 #define UART_UCV_RESETVALUE 0
-#define UART_UCV_MASK	    0xFFFFFFFF
+#define UART_UCV_MASK       0xFFFFFFFF
 // bits [31:0]              UART_COMPONENT_VERSION
 
 // ASCII string. Each version number is followed by a sign *. For example: 32_30_31_2A presented in the form. 2.01*.
 
 /*------- CTR ( reset value = 0 , offset 0xF  ) ( Read only ) Component Type Register -------*/
-#define UART_CTR_OFFSET	    0xFC
+#define UART_CTR_OFFSET     0xFC
 #define UART_CTR_RESETVALUE 0
-#define UART_CTR_MASK	    0xFFFFFFFF
+#define UART_CTR_MASK       0xFFFFFFFF
 // bits [31:0]              PERIPHERAL_ID       Peripheral ID
 
 // Line control register
@@ -961,10 +961,10 @@
 #define MC_IIR_MLSC   0x00 /* modem status */
 
 // Modem control register
-#define MC_MCR_DTR	0x01 /* control DTR output */
-#define MC_MCR_RTS	0x02 /* control RTS output */
-#define MC_MCR_OUT1	0x04 /* control OUT1 output */
-#define MC_MCR_OUT2	0x08 /* control OUT2 output, used as global interrupt enable in PCs */
+#define MC_MCR_DTR      0x01 /* control DTR output */
+#define MC_MCR_RTS      0x02 /* control RTS output */
+#define MC_MCR_OUT1     0x04 /* control OUT1 output */
+#define MC_MCR_OUT2     0x08 /* control OUT2 output, used as global interrupt enable in PCs */
 #define MC_MCR_LOOPBACK 0x10 /* set local loopback mode */
 
 // Modem status register
@@ -981,9 +981,9 @@
 #define CARET_RETURN 0xD
 
 // ERRORS
-#define OK		      0
-#define ERROR_BUSY	      1
-#define ERROR_NO_DATA	      4
+#define OK                    0
+#define ERROR_BUSY            1
+#define ERROR_NO_DATA         4
 #define ERROR_BUFFER_OVERFLOW 0x20
 #define ERROR_DEVICE_NUMBER   0x40
 #define UART_ERROR_RECIEVER   0x50
@@ -995,36 +995,36 @@
 #define HARD_FIFO_OFF 0
 #define INTERRUPT     2
 #define RING_BUFF     4
-#define DMA	      8
+#define DMA           8
 
-#define UART_PORT_COUNT		4 //Max active count of uart ports
-#define UART_HARD_FIFO_LENGTH	128 /* length hard fifo */
+#define UART_PORT_COUNT         4 //Max active count of uart ports
+#define UART_HARD_FIFO_LENGTH   128 /* length hard fifo */
 #define UART_SOFT_BUFFER_LENGTH 512 /* soft buffer length */
 //#define UART_SOFT_BUFFER_LENGTH         4096
 #define UART_FIFO_LENGTH 16
-#define UART_CARET_FIX	 1 //Generate '\r' after '\n'
+#define UART_CARET_FIX   1 //Generate '\r' after '\n'
 
 //Interrupts IDs  register IIR. Value of register
-#define UART_INT_MODEM_STATUS	      (0) /* Modem status interrupt */
-#define UART_INT_THR_EMPTY	      (1) /* THRE interrupt (THRE Transmitter holding register empty)   */
-#define UART_INT_DATA_RECIEVE	      (2) /* Received Data Available Interrupt */
+#define UART_INT_MODEM_STATUS         (0) /* Modem status interrupt */
+#define UART_INT_THR_EMPTY            (1) /* THRE interrupt (THRE Transmitter holding register empty)   */
+#define UART_INT_DATA_RECIEVE         (2) /* Received Data Available Interrupt */
 #define UART_INT_RECEIVER_LINE_STATUS (3) /* receiver line status   */
-#define UART_INT_CHAR_TIMEOUT	      (6) /* timeout waiting receiver   */
+#define UART_INT_CHAR_TIMEOUT         (6) /* timeout waiting receiver   */
 
-#define UART_TIMEOUT		 10
-#define UART_TRANSMIT_BUSY	 11
-#define UART_DATA_NOT_READY	 12
-#define UART_PARITY_ERROR	 13
-#define UART_FRAME_ERROR	 14
-#define UART_BREAK_ERROR	 15
+#define UART_TIMEOUT             10
+#define UART_TRANSMIT_BUSY       11
+#define UART_DATA_NOT_READY      12
+#define UART_PARITY_ERROR        13
+#define UART_FRAME_ERROR         14
+#define UART_BREAK_ERROR         15
 #define UART_HARD_FIFO_NOT_EMPTY 16
-#define UART_NOT_BUSY		 17
+#define UART_NOT_BUSY            17
 
-#define UART_BUFFER_FULL	1U
-#define UART_BUFFER_OVERFLOW	2U
+#define UART_BUFFER_FULL        1U
+#define UART_BUFFER_OVERFLOW    2U
 #define UART_WRONG_FUNC_POINTER 3U
-#define UART_WRONG_DEV_NUMBER	4U
-#define BUFFER_LOCK		5U
+#define UART_WRONG_DEV_NUMBER   4U
+#define BUFFER_LOCK             5U
 
 // clang-format off
 typedef struct

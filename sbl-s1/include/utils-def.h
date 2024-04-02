@@ -44,7 +44,7 @@
 #endif
 
 #define FIELD_PREP(_mask, _val) ({ ((__typeof__(_mask))(_val) << __bf_shf(_mask)) & (_mask); })
-#define FIELD_GET(_mask, _reg)	({ (__typeof__(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask)); })
+#define FIELD_GET(_mask, _reg)  ({ (__typeof__(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask)); })
 
 /*
  * This variant of div_round_up can be used in macro definition but should not
@@ -139,7 +139,7 @@
 #define SPECULATION_SAFE_VALUE(var) var
 #endif
 
-#define COMPILE_TIME_ASSERT(expr)	COMPILE_TIME_ASSERT1(expr, __COUNTER__)
+#define COMPILE_TIME_ASSERT(expr)       COMPILE_TIME_ASSERT1(expr, __COUNTER__)
 #define COMPILE_TIME_ASSERT1(expr, cnt) COMPILE_TIME_ASSERT2(expr, cnt)
 #define COMPILE_TIME_ASSERT2(expr, cnt) \
 	typedef char ct_assert_##cnt[(expr) ? 1 : -1] __attribute__((unused))
@@ -173,17 +173,17 @@
 #define ROUND_UP(n, b) (((n) / (b) + ((n) % (b) != 0)) * (b))
 
 #if defined(__ASSEMBLER__)
-#define U(_x)	(_x)
-#define UL(_x)	(_x)
+#define U(_x)   (_x)
+#define UL(_x)  (_x)
 #define ULL(_x) (_x)
-#define L(_x)	(_x)
-#define LL(_x)	(_x)
+#define L(_x)   (_x)
+#define LL(_x)  (_x)
 #else
-#define U(_x)	(_x##U)
-#define UL(_x)	(_x##UL)
+#define U(_x)   (_x##U)
+#define UL(_x)  (_x##UL)
 #define ULL(_x) (_x##ULL)
-#define L(_x)	(_x##L)
-#define LL(_x)	(_x##LL)
+#define L(_x)   (_x##L)
+#define LL(_x)  (_x##LL)
 #endif
 
 #endif /* _UTILS_DEF_H_ */
