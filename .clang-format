@@ -629,10 +629,21 @@ ForEachMacros:
   - 'xbc_node_for_each_subkey'
   - 'zorro_for_each_dev'
 
-IncludeBlocks: Preserve
+IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '.*'
-    Priority: 1
+  - Regex: '^<[^\/]*\.h>'
+    Priority: -3
+    SortPriority: -3
+  - Regex: '^<(sys|mips|machine)\/.*\.h>'
+    Priority: -3
+    SortPriority: -3
+  - Regex: '^<.*\.h>'
+    Priority: -2
+    SortPriority: -2
+  - Regex: '^".*\.h"'
+    Priority: -1
+    SortPriority: -1
+
 IncludeIsMainRegex: '(Test)?$'
 IndentCaseLabels: false
 IndentGotoLabels: false
@@ -662,7 +673,7 @@ PenaltyReturnTypeOnItsOwnLine: 60
 
 PointerAlignment: Right
 ReflowComments: false
-SortIncludes: false
+SortIncludes: true
 SortUsingDeclarations: false
 SpaceAfterCStyleCast: false
 SpaceAfterTemplateKeyword: true
