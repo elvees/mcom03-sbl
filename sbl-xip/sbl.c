@@ -484,6 +484,7 @@ int uart0_enable(void)
 int main(void)
 {
 	int ret;
+	int wdt_enabled = 0;
 
 	/* Initialize and configure the TOP clock gate */
 	writel(SERV_TOP_CLK_GATE_URB_BASE, SERV_TOP_CLK_GATE_ALL_CH_MASK);
@@ -496,6 +497,7 @@ int main(void)
 	if (readl(SERV_WDT0_BASE + SERV_WDT_CR) & SERV_WDT_EN) {
 		writel(SERV_WDT0_BASE + SERV_WDT_TORR, 0xff);
 		writel(SERV_WDT0_BASE + SERV_WDT_CRR, SERV_WDT_CRR_KICK_VALUE);
+		wdt_enabled = 1;
 	}
 
 	/* Initialize and configure the RISC0 clocking system */
@@ -521,6 +523,10 @@ int main(void)
 	ret = uart0_enable();
 	if (ret)
 		return ret;
+
+	if (wdt_enabled) {
+		printf("WDT0 is already enabled\r\n");
+	}
 
 	printf(PREFIX " (" __DATE__ " - " __TIME__ "): " COMMIT "\r\n");
 #ifdef BUILD_ID
