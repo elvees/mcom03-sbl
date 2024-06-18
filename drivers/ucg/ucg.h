@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2020-2021 RnD Center "ELVEES", JSC
+// Copyright 2020-2024 RnD Center "ELVEES", JSC
 
 #ifndef __UCG_H__
 #define __UCG_H__
@@ -11,32 +11,25 @@
 
 #define UCG_CTR_REG_CH_ID_MAX 15
 
-#define UCG_Q_FSM_STATE_STOPPED  0x00
-#define UCG_Q_FSM_STATE_CLK_EN   0x01
-#define UCG_Q_FSM_STATE_REQUEST  0x02
-#define UCG_Q_FSM_STATE_DENIED   0x03
-#define UCG_Q_FSM_STATE_EXIT     0x04
-#define UCG_Q_FSM_STATE_RUN      0x06
-#define UCG_Q_FSM_STATE_CONTINUE 0x07
+#define UCG_Q_FSM_STATE_STOPPED  0
+#define UCG_Q_FSM_STATE_CLK_EN   1
+#define UCG_Q_FSM_STATE_REQUEST  2
+#define UCG_Q_FSM_STATE_DENIED   3
+#define UCG_Q_FSM_STATE_EXIT     4
+#define UCG_Q_FSM_STATE_RUN      6
+#define UCG_Q_FSM_STATE_CONTINUE 7
 
-/**
- * @brief Structure of the UCG registers
- *
- */
 typedef struct {
 	volatile uint32_t UCG_CTR_REG[16];
 	volatile uint32_t UCG_BP_CTR_REG;
 	volatile uint32_t UCG_SYNC_CLK_REG;
 } ucg_regs_t;
 
-#define UCG_CTR_REG_LPI_EN         BIT(0)
-#define UCG_CTR_REG_CLK_EN         BIT(1)
-#define UCG_CTR_REG_CLK_EN_STS     GENMASK(4, 2)
-#define UCG_CTR_REG_QACTIVE_CTL_EN BIT(6)
-#define UCG_CTR_REG_Q_FSM_STATE    GENMASK(9, 7)
-#define UCG_CTR_REG_DIV_COEFF      GENMASK(29, 10)
-#define UCG_CTR_REG_DIV_LOCK       BIT(30)
-
+#define UCG_CTR_REG_LPI_EN      BIT(0)
+#define UCG_CTR_REG_CLK_EN      BIT(1)
+#define UCG_CTR_REG_Q_FSM_STATE GENMASK(9, 7)
+#define UCG_CTR_REG_DIV_COEFF   GENMASK(29, 10)
+#define UCG_CTR_REG_DIV_LOCK    BIT(30)
 /**
  * @brief      Bypass enable function
  *
