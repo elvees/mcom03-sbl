@@ -82,7 +82,7 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
                        ${IMAGES_PATH}/u-boot.bin ${CMAKE_CURRENT_BINARY_DIR}/u-boot.o)
 
     add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf POST_BUILD COMMAND ${CMAKE_OBJDUMP}
-                       -S sbl-xip-${DTB_NAME}.elf > ${CMAKE_CURRENT_BINARY_DIR}/sbl-xip.dis
+                       -dx sbl-xip-${DTB_NAME}.elf > ${CMAKE_CURRENT_BINARY_DIR}/sbl-xip.dis
                        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/sbl-xip.dis)
 
     add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf POST_BUILD COMMAND ${CMAKE_OBJCOPY}

@@ -59,7 +59,7 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf PRE_LINK COMMAND ${CMAKE_C_COMPILE
 
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
                    COMMAND ${CMAKE_OBJDUMP}
-                   -S ${PROJECT_NAME}.elf > ${PROJECT_NAME}.dis
+                   -dx ${PROJECT_NAME}.elf > ${PROJECT_NAME}.dis
                    BYPRODUCTS ${PROJECT_NAME}.dis)
 
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
