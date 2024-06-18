@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "bitops.h"
+#include <libs/utils-def.h>
 
 #define UCG_CTR_REG_CH_ID_MAX 15
 

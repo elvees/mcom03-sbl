@@ -6,7 +6,7 @@
 #include <common.h>
 #include "printf.h"
 #include "mips/m32c0.h"
-#include "bitops.h"
+#include <libs/utils-def.h>
 #include "ucg.h"
 #include "pll.h"
 #include "regs.h"

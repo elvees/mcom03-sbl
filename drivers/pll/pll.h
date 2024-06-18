@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "bitops.h"
+#include <libs/utils-def.h>
 
 #define PLL_CFG_SEL    GENMASK(7, 0)
 #define PLL_CFG_MAN    BIT(9)
