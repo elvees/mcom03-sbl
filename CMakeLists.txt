@@ -30,6 +30,22 @@ if (NOT "$ENV{BUILD_ID}" STREQUAL "")
     add_compile_definitions(BUILD_ID="$ENV{BUILD_ID}")
 endif()
 
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    add_compile_options(-gdwarf-2 -fno-eliminate-unused-debug-types
+                        -g -O0)
+else()
+    add_compile_options(-g0 -O2)
+endif()
+
+add_compile_options(-Wall -Werror -std=gnu99 -EL -mips32 -G0
+                    -mabi=32 -mlong32 -mno-gpopt -mlong-calls -mllsc
+                    -ffunction-sections -fdata-sections -ffreestanding
+                    -fno-builtin -fno-delayed-branch
+                    -ftrivial-auto-var-init=zero)
+
+add_link_options(-Wl,--gc-sections -Wl,--print-memory-usage
+                 -EL -nostdlib -nostartfiles -mips32 -mabi=32 -G0)
+
 add_subdirectory(common)
 add_subdirectory(sbl-s1)
 add_subdirectory(sbl-xip)

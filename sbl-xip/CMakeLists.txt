@@ -13,9 +13,6 @@ if(NOT IMAGES_PATH)
     message(FATAL_ERROR "IMAGES_PATH is not specified")
 endif()
 
-add_compile_options(-Wall -Wno-nonnull -Werror -std=gnu99 -EL -mips32 -G0
-                    -mabi=32 -fno-builtin -ffunction-sections -fdata-sections)
-
 if(EXISTS ${IMAGES_PATH}/bl32.bin)
     add_compile_options(-DHAS_BL32=1)
 endif()
@@ -44,8 +41,7 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     target_include_directories(sbl-xip-${DTB_NAME}.elf PRIVATE ${COMMON_INCLUDE_DIRECTORIES})
     target_link_libraries(sbl-xip-${DTB_NAME}.elf common)
 
-    target_link_options(sbl-xip-${DTB_NAME}.elf PRIVATE -T ${CMAKE_CURRENT_BINARY_DIR}/link.ld
-                        -Wl,--gc-sections -EL -nostdlib -nostartfiles -mips32 -mabi=32 -G0)
+    target_link_options(sbl-xip-${DTB_NAME}.elf PRIVATE -T ${CMAKE_CURRENT_BINARY_DIR}/link.ld)
 
     target_link_directories(sbl-xip-${DTB_NAME}.elf PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
