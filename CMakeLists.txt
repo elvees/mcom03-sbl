@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_BUILD_TYPE_INIT Release)
 
-project(sbl)
+project(sbl ASM C)
 
 set(DDRINIT_DTB_MAP_FILE CACHE PATH "ddrinit-DTB map file")
 if(NOT EXISTS ${DDRINIT_DTB_MAP_FILE})
