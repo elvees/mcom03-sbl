@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright 2023 RnD Center "ELVEES", JSC
+# Copyright 2023-2024 RnD Center "ELVEES", JSC
 
 # MDB script to start sbl-s1, ddrinit, tl-common,
 # TF-A and U-Boot on MCom-03 SoC. Script uses DDR0.
@@ -19,10 +19,10 @@ pb board = helpers.parse_ddrinit_dtb_map('%s/ddrinit-dtb-map.txt' % SCRIPTS_PATH
 pb end
 
 # Load and run sbl-s1 to setup required clocks
-loadbin buildroot/output/images/sbl/sbl-s1.bin 0xa0000000
-hbp set 0xa0000188
-run 0xa0000000
-hbp unset 0xa0000188
+loadelf buildroot/output/images/sbl/sbl-s1.elf
+hbp set jtag
+run
+hbp unset jtag
 
 # Load and run ddrinit to setup DDR memory
 py helpers.loadbin('%s/ddrinit-%s/ddrinit.bin' % (IMAGES_PATH, board), 0xa0000000)

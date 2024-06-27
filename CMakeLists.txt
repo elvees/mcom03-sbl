@@ -35,6 +35,7 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
                         -g -O0)
 else()
     add_compile_options(-g0 -O2)
+    add_compile_definitions(NDEBUG)
 endif()
 
 add_compile_options(-Wall -Werror -std=gnu99 -EL -mips32 -G0

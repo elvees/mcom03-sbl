@@ -446,17 +446,50 @@ a:;
 	.set    pop
 	.endm
 
-	.macro PUSH_RA
+	.macro PUSH reg
 	addiu $sp, $sp, -16
-	sw  $ra, 12($sp)
+	sw  \reg, 12($sp)
 	sw  $fp, 8($sp)
 	move  $fp, $sp
 	.endm
 
-	.macro POP_RA
-	lw $ra, 12($sp)
+	.macro POP reg
+	lw \reg, 12($sp)
 	lw $fp, 8($sp)
 	addiu $sp, $sp, 16
+	.endm
+
+	/*
+	 * This macro sets the stack pointer to the stack memory allocated in linker script.
+	 *
+	 * return $v0 with saved stack pointer
+	 */
+	.macro INIT_STACK
+	nop
+	move    $v0, $sp
+	la      $sp, __stack
+	nop
+	.endm
+
+	/*
+	 * In some cases it required to save predecessor's stack to restore it before jump back
+	 * to predecessor. This macro saves the stack pointer returned by INIT_STACK to
+	 * current stack.
+	 */
+	.macro SAVE_PRE_STACK
+	nop
+	PUSH    $v0
+	nop
+	.endm
+
+	/*
+	 * This macro restores the stack pointer returned by INIT_STACK from
+	 * current stack.
+	 */
+	.macro RESTORE_PRE_STACK
+	POP     $k0
+	move    $sp, $k0
+	nop
 	.endm
 #endif /* __ASSEMBLER__ */
 #endif /* __ASM_H__ */
