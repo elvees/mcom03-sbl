@@ -177,6 +177,7 @@ a:;
 
 	addi	$sp, -CONTEXT_WORDS*4		// Allocate space for registers
 
+	.set	push
 	.set	noat
 	sw	$AT, (CONTEXT_R1 * 4) ($sp)	// Save general registers
 	sw	$v0, (CONTEXT_R2 * 4) ($sp)
@@ -209,7 +210,7 @@ a:;
 // Skip $29 - SP
 	sw	$fp, (CONTEXT_FP * 4) ($sp)
 	sw	$ra, (CONTEXT_RA * 4) ($sp)
-// .set at
+	.set	pop
 
 	mfhi	$k0				// Save special registers
 	sw	$k0, (CONTEXT_HI * 4) ($sp)
@@ -226,7 +227,6 @@ a:;
 
 
 	.macro RESTORE_REGS
-
 	lw	$k0, (CONTEXT_LO * 4) ($sp)	// Load HI, LO registers
 	mtlo	$k0
 	lw	$k0, (CONTEXT_HI * 4) ($sp)
@@ -235,6 +235,7 @@ a:;
 	lw	$k0, (CONTEXT_PC * 4) ($sp)	// K1 = EPC
 	mtc0	$k0, $C0_EPC			// put PC in EPC
 
+	.set	push
 	.set	noat
 	lw	$AT, (CONTEXT_R1 * 4) ($sp)	// Load general registers
 	lw	$v0, (CONTEXT_R2 * 4) ($sp)
@@ -269,7 +270,7 @@ a:;
 	lw	$ra, (CONTEXT_RA * 4) ($sp)
 
 	addi	$sp, CONTEXT_WORDS*4		// Deallocate saved context
-	.set at
+	.set pop
 	.endm
 
 	.macro SAVE_FP_REGS
@@ -412,11 +413,11 @@ a:;
 	mtc1    $k0, $f31
 	lw	$k0, (CONTEXT_FCSR * 4) ($sp)
 	ctc1    $k0, $31
-
 	.endm
 
 	.macro INIT_REGS
-	.set    noat
+	.set	push
+	.set	noat
 	move	$AT, $zero
 	move	$v0, $zero
 	move	$v1, $zero
@@ -442,7 +443,7 @@ a:;
 	move	$s7, $zero
 	move	$t8, $zero
 	move	$t9, $zero
-	.set    at
+	.set    pop
 	.endm
 
 	.macro PUSH_RA
