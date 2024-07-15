@@ -1,14 +1,27 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
-#include <drivers/uart/uart.h>
+// TODO: add crash_console_* !
 
-/*TODO: add crash_console_* !*/
+typedef struct console_ops {
+	int (*init)(void *);
+	int (*putchar)(void *, char);
+	int (*getchar)(void *, int *);
+	int (*flush)(void *);
+	int (*deinit)(void *);
+} console_ops_t;
 
-int console_init_common(register unsigned int console_type);
+typedef struct console_t {
+	void *hw;
+	console_ops_t *ops;
+} console_t;
+
+int console_register(console_t *console);
+
+int console_init(void);
 int console_putchar(int c);
 int console_getchar(void);
 int console_flush(void);
