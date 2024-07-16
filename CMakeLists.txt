@@ -33,9 +33,10 @@ endif()
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_compile_options(-gdwarf-2 -fno-eliminate-unused-debug-types
                         -g -O0)
+    add_compile_definitions(LOG_LEVEL=40)
 else()
     add_compile_options(-g0 -O2)
-    add_compile_definitions(NDEBUG)
+    add_compile_definitions(LOG_LEVEL=20 NDEBUG)
 endif()
 
 add_compile_options(-Wall -Werror -std=gnu99 -EL -mips32 -G0
