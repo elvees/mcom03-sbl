@@ -278,63 +278,6 @@ int lsp1_set_clock(void)
 	return 0;
 }
 
-void uart0_gpio_init(unsigned int pin, unsigned int direction)
-{
-	unsigned int swportb_ddr = readl(LSP1_SUBS_GPIO1_SWPORTB_DDR);
-	unsigned int swportb_ctl = readl(LSP1_SUBS_GPIO1_SWPORTB_CTL);
-
-	/* Set pin direction */
-	if (direction == GPIO_DIR_OUTPUT)
-		swportb_ddr |= BIT(pin);
-	else
-		swportb_ddr &= ~(BIT(pin));
-
-	/* Set hw mode */
-	swportb_ctl |= BIT(pin);
-
-	writel(LSP1_SUBS_GPIO1_SWPORTB_DDR, swportb_ddr);
-	writel(LSP1_SUBS_GPIO1_SWPORTB_CTL, swportb_ctl);
-}
-
-int uart0_enable(void)
-{
-	uint16_t divisor;
-	uint32_t val;
-
-	/* Initialize GPIO1 PORTB PIN6 and PIN7 for UART 0 */
-	uart0_gpio_init(UART0_SOUT_PIN, GPIO_DIR_OUTPUT);
-	uart0_gpio_init(UART0_SIN_PIN, GPIO_DIR_INPUT);
-
-	val = FIELD_PREP(LSP1_SUBS_GPIO1_PORTBN_PADCTR_SL, 3) |
-	      FIELD_PREP(LSP1_SUBS_GPIO1_PORTBN_PADCTR_CTL, PAD_DRIVER_STREGTH_6mA);
-	writel(LSP1_SUBS_GPIO1_PORTBN_PADCTR(UART0_SOUT_PIN), val);
-
-	val |= FIELD_PREP(LSP1_SUBS_GPIO1_PORTBN_PADCTR_SUS, 1) |
-	       FIELD_PREP(LSP1_SUBS_GPIO1_PORTBN_PADCTR_E, 1);
-	writel(LSP1_SUBS_GPIO1_PORTBN_PADCTR(UART0_SIN_PIN), val);
-
-	/* Set baudrate */
-	divisor = DIV_ROUND_CLOSEST(UART0_BASE_FREQ, UART0_BAUDRATE * 16);
-	writel(UART_LCR, UART0_LCR_DEFAULT | UART_LCR_DLAB);
-	writel(UART_DLH, divisor >> 8);
-	writel(UART_DLL, divisor);
-	writel(UART_LCR, UART0_LCR_DEFAULT);
-
-	/* Make sure last LCR write wasn't ignored */
-	while (readl(UART_LCR) != UART0_LCR_DEFAULT) {
-		writel(UART_FCR, 0);
-		writel(UART_FCR, UART_FCR_FIFOE);
-		writel(UART_FCR, UART_FCR_FIFOE | UART_FCR_XFIFOR | UART_FCR_RFIFOR);
-		readl(UART_THR);
-		writel(UART_LCR, UART0_LCR_DEFAULT);
-	}
-
-	writel(UART_IER, 0);
-	writel(UART_MCR, UART_MCR_DTR | UART_MCR_RTS);
-
-	return 0;
-}
-
 int main(void)
 {
 	int ret;
