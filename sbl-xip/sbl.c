@@ -174,26 +174,6 @@ int timer_get_usec(void)
 	return get_ticks() * SEC / TIMER_FREQ;
 }
 
-int putchar(int c)
-{
-	int ret;
-	uint32_t val = 0;
-
-	while (1) {
-		ret = readl_poll_timeout(val, val & UART_LSR_THRE, USEC, 100 * USEC, UART_LSR);
-		if (ret)
-			return ret;
-
-		writel(UART_THR, c);
-		if (c == '\n')
-			c = '\r';
-		else
-			break;
-	}
-
-	return 0;
-}
-
 void *memcpy(void *dest, const void *src, size_t count)
 {
 	unsigned long *dl = (unsigned long *)dest, *sl = (unsigned long *)src;

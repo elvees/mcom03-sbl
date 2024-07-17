@@ -1,7 +1,7 @@
+// Copyright 2024 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
-// Copyright 2023 RnD Center "ELVEES", JSC
 
-#include <drivers/console/console.h>
+#include <libs/console/console.h>
 
 int putchar(int c)
 {
