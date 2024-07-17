@@ -4,6 +4,8 @@
 #ifndef __ASM_H__
 #define __ASM_H__
 
+#include "platform-def-common.h"
+
 #define zero 0
 #define AT   1
 #define v0   2
@@ -460,12 +462,27 @@ a:;
 	.endm
 
 	/*
-	 * This macro sets the stack pointer to the stack memory allocated in linker script.
+	 * This macro sets the stack pointer to stack memory allocated in linker script and
+	 * stack check guard to pseudo random value.
+	 *
+	 * Note: Ideally, a random number should be assigned instead of the combination of a
+	 * timer's value and a compile-time constant. As currently the random number generator
+	 * has not implemented yet in the software, this is better than nothing but
+	 * not necessarily really secure.
 	 *
 	 * return $v0 with saved stack pointer
 	 */
 	.macro INIT_STACK
 	nop
+	li      $k0, PLAT_RANDOM_CANARY_VALUE
+	mfc0    $k1, $C0_COUNT
+	xor     $k0, $k0, $k1
+
+	// Update the canary with the returned value
+	la      $k1, __stack_chk_guard
+	sw      $k0, 0($k1)
+
+	// Set stack pointer
 	move    $v0, $sp
 	la      $sp, __stack
 	nop

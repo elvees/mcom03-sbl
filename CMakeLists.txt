@@ -42,7 +42,7 @@ endif()
 add_compile_options(-Wall -Werror -std=gnu99 -EL -mips32 -G0
                     -mabi=32 -mlong32 -mno-gpopt -mlong-calls -mllsc
                     -ffunction-sections -fdata-sections -ffreestanding
-                    -fno-builtin -fno-delayed-branch
+                    -fno-builtin -fno-delayed-branch -fstack-protector-all
                     -ftrivial-auto-var-init=zero)
 
 add_link_options(-Wl,--gc-sections -Wl,--print-memory-usage -Wl,--wrap=__assert_func
