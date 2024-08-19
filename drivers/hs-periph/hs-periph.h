@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __HS_URB_H__
-#define __HS_URB_H__
+#ifndef __HS_PERIPH_H__
+#define __HS_PERIPH_H__
 
-#include <utils-def.h>
-#include <mcom03.h>
+#include <libs/utils-def.h>
 
 #define HS_URB_DBG_CTR_MASK GENMASK(2, 0)
 
@@ -92,4 +91,4 @@ typedef struct {
 
 hs_urb_regs_t *hs_periph_get_urb_registers(void);
 
-#endif /* __HS_URB_H__ */
+#endif /* __HS_PERIPH_H__ */

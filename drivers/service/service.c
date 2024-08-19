@@ -1,410 +1,158 @@
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
 
-#include "ucg.h"
-#include "service-urb.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include <drivers/mcom03-regs.h>
+#include <drivers/pll/pll.h>
+#include <drivers/ucg/ucg.h>
+#include <libs/errors.h>
+#include <libs/helpers/helpers.h>
+#include <libs/platform-def-common.h>
+
+#include "service.h"
+
+#define SERV_UCG_APB_CHANNEL_DIV  6
+#define SERV_UCG_CORE_CHANNEL_DIV 1
+
+// Service Subsystem PLL output frequency is 594 MHz, assuming that XTI = 27 MHz
+struct ucg_channel serv_ucg_channels[] = {
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_APB, SERV_UCG_APB_CHANNEL_DIV }, // 99 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_CORE, SERV_UCG_CORE_CHANNEL_DIV }, // 594 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_QSPI0, SERV_UCG_CORE_CHANNEL_DIV }, // 594 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_BPAM, SERV_UCG_CORE_CHANNEL_DIV }, // 594 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_RISC0, SERV_UCG_CORE_CHANNEL_DIV }, // 594 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_MFBSP0, SERV_UCG_APB_CHANNEL_DIV }, // 99 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_MFBSP1, SERV_UCG_APB_CHANNEL_DIV }, // 99 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_MAILBOX0, SERV_UCG_APB_CHANNEL_DIV }, // 99 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_PVTCTR, SERV_UCG_APB_CHANNEL_DIV }, // 99 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_I2C4, SERV_UCG_APB_CHANNEL_DIV }, // 99 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_TRNG, SERV_UCG_APB_CHANNEL_DIV }, // 99 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_SPIOTP, SERV_UCG_APB_CHANNEL_DIV }, // 99 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_I2C4_EXT, 12 }, // 49.5 MHz
+	{ 1, SERVICE_UCG1_CHANNEL_CLK_QSPI0_EXT, 22 }, // 27 MHz
+};
+
+void service_enable_arm_cpu(void)
+{
+	service_urb_regs_t *urb = service_get_urb_registers();
+	SET_PPOLICY(&urb->cpu_ppolicy, PP_ON);
+	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_CPU;
+}
+
+void service_disable_arm_cpu(void)
+{
+	service_urb_regs_t *urb = service_get_urb_registers();
+	urb->top_clkgate &= ~SERVICE_TOP_CLK_GATE_CPU;
+	SET_PPOLICY(&urb->cpu_ppolicy, PP_OFF);
+}
+
+void service_enable_ls_periph1(void)
+{
+	service_urb_regs_t *urb = service_get_urb_registers();
+	SET_PPOLICY(&urb->lsperiph1_subs_ppolicy, PP_ON);
+	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_LSPERIPH1;
+}
+
+void service_enable_ls_periph0(void)
+{
+	service_urb_regs_t *urb = service_get_urb_registers();
+	SET_PPOLICY(&urb->lsperiph0_subs_ppolicy, PP_ON);
+	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_LSPERIPH0;
+}
+
+void service_enable_sdr(void)
+{
+	service_urb_regs_t *urb = service_get_urb_registers();
+	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_SDR;
+	uint32_t bp_mask =
+		(BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM) | BIT(TOP_UCG1_CHANNEL_AXI_FAST_COMM) |
+	         BIT(TOP_UCG1_CHANNEL_DDR_SDR_DSP) | BIT(TOP_UCG1_CHANNEL_DDR_SDR_PICE));
+
+	ucg_regs_t *interconnect_ucg1 = ucg_get_registers(UCG_SUBSYS_TOP, 1);
+	ucg_enable_bp(interconnect_ucg1, bp_mask);
+
+	SET_PPOLICY(&urb->sdr_ppolicy, PP_ON);
+
+	ucg_sync_and_disable_bp(interconnect_ucg1, bp_mask, bp_mask);
+}
 
 service_urb_regs_t *service_get_urb_registers(void)
 {
 	return (service_urb_regs_t *)BASE_ADDR_SERVICE_URB;
 }
 
-mcom_err_t service_set_top_clkgate(service_urb_regs_t *urb, uint32_t top_clkgate)
+int service_get_apb_clock(uint32_t *apb_freq)
 {
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
+	int ret;
+	uint32_t freq_div = 0;
 
-	urb->top_clkgate = top_clkgate;
-	return MCOM03_SUCCESS;
+	if (!apb_freq)
+		return -ENULL;
+
+	ucg_regs_t *ucg = ucg_get_registers(UCG_SUBSYS_SERV, 0);
+	service_urb_regs_t *serv_urb = service_get_urb_registers();
+
+	pll_cfg_t pll_cfg;
+	pll_cfg.inp_freq = MCOM03_XTI_CLK_HZ;
+	pll_cfg.out_freq = 0;
+
+	ret = pll_get_freq((pll_cfg_reg_t *)(&serv_urb->service_subs_pllcnfg), &pll_cfg);
+	if (ret)
+		return ret;
+
+	ret = ucg_get_divider(ucg, SERVICE_UCG1_CHANNEL_CLK_APB, &freq_div);
+	if (ret)
+		return ret;
+
+	*apb_freq = pll_cfg.out_freq / freq_div;
+
+	return 0;
 }
 
-mcom_err_t service_get_top_clkgate(service_urb_regs_t *urb, uint32_t *top_clkgate)
+int service_set_clock(uint32_t ch_mask, uint32_t sync_mask)
 {
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-	if (top_clkgate == NULL)
-		return MCOM03_ERROR_NULL;
+	int ret;
 
-	*top_clkgate = urb->top_clkgate;
-	return MCOM03_SUCCESS;
-}
+	ucg_regs_t *serv_ucg = ucg_get_registers(UCG_SUBSYS_SERV, 0);
+	service_urb_regs_t *serv_urb = service_get_urb_registers();
 
-mcom_err_t service_reset_ls_periph0_deassert(service_urb_regs_t *urb, uint32_t timeout)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
+	// Enable Service Sub UCG1 bypass
+	ret = ucg_enable_bp(serv_ucg, ch_mask);
+	if (ret)
+		return ret;
 
-	uint32_t top_clkgate = urb->top_clkgate;
-	top_clkgate |= SERVICE_TOP_CLK_GATE_LSPERIPH0;
-	urb->top_clkgate = top_clkgate;
+	/* Setup PLL to 594 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
+	 * minimize PLL output jitter.
+	 */
+	pll_cfg_t pll_cfg;
+	pll_cfg.nf_value = 131;
+	pll_cfg.nr_value = 0;
+	pll_cfg.od_value = 5;
 
-	ucg_regs_t *interconnect_ucg0 = ucg_get_top_registers(0);
-	ucg_enable_bp(interconnect_ucg0, TOP_UCG0_CHANNEL_DDR_LSPERIPH0);
+	ret = pll_set_manual_freq((pll_cfg_reg_t *)(&serv_urb->service_subs_pllcnfg), &pll_cfg,
+	                          1000);
+	if (ret)
+		return ret;
 
-	ucg_regs_t *interconnect_ucg1 = ucg_get_top_registers(1);
-	ucg_enable_bp(interconnect_ucg1, TOP_UCG1_CHANNEL_AXI_SLOW_COMM);
+	// Check the divisibility of CORE ucg channel frequency by APB ucg channel frequency
+	if (SERV_UCG_APB_CHANNEL_DIV % SERV_UCG_CORE_CHANNEL_DIV)
+		return -EINVALIDPARAM;
 
-	urb->lsperiph0_subs_ppolicy = SERVICE_PPOLICY_PP_ON;
-
-	uint32_t is_timeout = (timeout) ? (1) : (0);
-	for (;;) {
-		if (urb->lsperiph0_subs_pstatus == SERVICE_PPOLICY_PP_ON) {
-			break;
-		}
-		if (is_timeout) {
-			__asm__ volatile("nop");
-			timeout--;
-			if (timeout == 0) {
-				return MCOM03_ERROR_TIMEOUT;
-			}
-		}
+	// Set dividers
+	for (int i = 0; i < ARRAY_SIZE(serv_ucg_channels); i++) {
+		ret = ucg_set_divider(serv_ucg, serv_ucg_channels[i].chan_id,
+		                      serv_ucg_channels[i].div, 1000);
+		if (ret)
+			return ret;
 	}
-	ucg_sync_and_disable_bp(interconnect_ucg0, TOP_UCG0_CHANNEL_DDR_LSPERIPH0);
-	ucg_sync_and_disable_bp(interconnect_ucg1, TOP_UCG1_CHANNEL_AXI_SLOW_COMM);
 
-	return MCOM03_SUCCESS;
-}
+	// Sync and disable Service Sub UCG1 bypass
+	ret = ucg_sync_and_disable_bp(serv_ucg, ch_mask, sync_mask);
+	if (ret)
+		return ret;
 
-mcom_err_t service_reset_ls_periph0_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-                                           uint32_t timeout)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if ((reset_mode != SERVICE_PPOLICY_PP_OFF) || (reset_mode != SERVICE_PPOLICY_PP_WARM_RST))
-		return MCOM03_ERROR_INVALID_PARAM;
-
-	ucg_regs_t *interconnect_ucg0 = ucg_get_top_registers(0);
-	ucg_enable_bp(interconnect_ucg0, TOP_UCG0_CHANNEL_DDR_LSPERIPH0);
-
-	ucg_regs_t *interconnect_ucg1 = ucg_get_top_registers(1);
-	ucg_enable_bp(interconnect_ucg1, TOP_UCG1_CHANNEL_AXI_SLOW_COMM);
-
-	urb->lsperiph0_subs_ppolicy = reset_mode;
-
-	uint32_t is_timeout = (timeout) ? (1) : (0);
-	for (;;) {
-		if (urb->lsperiph0_subs_pstatus == reset_mode) {
-			break;
-		}
-		if (is_timeout) {
-			__asm__ volatile("nop");
-			timeout--;
-			if (timeout == 0) {
-				return MCOM03_ERROR_TIMEOUT;
-			}
-		}
-	}
-	ucg_sync_and_disable_bp(interconnect_ucg0, TOP_UCG0_CHANNEL_DDR_LSPERIPH0);
-	ucg_sync_and_disable_bp(interconnect_ucg1, TOP_UCG1_CHANNEL_AXI_SLOW_COMM);
-
-	uint32_t top_clkgate = urb->top_clkgate;
-	top_clkgate &= ~(SERVICE_TOP_CLK_GATE_LSPERIPH0);
-	urb->top_clkgate = top_clkgate;
-
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_reset_ls_periph1_deassert(service_urb_regs_t *urb, uint32_t timeout)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	uint32_t top_clkgate = urb->top_clkgate;
-	top_clkgate |= SERVICE_TOP_CLK_GATE_LSPERIPH1;
-	urb->top_clkgate = top_clkgate;
-
-	ucg_regs_t *interconnect_ucg1 = ucg_get_top_registers(1);
-
-	uint32_t bp_mask = (TOP_UCG1_CHANNEL_AXI_SLOW_COMM | TOP_UCG1_CHANNEL_DDR_LSPERIPH1);
-
-	ucg_enable_bp(interconnect_ucg1, bp_mask);
-
-	urb->lsperiph1_subs_ppolicy = SERVICE_PPOLICY_PP_ON;
-
-	uint32_t is_timeout = (timeout) ? (1) : (0);
-	for (;;) {
-		if (urb->lsperiph1_subs_pstatus == SERVICE_PPOLICY_PP_ON) {
-			break;
-		}
-		if (is_timeout) {
-			__asm__ volatile("nop");
-			timeout--;
-			if (timeout == 0) {
-				return MCOM03_ERROR_TIMEOUT;
-			}
-		}
-	}
-	ucg_sync_and_disable_bp(interconnect_ucg1, bp_mask);
-
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_reset_ls_periph1_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-                                           uint32_t timeout)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if ((reset_mode != SERVICE_PPOLICY_PP_OFF) || (reset_mode != SERVICE_PPOLICY_PP_WARM_RST))
-		return MCOM03_ERROR_INVALID_PARAM;
-
-	ucg_regs_t *interconnect_ucg1 = ucg_get_top_registers(1);
-
-	uint32_t bp_mask = (TOP_UCG1_CHANNEL_AXI_SLOW_COMM | TOP_UCG1_CHANNEL_DDR_LSPERIPH1);
-
-	ucg_enable_bp(interconnect_ucg1, bp_mask);
-
-	urb->lsperiph1_subs_ppolicy = reset_mode;
-
-	uint32_t is_timeout = (timeout) ? (1) : (0);
-	for (;;) {
-		if (urb->lsperiph1_subs_pstatus == reset_mode) {
-			break;
-		}
-		if (is_timeout) {
-			__asm__ volatile("nop");
-			timeout--;
-			if (timeout == 0) {
-				return MCOM03_ERROR_TIMEOUT;
-			}
-		}
-	}
-	ucg_sync_and_disable_bp(interconnect_ucg1, bp_mask);
-
-	uint32_t top_clkgate = urb->top_clkgate;
-	top_clkgate &= ~(SERVICE_TOP_CLK_GATE_LSPERIPH1);
-	urb->top_clkgate = top_clkgate;
-
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_reset_hs_periph_deassert(service_urb_regs_t *urb, uint32_t timeout)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	uint32_t top_clkgate = urb->top_clkgate;
-	top_clkgate |= SERVICE_TOP_CLK_GATE_HSPERIPH;
-	urb->top_clkgate = top_clkgate;
-
-	ucg_regs_t *interconnect_ucg1 = ucg_get_top_registers(1);
-
-	uint32_t bp_mask = (TOP_UCG1_CHANNEL_AXI_SLOW_COMM | TOP_UCG1_CHANNEL_AXI_FAST_COMM |
-	                    TOP_UCG1_CHANNEL_DDR_HSPERIPH);
-
-	ucg_enable_bp(interconnect_ucg1, bp_mask);
-
-	urb->hsperiph_subs_ppolicy = SERVICE_PPOLICY_PP_ON;
-
-	uint32_t is_timeout = (timeout) ? (1) : (0);
-	for (;;) {
-		if (urb->hsperiph_subs_pstatus == SERVICE_PPOLICY_PP_ON) {
-			break;
-		}
-		if (is_timeout) {
-			__asm__ volatile("nop");
-			timeout--;
-			if (timeout == 0) {
-				return MCOM03_ERROR_TIMEOUT;
-			}
-		}
-	}
-	ucg_sync_and_disable_bp(interconnect_ucg1, bp_mask);
-
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_reset_hs_periph_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-                                          uint32_t timeout)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if ((reset_mode != SERVICE_PPOLICY_PP_OFF) || (reset_mode != SERVICE_PPOLICY_PP_WARM_RST))
-		return MCOM03_ERROR_INVALID_PARAM;
-
-	ucg_regs_t *interconnect_ucg1 = ucg_get_top_registers(1);
-
-	uint32_t bp_mask = (TOP_UCG1_CHANNEL_AXI_SLOW_COMM | TOP_UCG1_CHANNEL_AXI_FAST_COMM |
-	                    TOP_UCG1_CHANNEL_DDR_HSPERIPH);
-
-	ucg_enable_bp(interconnect_ucg1, bp_mask);
-
-	urb->hsperiph_subs_ppolicy = reset_mode;
-
-	uint32_t is_timeout = (timeout) ? (1) : (0);
-	for (;;) {
-		if (urb->hsperiph_subs_pstatus == reset_mode) {
-			break;
-		}
-		if (is_timeout) {
-			__asm__ volatile("nop");
-			timeout--;
-			if (timeout == 0) {
-				return MCOM03_ERROR_TIMEOUT;
-			}
-		}
-	}
-	ucg_sync_and_disable_bp(interconnect_ucg1, bp_mask);
-
-	uint32_t top_clkgate = urb->top_clkgate;
-	top_clkgate &= ~(SERVICE_TOP_CLK_GATE_HSPERIPH);
-	urb->top_clkgate = top_clkgate;
-
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_get_boot_setup(service_urb_regs_t *urb, uint32_t *boot)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-	if (boot == NULL)
-		return MCOM03_ERROR_NULL;
-
-	*boot = urb->boot;
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_get_timestamp(service_urb_regs_t *urb, uint64_t *timestamp)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-	if (timestamp == NULL)
-		return MCOM03_ERROR_NULL;
-
-	*timestamp = urb->tscount_high;
-	*timestamp <<= 32;
-	*timestamp |= urb->tscount_low;
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_set_tp_dbgen(service_urb_regs_t *urb, bool dbg_enable)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if (dbg_enable == true) {
-		urb->tp_dbgen = SERVICE_DBG_RISC0_ENABLE;
-	} else {
-		urb->tp_dbgen = SERVICE_DBG_RISC0_DISABLE;
-	}
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_get_tp_dbgen(service_urb_regs_t *urb, bool *dbg_enable)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if ((urb->tp_dbgen & SERVICE_DBG_RISC0_ENABLE) != 0) {
-		*dbg_enable = true;
-	} else {
-		*dbg_enable = false;
-	}
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_set_sdr_dbgen(service_urb_regs_t *urb, bool dbg_enable)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if (dbg_enable == true) {
-		urb->sdr_dbgen = SERVICE_DBG_ALL_ENABLE;
-	} else {
-		urb->sdr_dbgen = SERVICE_DBG_SDR_DISABLE;
-	}
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_get_sdr_dbgen(service_urb_regs_t *urb, bool *dbg_enable)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if ((urb->sdr_dbgen & SERVICE_DBG_ALL_ENABLE) != 0) {
-		*dbg_enable = true;
-	} else {
-		*dbg_enable = false;
-	}
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_set_sp_dbgen(service_urb_regs_t *urb, bool dbg_enable)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if (dbg_enable == true) {
-		urb->sp_dbgen = SERVICE_DBG_CPU_SP_ALL_ENABLE;
-	} else {
-		urb->sp_dbgen = SERVICE_DBG_CPU_SP_DISABLE;
-	}
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_get_sp_dbgen(service_urb_regs_t *urb, bool *dbg_enable)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if ((urb->sp_dbgen & SERVICE_DBG_CPU_SP_ALL_ENABLE) != 0) {
-		*dbg_enable = true;
-	} else {
-		*dbg_enable = false;
-	}
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_set_s_dbgen(service_urb_regs_t *urb, bool dbg_enable)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if (dbg_enable == true) {
-		urb->s_dbgen = SERVICE_DBG_CPU_S_ALL_ENABLE;
-	} else {
-		urb->s_dbgen = SERVICE_DBG_CPU_S_DISABLE;
-	}
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_get_s_dbgen(service_urb_regs_t *urb, bool *dbg_enable)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if ((urb->s_dbgen & SERVICE_DBG_CPU_S_ALL_ENABLE) != 0) {
-		*dbg_enable = true;
-	} else {
-		*dbg_enable = false;
-	}
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_set_ust_dbgen(service_urb_regs_t *urb, bool dbg_enable)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if (dbg_enable == true) {
-		urb->ust_dbgen = SERVICE_DBG_UST_ALL_ENABLE;
-	} else {
-		urb->ust_dbgen = SERVICE_DBG_UST_DISABLE;
-	}
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t service_get_ust_dbgen(service_urb_regs_t *urb, bool *dbg_enable)
-{
-	if (urb == NULL)
-		return MCOM03_ERROR_NULL;
-
-	if ((urb->ust_dbgen & SERVICE_DBG_UST_ALL_ENABLE) != 0) {
-		*dbg_enable = true;
-	} else {
-		*dbg_enable = false;
-	}
-	return MCOM03_SUCCESS;
+	return 0;
 }

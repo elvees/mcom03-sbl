@@ -47,7 +47,7 @@ repos:
           - --style=file:.clang-format
         exclude: |
           (?x)^(
-            common/asm.h
+            libs/asm.h
           )$
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.27.1
@@ -83,7 +83,7 @@ repos:
           - --force
         exclude: |
           (?x)^(
-            common/asm.h
+            libs/asm.h
           )$
   - repo: https://review.elvees.com/pre-commit-hooks
     rev: 53a24a4dec9736b5e4a625e75c3172299357cc22

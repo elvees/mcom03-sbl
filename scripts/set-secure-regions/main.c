@@ -1,8 +1,7 @@
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
 
-#include <stdint.h>
-#include <common.h>
+#include <libs/helpers/helpers.h>
 
 int main(void)
 {

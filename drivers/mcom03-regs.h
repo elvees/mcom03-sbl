@@ -1,20 +1,10 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef MCOM03_H
-#define MCOM03_H
+#ifndef __MCOM03_REGS_H__
+#define __MCOM03_REGS_H__
 
-#ifndef _LANGUAGE_ASSEMBLY
-
-#define _Hz_  1U
-#define _kHz_ (1000U * _Hz_)
-#define _MHz_ (1000U * _kHz_)
-
-#define MCOM03_XTI_CLK_HZ (27U * _MHz_)
-
-#define UART_CLK_HZ MCOM03_XTI_CLK_HZ
-
-#endif // _LANGUAGE_ASSEMBLY
+#include <libs/utils-def.h>
 
 /* Service Subs */
 #define BASE_ADDR_SERVICE_URB       0xbf000000
@@ -29,7 +19,7 @@
 #define BASE_ADDR_SERVICE_MFBSP0    0xbf0a1300
 #define BASE_ADDR_SERVICE_MFBSP1    0xbf0b1300
 #define BASE_ADDR_SERVICE_CRAM      0xbfa00000
-#define BASE_ADDR_SERVICE_IOMMU     0xBFD04000
+#define BASE_ADDR_SERVICE_IOMMU     0xbfd04000
 #define BASE_ADDR_RISC0_CSR         0xbfd08000
 #define BASE_ADDR_SERVICE_QLIC0     0xbfe00000
 #define BASE_ADDR_SERVICE_QSPI0     0xbff00000
@@ -37,7 +27,6 @@
 #define BASE_ADDR_SERVICE_MAILBOX0  0xbefd0000
 
 /* Service Subs TOP Clk Gate*/
-#define SERV_URB_TOP_CLKGATE                  0xBF001008
 #define SERVICE_TOP_CLK_GATE_SERVICE          BIT(0)
 #define SERVICE_TOP_CLK_GATE_MEDIA            BIT(1)
 #define SERVICE_TOP_CLK_GATE_CPU              BIT(2)
@@ -47,11 +36,7 @@
 #define SERVICE_TOP_CLK_GATE_LSPERIPH1        BIT(6)
 #define SERVICE_TOP_CLK_GATE_DDR              BIT(7)
 #define SERVICE_TOP_CLK_GATE_TOP_INTERCONNECT BIT(8)
-
-/* Service Subs Power Domain State For Other Subsystem */
-#define SERVICE_PPOLICY_PP_OFF      0x01
-#define SERVICE_PPOLICY_PP_WARM_RST 0x08
-#define SERVICE_PPOLICY_PP_ON       0x10
+#define SERVICE_TOP_CLK_GATE_ALL_CH_MASK      GENMASK(8, 0)
 
 /* Service Subs Debug Status*/
 #define SERVICE_DBG_RISC0_DISABLE 0
@@ -115,33 +100,35 @@
 #define BASE_ADDR_HS_QSPI1_XIP 0x10000000
 
 /* CPU Subs */
-#define BASE_ADDR_CPU_SUBS_URB            0xa1000000
-#define BASE_ADDR_CPU_SUBS_UCG            0xa1080000
-#define BASE_ADDR_CPU_SUBS_GIC500         0xa1100000
-#define BASE_ADDR_CPU_SUBS_GIC500_REDISTR 0xa1180000
+#define BASE_ADDR_CPU_URB            0xa1000000
+#define BASE_ADDR_CPU_UCG            0xa1080000
+#define BASE_ADDR_CPU_GIC500         0xa1100000
+#define BASE_ADDR_CPU_GIC500_REDISTR 0xa1180000
 
 /* TOP */
 #define BASE_ADDR_TOP_URB_BASE         0xa1800000
 #define BASE_ADDR_TOP_UCG0_BASE        0xa1801000
 #define TOP_UCG0_ALL_CH_MASK           GENMASK(7, 0)
-#define TOP_UCG0_CHANNEL_DDR_DP        (1UL << 0)
-#define TOP_UCG0_CHANNEL_DDR_VPU       (1UL << 1)
-#define TOP_UCG0_CHANNEL_DDR_GPU       (1UL << 2)
-#define TOP_UCG0_CHANNEL_DDR_ISP       (1UL << 3)
-#define TOP_UCG0_CHANNEL_DDR_CPU       (1UL << 4)
-#define TOP_UCG0_CHANNEL_CPU_ACP       (1UL << 5)
-#define TOP_UCG0_CHANNEL_DDR_LSPERIPH0 (1UL << 6)
-#define TOP_UCG0_CHANNEL_AXI_COH_COMM  (1UL << 7)
+#define TOP_UCG0_SYNC_MASK             TOP_UCG0_ALL_CH_MASK
+#define TOP_UCG0_CHANNEL_DDR_DP        0
+#define TOP_UCG0_CHANNEL_DDR_VPU       1
+#define TOP_UCG0_CHANNEL_DDR_GPU       2
+#define TOP_UCG0_CHANNEL_DDR_ISP       3
+#define TOP_UCG0_CHANNEL_DDR_CPU       4
+#define TOP_UCG0_CHANNEL_CPU_ACP       5
+#define TOP_UCG0_CHANNEL_DDR_LSPERIPH0 6
+#define TOP_UCG0_CHANNEL_AXI_COH_COMM  7
 
 #define BASE_ADDR_TOP_UCG1_BASE        0xa1802000
-#define TOP_UCG1_ALL_CH_MASK           0x1f5
-#define TOP_UCG1_CHANNEL_AXI_SLOW_COMM (1UL << 0)
-#define TOP_UCG1_CHANNEL_AXI_FAST_COMM (1UL << 2)
-#define TOP_UCG1_CHANNEL_DDR_SDR_DSP   (1UL << 4)
-#define TOP_UCG1_CHANNEL_DDR_SDR_PICE  (1UL << 5)
-#define TOP_UCG1_CHANNEL_DDR_LSPERIPH1 (1UL << 6)
-#define TOP_UCG1_CHANNEL_DDR_SERVICE   (1UL << 7)
-#define TOP_UCG1_CHANNEL_DDR_HSPERIPH  (1UL << 8)
+#define TOP_UCG1_ALL_CH_MASK           (GENMASK(8, 4) | BIT(2) | BIT(0))
+#define TOP_UCG1_SYNC_MASK             TOP_UCG1_ALL_CH_MASK
+#define TOP_UCG1_CHANNEL_AXI_SLOW_COMM 0
+#define TOP_UCG1_CHANNEL_AXI_FAST_COMM 2
+#define TOP_UCG1_CHANNEL_DDR_SDR_DSP   4
+#define TOP_UCG1_CHANNEL_DDR_SDR_PICE  5
+#define TOP_UCG1_CHANNEL_DDR_LSPERIPH1 6
+#define TOP_UCG1_CHANNEL_DDR_SERVICE   7
+#define TOP_UCG1_CHANNEL_DDR_HSPERIPH  8
 
 /* LSPeriph0 */
 #define BASE_ADDR_LS0_PDMA0_BASE 0xa1600000
@@ -181,8 +168,17 @@
 #define BASE_ADDR_DDR_SYS_UCG0 0xac010000
 #define BASE_ADDR_DDR_SYS_UCG1 0xac020000
 
-#define MC_R(a)          *(volatile unsigned *)(BASE_ADDR_RISC0_CSR + (a))
-#define MC_CSR           MC_R(0)
+#define DDR_SYS_URB_CTRSECUREREGION           (BASE_ADDR_DDR_SYS_URB + 0x80)
+#define DDR_SYS_URB_BASESECUREREGIONLOW(num)  (BASE_ADDR_DDR_SYS_URB + (0x90 + (num * 0x10)))
+#define DDR_SYS_URB_BASESECUREREGIONHIGH(num) (BASE_ADDR_DDR_SYS_URB + (0x94 + (num * 0x10)))
+#define DDR_SYS_URB_MASKSECUREREGIONLOW(num)  (BASE_ADDR_DDR_SYS_URB + (0x98 + (num * 0x10)))
+#define DDR_SYS_URB_MASKSECUREREGIONHIGH(num) (BASE_ADDR_DDR_SYS_URB + (0x9C + (num * 0x10)))
+
+/* Media system */
+#define BASE_ADDR_MEDIA_SYS   0xa1200000
+#define MEDIA_SYS_GPU_PPOLICY 0x121008
+#define MEDIA_SYS_GPU_PSTATUS 0x12100c
+
 #define MC_CSR_REG       BASE_ADDR_RISC0_CSR
 #define MC_CSR_TR_CRAM   0x00000002
 #define MC_CSR_TST_CACHE 0x00000800
@@ -190,11 +186,15 @@
 #define MC_CSR_FLUSH_D   0x00004000
 
 /* CPU Subs UCG Channels */
-#define CPU_SUBS_UCG_CHANNEL_CLK_CORE 1
-#define CPU_SUBS_UCG_CHANNEL_CLK_DBUS 2
-#define CPU_SUBS_UCG_CHANNEL_CLK_SYS  0
+#define CPU_UCG_ALL_CH_MASK      GENMASK(2, 0)
+#define CPU_UCG_SYNC_MASK        CPU_UCG_ALL_CH_MASK
+#define CPU_UCG_CHANNEL_CLK_CORE 1
+#define CPU_UCG_CHANNEL_CLK_DBUS 2
+#define CPU_UCG_CHANNEL_CLK_SYS  0
 
 /* SERVICE UCG1 Channels */
+#define SERVICE_UCG1_ALL_CH_MASK           GENMASK(15, 0)
+#define SERVICE_UCG1_SYNC_MASK             GENMASK(11, 0)
 #define SERVICE_UCG1_CHANNEL_CLK_APB       0
 #define SERVICE_UCG1_CHANNEL_CLK_CORE      1
 #define SERVICE_UCG1_CHANNEL_CLK_QSPI0     2
@@ -268,18 +268,28 @@
 #define LS0_UCG2_CLK_GPIO0 6
 
 /* LSPeriph1 UCG Channels */
-#define LS1_UCG_CLK_SYS      0
-#define LS1_UCG_CLK_I2C0     1
-#define LS1_UCG_CLK_I2C1     2
-#define LS1_UCG_CLK_I2C2     3
-#define LS1_UCG_CLK_GPIO1    4
-#define LS1_UCG_CLK_SPI1     5
-#define LS1_UCG_CLK_UART0    6
-#define LS1_UCG_CLK_TIMERS   7
-#define LS1_UCG_CLK_PWM      8
-#define LS1_UCG_CLK_WDT1     9
+#define LS1_UCG_CLK_SYS    0
+#define LS1_UCG_CLK_I2C0   1
+#define LS1_UCG_CLK_I2C1   2
+#define LS1_UCG_CLK_I2C2   3
+#define LS1_UCG_CLK_GPIO1  4
+#define LS1_UCG_CLK_SPI1   5
+#define LS1_UCG_CLK_UART0  6
+#define LS1_UCG_CLK_TIMERS 7
+#define LS1_UCG_CLK_PWM    8
+#define LS1_UCG_CLK_WDT1   9
 
 /* LSPeriph1 I2S UCG Channels */
 #define LS1_I2S_UCG_CLK_I2S0 0
 
-#endif // MCOM03_H
+/* LSPeriph1 subs */
+#define LSP1_SUBS_UCG_ALL_CH_MASK GENMASK(9, 0)
+#define LSP1_SUBS_UCG_SYNC_MASK   LSP1_SUBS_UCG_ALL_CH_MASK
+
+#define LSP1_SUBS_GPIO1_PORTBN_PADCTR(i)  (BASE_ADDR_LS1_URB_BASE + UL(0x40) + 0x4 * (i))
+#define LSP1_SUBS_GPIO1_PORTBN_PADCTR_SUS BIT(0)
+#define LSP1_SUBS_GPIO1_PORTBN_PADCTR_SL  GENMASK(4, 3)
+#define LSP1_SUBS_GPIO1_PORTBN_PADCTR_CTL GENMASK(10, 5)
+#define LSP1_SUBS_GPIO1_PORTBN_PADCTR_E   BIT(12)
+
+#endif // __MCOM03_REGS_H__

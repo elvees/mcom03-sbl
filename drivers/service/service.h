@@ -1,15 +1,11 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __SERVICE_URB_H__
-#define __SERVICE_URB_H__
+#ifndef __SERVICE_H__
+#define __SERVICE_H__
 
-#include <stdint.h>
 #include <stdbool.h>
-#include <stddef.h>
-
-#include <mcom03.h>
-#include <mcom03-errors.h>
+#include <stdint.h>
 
 typedef struct {
 	volatile unsigned int cpu_ppolicy;
@@ -67,223 +63,67 @@ typedef struct {
 } service_urb_regs_t;
 
 /**
+ * @brief The function turns on CPU subsystem, waits for status register to
+ *        report "on"
+ */
+void service_enable_arm_cpu(void);
+
+/**
+ * @brief The function turns off CPU subsystem, waits for status register to
+ *        report "off"
+ */
+void service_disable_arm_cpu(void);
+
+/**
+ * @brief The function turns on LS-PERIPH1 subsystem, waits for status register to
+ *        report "on"
+ */
+void service_enable_ls_periph1(void);
+
+/**
+ * @brief The function turns on LS-PERIPH0 subsystem, waits for status register to
+ *        report "on"
+ */
+void service_enable_ls_periph0(void);
+
+/**
+ * @brief The function turns on SDR subsystem, waits for status register to
+ *        report "on"
+ */
+void service_enable_sdr(void);
+
+/**
  * @brief The function returns a pointer
  *        to the URB register address
  *        of the Service subsystem
  *
- * @param ucg_id - UCG number
- *
- * @return Pointer to the UCG register address
+ * @return Pointer to the URB register address
  *         of the Service subsystem
  */
 service_urb_regs_t *service_get_urb_registers(void);
 
 /**
- * @brief Function for setting the top_clkgate register values
- *        of the Service subsystem
+ * @brief The function get frequency of UCG1 service subsystem APB channel
  *
- * @param urb The pointer to urb registers service subs
- * @param top_clkgate value of top_clkgate register.
+ * @param apb_freq   The pointer to APB channel frequency value
  *
- * @return Error value
+ * @return  0     - Success,
+ *         -ENULL - apb_freq param is not provided (NULL pointer)
  */
-mcom_err_t service_set_top_clkgate(service_urb_regs_t *urb, uint32_t top_clkgate);
+int service_get_apb_clock(uint32_t *apb_freq);
 
 /**
- * @brief Function for getting the values of the top_clkgate register
- *        of the Service subsystem
+ * @brief The function set clock for service subsystem
  *
- * @param urb The pointer to urb registers service subs subs
- * @param top_clkgate Value of top_clkgate register
+ * @param ch_mask     Service subsystem UCG channel mask
+ * @param sync_mask   Service subsystem UCG synchronization mask
  *
- * @return Error value
+ * @return  0             - Success,
+ *         -ETIMEOUT      - Operation for PLL setup is timed out or
+ *                          operation for set UCG channel dividers is timed out
+ *         -EINVALIDPARAM - CORE ucg channel frequency is not divisible by
+ *                          APB ucg channel frequency
  */
-mcom_err_t service_get_top_clkgate(service_urb_regs_t *urb, uint32_t *top_clkgate);
+int service_set_clock(uint32_t ch_mask, uint32_t sync_mask);
 
-/**
- * @brief The function clocks and releases the ls_periph 0 subsystem reset
- * @param urb The pointer to urb registers service subs subs
- * @param timeout The timeout for set values
- *
- * @return Error value
- */
-mcom_err_t service_reset_ls_periph0_deassert(service_urb_regs_t *urb, uint32_t timeout);
-
-/**
- * @brief The function removes the clock signal
- *            and sets the subsystem reset signal ls_periph 0
- *
- * @param urb The pointer to urb registers
- * @param reset_mode The reset mode (0x01 - Power Off, 0x08 - Warm Reset)
- * @param timeout The timeout for set values
- *
- * @return Error value
- */
-mcom_err_t service_reset_ls_periph0_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-                                           uint32_t timeout);
-
-/**
- * @brief The function clocks and releases the ls_periph 1 subsystem reset
- * @param urb The pointer to urb registers service subs subs
- * @param timeout The timeout for set values
- *
- * @return Error value
- */
-mcom_err_t service_reset_ls_periph1_deassert(service_urb_regs_t *urb, uint32_t timeout);
-
-/**
- * @brief The function removes the clock signal
- *            and sets the subsystem reset signal ls_periph 1
- *
- * @param urb The pointer to urb registers
- * @param reset_mode The reset mode (0x01 - Power Off, 0x08 - Warm Reset)
- * @param timeout The timeout for set values
- *
- * @return Error value
- */
-mcom_err_t service_reset_ls_periph1_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-                                           uint32_t timeout);
-
-/**
- * @brief The function clocks and releases the hs_periph subsystem reset
- * @param urb The pointer to urb registers service subs subs
- * @param timeout The timeout for set values
- *
- * @return Error value
- */
-mcom_err_t service_reset_hs_periph_deassert(service_urb_regs_t *urb, uint32_t timeout);
-
-/**
- * @brief The function removes the clock signal
- *            and sets the subsystem reset signal hs_periph
- *
- * @param urb The pointer to urb registers
- * @param reset_mode The reset mode (0x01 - Power Off, 0x08 - Warm Reset)
- * @param timeout The timeout for set values
- *
- * @return Error value
- */
-mcom_err_t service_reset_hs_periph_assert(service_urb_regs_t *urb, uint32_t reset_mode,
-                                          uint32_t timeout);
-
-/**
- * @brief The function return state of boot register.
- *
- * @param urb The pointer to urb registers
- * @param boot Value boot register
- *
- * @return Error value
- */
-mcom_err_t service_get_boot_setup(service_urb_regs_t *urb, uint32_t *boot);
-
-/**
- * @brief Function for getting the timestamp value from the counter register
- *
- * @param urb The pointer to urb registers
- * @param timestamp Value timestamp
- *
- * @return Error value
- */
-mcom_err_t service_get_timestamp(service_urb_regs_t *urb, uint64_t *timestamp);
-
-/**
- * @brief The function set state of register tp_dbgen
- *
- * @param urb The pointer to urb registers service subs
- * @param dbg_enable Debug status (true - enable, false - disable)
- *
- * @return Error value
- */
-mcom_err_t service_set_tp_dbgen(service_urb_regs_t *urb, bool dbg_enable);
-
-/**
- * @brief The function get state of register tp_dbgen
- *
- * @param urb The pointer to urb registers service subs
- * @param dbg_enable Debug status (true - enable, false - disable) *
- *
- * @return The state of tp_dbgen register.
- */
-mcom_err_t service_get_tp_dbgen(service_urb_regs_t *urb, bool *dbg_enable);
-
-/**
- * @brief The function set state of register sdr_dbgen
- *
- * @param urb The pointer to urb registers service subs
- * @param dbg_enable Debug status (true - enable, false - disable)
- *
- * @return Error value
- */
-mcom_err_t service_set_sdr_dbgen(service_urb_regs_t *urb, bool dbg_enable);
-
-/**
- * @brief The function get state of register sdr_dbgen
- *
- * @param urb The pointer to urb registers service subs
- * @param dbg_enable Debug status (true - enable, false - disable)
- *
- * @return Error value
- */
-mcom_err_t service_get_sdr_dbgen(service_urb_regs_t *urb, bool *dbg_enable);
-
-/**
- * @brief The function set state of register sp_dbgen
- *
- * @param urb The pointer to urb registers service subs
- * @param dbg_enable Debug status (true - enable, false - disable)
- *
- * @return Error value
- */
-mcom_err_t service_set_sp_dbgen(service_urb_regs_t *urb, bool dbg_enable);
-
-/**
- * @brief The function get state of register sp_dbgen
- *
- * @param urb The pointer to urb registers service subs
- * @param dbg_enable Debug status (true - enable, false - disable)
- *
- * @return Error value
- */
-mcom_err_t service_get_sp_dbgen(service_urb_regs_t *urb, bool *dbg_enable);
-
-/**
- * @brief The function set state of register s_dbgen
- *
- * @param urb The pointer to urb registers service subs
- * @param dbg_enable Debug status (true - enable, false - disable)
- *
- * @return Error value
- */
-mcom_err_t service_set_s_dbgen(service_urb_regs_t *urb, bool dbg_enable);
-
-/**
- * @brief The function get state of register s_dbgen
- *
- * @param urb The pointer to urb registers service subs
- * @param dbg_enable Debug status (true - enable, false - disable)
- *
- * @return Error value
- */
-mcom_err_t service_get_s_dbgen(service_urb_regs_t *urb, bool *dbg_enable);
-
-/**
- * @brief The function set state of register ust_dbgen
- *
- * @param urb The pointer to urb registers service subs
- * @param dbg_enable Debug status (true - enable, false - disable)
- *
- * @return Error value
- */
-mcom_err_t service_set_ust_dbgen(service_urb_regs_t *urb, bool dbg_enable);
-
-/**
- * @brief The function get state of register ust_dbgen
- *
- * @param urb The pointer to urb registers service subs
- * @param dbg_enable Debug status (true - enable, false - disable)
- *
- * @return Error value
- */
-mcom_err_t service_get_ust_dbgen(service_urb_regs_t *urb, bool *dbg_enable);
-
-#endif /* __SERVICE_URB_H__ */
+#endif /* __SERVICE_H__ */

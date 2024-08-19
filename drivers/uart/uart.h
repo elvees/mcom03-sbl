@@ -1,48 +1,41 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef UART_H
-#define UART_H
+#ifndef __UART_H__
+#define __UART_H__
 
 #include <stdint.h>
-#include <stddef.h>
 
-#include <mcom03-errors.h>
+#include <drivers/gpio/gpio.h>
+#include <libs/utils-def.h>
 
 #define UART0               0
 #define UART1               1
 #define UART2               2
 #define UART3               3
 #define UART_MAX_NUMBER     UART3
-#define UART_DEFAULT        UART0
 #define BAUDRATE_DEFAULT    115200
 #define UART_IER_RESETVALUE 0
 
+#define UART0_PORT     GPIO_PORTB
+#define UART0_SOUT_PIN GPIO_PIN_6
+#define UART0_SIN_PIN  GPIO_PIN_7
+
 #define UART_FCR_RESETVALUE  0
 #define UART_FCR_XFIFOR_MASK BIT(2)
-#define UART_FCR_XFIFOR(val) FIELD_PREP(UART_FCR_XFIFOR_MASK, (val))
 #define UART_FCR_RFIFOR_MASK BIT(1)
-#define UART_FCR_RFIFOR(val) FIELD_PREP(UART_FCR_RFIFOR_MASK, (val))
 #define UART_FCR_FIFOE_MASK  BIT(0)
-#define UART_FCR_FIFOE(val)  FIELD_PREP(UART_FCR_FIFOE_MASK, (val))
 
 #define UART_LCR_RESETVALUE 0
 #define UART_LCR_DLAB_MASK  BIT(7)
-#define UART_LCR_DLAB(val)  FIELD_PREP(UART_LCR_DLAB_MASK, (val))
 #define UART_LCR_EPS_MASK   BIT(4)
-#define UART_LCR_EPS(val)   FIELD_PREP(UART_LCR_EPS_MASK, (val))
 #define UART_LCR_PEN_MASK   BIT(3)
-#define UART_LCR_PEN(val)   FIELD_PREP(UART_LCR_PEN_MASK, (val))
 #define UART_LCR_STOP_MASK  BIT(2)
-#define UART_LCR_STOP(val)  FIELD_PREP(UART_LCR_STOP_MASK, (val))
 #define UART_LCR_DLS_MASK   GENMASK(1, 0)
-#define UART_LCR_DLS(val)   FIELD_PREP(UART_LCR_DLS_MASK, (val))
 
 #define UART_MCR_RESETVALUE 0
 #define UART_MCR_RTS_MASK   BIT(1)
-#define UART_MCR_RTS(val)   FIELD_PREP(UART_MCR_RTS_MASK, (val))
 #define UART_MCR_DTR_MASK   BIT(0)
-#define UART_MCR_DTR(val)   FIELD_PREP(UART_MCR_DTR_MASK, (val))
 
 #define UART_LSR_RFE_MASK  BIT(7)
 #define UART_LSR_TEMT_MASK BIT(6)
@@ -54,8 +47,7 @@
 
 #define UART_MSR_RESETVALUE 0
 
-#define UART_SCR_RESETVALUE     0
-#define UART_SOFT_BUFFER_LENGTH 512 // soft buffer length
+#define UART_SCR_RESETVALUE 0
 
 typedef struct {
 	volatile uint32_t RBR_THR_DLL;
@@ -117,14 +109,6 @@ typedef enum {
 } uart_parity_t;
 
 typedef struct {
-	unsigned int read_position;
-	unsigned int write_position;
-	int overflow;
-	int lock;
-	unsigned char buffer[UART_SOFT_BUFFER_LENGTH];
-} uart_buffer_t;
-
-typedef struct {
 	uart_reg_t *uart_ptr; // The pointer for UART controller registers
 	uint32_t uartNum; // The number of UART in system
 	uint32_t baudrate; // The transmission speed
@@ -133,61 +117,77 @@ typedef struct {
 	uart_parity_t parity; // The parity control
 	uint32_t mode; // The mode of work functions uart deriver
 	int linesplit; // The mode splite lines text flow
-	uint32_t timeout; // The timeout cycles
+	uint32_t max_retries; // The max number of tries
 	uint32_t error_receive; // Errors of reciever
 } uart_param_t;
 
 /**
  * @brief The function return pointer into uart controller
  *
- * @param uartNum Number of uart controller
- * @param uart_ptr The pointer to registers UART controller
- * @return mcom_err_t Error code
+ * @param uartNum    Number of uart controller
+ * @param uart_ptr   The pointer to registers UART controller
+ *
+ * @return  0             - Success,
+ *         -ENULL         - uart_ptr param is not provided (NULL pointer)
+ *         -EINVALIDPARAM - uartNum is bigger than the maximum UART number
  */
-mcom_err_t uart_drv_get_handler(uint32_t uartNum, uart_reg_t **uart_ptr);
+int uart_drv_get_handler(uint32_t uartNum, uart_reg_t **uart_ptr);
 
-/*!
- * \brief The function set UART controller configuration
- * \param uart The pointer to structure uart_param_t. Uart_context describes of parametrs uart controller
- * \return mcom_err_t Error code
+/**
+ * @brief The function set UART controller configuration
+ *
+ * @param ctx   The pointer to structure uart_param_t. Structure uart_param_t describes parametrs of
+ *              uart controller
+ *
+ * @return  0     - Success,
+ *         -ENULL - ctx param or uart_ptr field in ctx are not provided (NULL pointers)
  */
-mcom_err_t uart_drv_config(uart_param_t *uart);
+int uart_drv_config(void *ctx);
 
-/*!
- * \brief The function set default configuration of UART controller
- * \param huart The pointer to structure uart_param_t. Structure uart_param_t describes parametrs of uart controller
- * \return mcom_err_t Error code
+/**
+ * @brief The function disable transfering, receiving, interrupts
+ *
+ * @param ctx   The pointer to structure uart_param_t. Structure uart_param_t describes parametrs of
+ *              uart controller
+ *
+ * @return  0     - Success,
+ *         -ENULL - ctx param or uart_ptr field in ctx are not provided (NULL pointers)
  */
-mcom_err_t uart_drv_config_default(uart_param_t *huart);
+int uart_drv_deinit(void *ctx);
 
-/*!
- * \brief The function disable transfering, receiving, interrupts
- * \param uart The pointer to structure uart_param_t. Structure uart_param_t describes parametrs of uart controller
- * \return mcom_err_t Error code
+/**
+ * @brief The function get char from rx buffer UART controller. This function receive text strings.
+ *
+ * @param ctx   The pointer to structure uart_param_t. Structure uart_param_t describes parametrs of
+ *              uart controller
+ * @param c     Pointer for reading from rx buffer
+ *
+ * @return  0     - Success,
+ *         -ENULL - ctx param or c param or uart_ptr field in ctx are not provided (NULL pointers)
  */
-mcom_err_t uart_drv_deinit(uart_param_t *uart);
+int uart_drv_getchar(void *ctx, int *c);
 
-/*!
-* \brief The function get char from rx buffer UART controller. This function receive text strings.
-* \param uart The pointer to structure uart_param_t. Structure uart_param_t describes parametrs of uart controller
-* \param c Pointer for reading from rx buffer
-* \return mcom_err_t Error code
-*/
-mcom_err_t uart_drv_getchar(uart_param_t *uart, int *c);
+/**
+ * @brief The function put char direct to transmit register UART controller
+ *
+ * @param ctx   The pointer to structure uart_param_t. Structure uart_param_t describes parametrs of
+ *              uart controller
+ * @param c     char for transmit
+ *
+ * @return  0     - Success,
+ *         -ENULL - ctx param or uart_ptr field in ctx are not provided (NULL pointers)
+ */
+int uart_drv_putchar(void *ctx, char c);
 
-/*!
-* \brief The function put char direct to transmit register UART controller
-* \param uart The pointer to structure uart_param_t. Structure uart_param_t describes parametrs of uart controller
-* \param c char for transmit
-* \return mcom_err_t Error code
-*/
-mcom_err_t uart_drv_putchar(uart_param_t *uart, char c);
+/**
+ * @brief The function used to flush the tx buffer immediately
+ *
+ * @param ctx   The pointer to structure uart_param_t. Structure uart_param_t describes parametrs of
+ *              uart controller
+ *
+ * @return  0     - Success,
+ *         -ENULL - ctx param or uart_ptr field in ctx are not provided (NULL pointers)
+ */
+int uart_drv_flush(void *ctx);
 
-/*!
-* \brief The function used to flush the tx buffer immediately
-* \param uart The pointer to structure uart_param_t. Structure uart_param_t describes parametrs of uart controller
-* \return mcom_err_t Error code
-*/
-mcom_err_t uart_drv_flush(uart_param_t *uart);
-
-#endif /* UART_H */
+#endif // __UART_H__

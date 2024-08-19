@@ -1,188 +1,210 @@
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
 
-#include <mcom03.h>
+#include <errno.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include <drivers/mcom03-regs.h>
+#include <libs/errors.h>
+#include <libs/helpers/helpers.h>
+#include <libs/platform-def-common.h>
+#include <libs/utils-def.h>
+
 #include "uart.h"
 
 #define MC_DL_BAUD(fr, bd) (((fr) / 16 + ((bd) / 2)) / (bd))
 
-static mcom_err_t uart_rcv_err_check(uint32_t err);
+static int uart_rcv_err_check(uint32_t err)
+{
+	if (err & UART_LSR_FE_MASK)
+		return -EINVALIDDATA;
+	else if (err & UART_LSR_PE_MASK)
+		return -EINVALIDDATA;
+	else if (err & UART_LSR_OE_MASK)
+		return -EOVERFLOW;
 
-mcom_err_t uart_drv_get_handler(uint32_t uartNum, uart_reg_t **uart_ptr)
+	return -EUNKNOWN;
+}
+
+int uart_drv_get_handler(uint32_t uartNum, uart_reg_t **uart_ptr)
 {
 	if (uart_ptr == NULL)
-		return MCOM03_ERROR_NULL;
-	if (uartNum > 3)
-		return MCOM03_ERROR_INVALID_PARAM;
+		return -ENULL;
+	if (uartNum > UART_MAX_NUMBER)
+		return -EINVALIDPARAM;
 	switch (uartNum) {
-	case 1:
+	case UART1:
 		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LS0_UART1_BASE);
 		break;
-	case 2:
+	case UART2:
 		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LS0_UART2_BASE);
 		break;
-	case 3:
+	case UART3:
 		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LS0_UART3_BASE);
 		break;
-	case 0:
+	case UART0:
 	default:
 		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LS1_UART0_BASE);
 		break;
 	}
-	return MCOM03_SUCCESS;
+	return 0;
 }
 
-mcom_err_t uart_drv_config(uart_param_t *uart)
+int uart_drv_config(void *ctx)
 {
-	if (uart == NULL)
-		return MCOM03_ERROR_NULL;
-	if (uart->uart_ptr == NULL)
-		return MCOM03_ERROR_NULL;
+	uart_param_t *uart = (uart_param_t *)ctx;
 
-	/* Setup baudrate rate generator. */
+	if (uart == NULL)
+		return -ENULL;
+	if (uart->uart_ptr == NULL)
+		return -ENULL;
+
+	// Setup baudrate rate generator.
 	unsigned divisor = MC_DL_BAUD(UART_CLK_HZ, uart->baudrate);
 
-	//Disable receiving
-	uart->uart_ptr->MCR = UART_MCR_RESETVALUE; //check cfg flow
+	// Disable receiving
+	uart->uart_ptr->MCR = UART_MCR_RESETVALUE; // check cfg flow
 
-	//Setup divisor
-	uart->uart_ptr->LCR |= UART_LCR_DLAB(1);
+	// Setup divisor
+	uart->uart_ptr->LCR |= FIELD_PREP(UART_LCR_DLAB_MASK, 1);
 	uart->uart_ptr->DLH_IER = divisor >> 8;
 	uart->uart_ptr->RBR_THR_DLL = divisor;
-	uart->uart_ptr->LCR &= ~(UART_LCR_DLAB(1)); // reset bit dlab
+	uart->uart_ptr->LCR &= ~FIELD_PREP(UART_LCR_DLAB_MASK, 1); // reset bit dlab
 
-	//Setup Line Control Register
+	// Setup Line Control Register
 	uint32_t uart_lcr = UART_LCR_RESETVALUE;
-	uart_lcr = UART_LCR_DLS(uart->bits) | UART_LCR_STOP(uart->stopBit);
+	uart_lcr = FIELD_PREP(UART_LCR_DLS_MASK, uart->bits) |
+	           FIELD_PREP(UART_LCR_STOP_MASK, uart->stopBit);
 
 	switch (uart->parity) {
 	case UART_ODDPARITY:
-		uart_lcr |= UART_LCR_EPS(0) | UART_LCR_PEN(1);
+		uart_lcr |= FIELD_PREP(UART_LCR_EPS_MASK, 0) | FIELD_PREP(UART_LCR_PEN_MASK, 1);
 		break;
 	case UART_EVENPARITY:
-		uart_lcr |= UART_LCR_EPS(1) | UART_LCR_PEN(1);
+		uart_lcr |= FIELD_PREP(UART_LCR_EPS_MASK, 1) | FIELD_PREP(UART_LCR_PEN_MASK, 1);
 		break;
 	case UART_NOPARITY:
 	default:
-		uart_lcr |= UART_LCR_PEN(0);
+		uart_lcr |= FIELD_PREP(UART_LCR_PEN_MASK, 0);
 		break;
 	}
 	uart->uart_ptr->LCR = uart_lcr;
 
-	//Disable interrupts
+	// Disable interrupts
 	uart->uart_ptr->DLH_IER = UART_IER_RESETVALUE;
 	uart->uart_ptr->MSR = UART_MSR_RESETVALUE;
 
 	uart->uart_ptr->SCR = UART_SCR_RESETVALUE;
 
-	uart->uart_ptr->MCR = UART_MCR_DTR(1) | UART_MCR_RTS(1);
+	uart->uart_ptr->MCR = FIELD_PREP(UART_MCR_DTR_MASK, 1) | FIELD_PREP(UART_MCR_RTS_MASK, 1);
 
-	//Enable FIFO, reset rx/tx FIFO
-	uart->uart_ptr->FCR = UART_FCR_RFIFOR(1) | UART_FCR_XFIFOR(1) | UART_FCR_FIFOE(1);
-	return MCOM03_SUCCESS;
+	// Enable FIFO, reset rx/tx FIFO
+	uart->uart_ptr->FCR = FIELD_PREP(UART_FCR_RFIFOR_MASK, 1) |
+	                      FIELD_PREP(UART_FCR_XFIFOR_MASK, 1) |
+	                      FIELD_PREP(UART_FCR_FIFOE_MASK, 1);
+	return 0;
 }
 
-mcom_err_t uart_drv_config_default(uart_param_t *huart)
+int uart_drv_deinit(void *ctx)
 {
-	if (huart == NULL)
-		return MCOM03_ERROR_NULL;
+	uart_param_t *uart = (uart_param_t *)ctx;
 
-	huart->uartNum = UART_DEFAULT;
-	uart_drv_get_handler(huart->uartNum, &huart->uart_ptr);
-
-	huart->baudrate = BAUDRATE_DEFAULT;
-	huart->bits = UART_8BIT;
-	huart->stopBit = UART_STOPBIT1;
-	huart->parity = UART_NOPARITY;
-	huart->timeout = UINT32_MAX;
-
-	return uart_drv_config(huart);
-}
-
-mcom_err_t uart_drv_deinit(uart_param_t *uart)
-{
 	if (uart == NULL)
-		return MCOM03_ERROR_NULL;
+		return -ENULL;
 	if (uart->uart_ptr == NULL)
-		return MCOM03_ERROR_NULL;
+		return -ENULL;
 
-	uart_drv_flush(uart);
-	//Disable interrupts
+	uart_drv_flush(ctx);
+	// Disable interrupts
 	uart->uart_ptr->DLH_IER = UART_IER_RESETVALUE;
 
-	//Disable receiving
+	// Disable receiving
 	uart->uart_ptr->MCR = UART_MCR_RESETVALUE;
 
-	//Disable transfering
+	// Disable transfering
 	uart->uart_ptr->FCR = UART_FCR_RESETVALUE;
 
 	uart->uart_ptr = NULL;
 
-	return MCOM03_SUCCESS;
+	return 0;
 }
 
-mcom_err_t uart_drv_flush(uart_param_t *uart)
+int uart_drv_flush(void *ctx)
 {
-	if (uart == NULL)
-		return MCOM03_ERROR_NULL;
-	if (uart->uart_ptr == NULL)
-		return MCOM03_ERROR_NULL;
+	uart_param_t *uart = (uart_param_t *)ctx;
 
-	uint32_t timeout = uart->timeout;
+	if (uart == NULL)
+		return -ENULL;
+	if (uart->uart_ptr == NULL)
+		return -ENULL;
+
+	uint32_t max_retries = uart->max_retries;
 
 	while (!(uart->uart_ptr->LSR & (UART_LSR_THRE_MASK | UART_LSR_TEMT_MASK))) {
-		if (timeout == 0) {
+		if (max_retries == 0) {
 			break;
 		}
 
-		timeout--;
+		max_retries--;
 	}
 
-	return MCOM03_SUCCESS;
+	return 0;
 }
 
-mcom_err_t uart_drv_putchar(uart_param_t *uart, char c)
+int uart_drv_putchar(void *ctx, char c)
 {
+	uart_param_t *uart = (uart_param_t *)ctx;
+
 	if (uart == NULL)
-		return MCOM03_ERROR_NULL;
+		return -ENULL;
 	if (uart->uart_ptr == NULL)
-		return MCOM03_ERROR_NULL;
+		return -ENULL;
 
-	uint32_t timeout = uart->timeout;
+	while (1) {
+		uint32_t max_retries = uart->max_retries;
 
-	while (!(uart->uart_ptr->LSR & (UART_LSR_THRE_MASK | UART_LSR_TEMT_MASK))) {
-		if (timeout == 0) {
-			break;
+		while (!(uart->uart_ptr->LSR & (UART_LSR_THRE_MASK | UART_LSR_TEMT_MASK))) {
+			if (max_retries == 0) {
+				break;
+			}
+
+			max_retries--;
 		}
+		uart->uart_ptr->RBR_THR_DLL = c;
 
-		timeout--;
+		if (c == '\n')
+			c = '\r';
+		else
+			break;
 	}
-	uart->uart_ptr->RBR_THR_DLL = c;
-	return MCOM03_SUCCESS;
+	return 0;
 }
 
-mcom_err_t uart_drv_getchar(uart_param_t *uart, int *c)
+int uart_drv_getchar(void *ctx, int *c)
 {
+	uart_param_t *uart = (uart_param_t *)ctx;
+
 	if (uart == NULL)
-		return MCOM03_ERROR_NULL;
+		return -ENULL;
 	if (uart->uart_ptr == NULL)
-		return MCOM03_ERROR_NULL;
+		return -ENULL;
 	if (c == NULL)
-		return MCOM03_ERROR_NULL;
+		return -ENULL;
 
-	uint32_t timeout = uart->timeout;
+	uint32_t max_retries = uart->max_retries;
 	uint32_t lsr_reg = 0;
 
 	do {
-		if (timeout == 0) {
+		if (max_retries == 0) {
 			break;
 		}
-		timeout--;
+		max_retries--;
 
 		lsr_reg = uart->uart_ptr->LSR;
 
 		if (lsr_reg & UART_LSR_RFE_MASK) {
-			mcom_err_t err = uart_rcv_err_check(lsr_reg);
+			int err = uart_rcv_err_check(lsr_reg);
 			return err;
 		}
 
@@ -190,18 +212,5 @@ mcom_err_t uart_drv_getchar(uart_param_t *uart, int *c)
 
 	*c = uart->uart_ptr->RBR_THR_DLL;
 
-	return MCOM03_SUCCESS;
-}
-
-static mcom_err_t uart_rcv_err_check(uint32_t err)
-{
-	if (err & UART_LSR_FE_MASK) {
-		return MCOM03_ERROR_UART_FRAME;
-	} else if (err & UART_LSR_PE_MASK) {
-		return MCOM03_ERROR_UART_PARITY;
-	} else if (err & UART_LSR_OE_MASK) {
-		return MCOM03_ERROR_UART_OVERFLOW;
-	}
-
-	return MCOM03_ERROR_UART_UNKNOWN;
+	return 0;
 }

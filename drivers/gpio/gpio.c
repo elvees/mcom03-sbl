@@ -1,5 +1,8 @@
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
+
+#include <libs/errors.h>
+#include <libs/utils-def.h>
 
 #include "gpio.h"
 
@@ -15,7 +18,7 @@ int gpio_init(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned i
               unsigned int direction)
 {
 	if (!gpio)
-		return -1;
+		return -ENULL;
 
 	/* Set pin direction */
 	if (mode == GPIO_MODE_SW)
@@ -27,23 +30,23 @@ int gpio_init(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned i
 	return 0;
 }
 
-int gpio_read_pin(gpio_regs_t *gpio, unsigned int port, unsigned int pin)
+int gpio_read_pin(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned int *pin_state)
 {
-	int state = GPIO_PIN_RESET;
+	if (!gpio || !pin_state)
+		return -ENULL;
 
-	if (!gpio)
-		return -1;
+	*pin_state = GPIO_PIN_RESET;
 
 	if (gpio->ext_port[port] & BIT(pin))
-		state = GPIO_PIN_SET;
+		*pin_state = GPIO_PIN_SET;
 
-	return state;
+	return 0;
 }
 
 int gpio_write_pin(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned int pin_state)
 {
 	if (!gpio)
-		return -1;
+		return -ENULL;
 
 	GPIO_SET_BIT(gpio->swport[port].dr, pin, pin_state);
 

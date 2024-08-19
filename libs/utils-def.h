@@ -81,4 +81,8 @@
 #define LL(_x)  (_x##LL)
 #endif
 
+#define _Hz_  UL(1)
+#define _kHz_ (UL(1000) * _Hz_)
+#define _MHz_ (UL(1000) * _kHz_)
+
 #endif /* _UTILS_DEF_H_ */

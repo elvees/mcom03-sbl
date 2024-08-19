@@ -30,6 +30,10 @@ if (NOT "$ENV{BUILD_ID}" STREQUAL "")
     add_compile_definitions(BUILD_ID="$ENV{BUILD_ID}")
 endif()
 
+set(WDT_ENABLE TRUE CACHE BOOL "Enable WDT")
+set(UART_ENABLE TRUE CACHE BOOL "Enable UART")
+set(DEBUG_INTERFACE_DISABLE OFF CACHE BOOL "Disable SoC debug interface")
+
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_compile_options(-gdwarf-2 -fno-eliminate-unused-debug-types
                         -g -O0)
@@ -37,6 +41,13 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
 else()
     add_compile_options(-g0 -O2)
     add_compile_definitions(LOG_LEVEL=20 NDEBUG)
+    if(WDT_ENABLE)
+        add_compile_definitions(WDT_ENABLE)
+    endif()
+
+    if(DEBUG_INTERFACE_DISABLE)
+        add_compile_definitions(DEBUG_INTERFACE_DISABLE)
+    endif()
 endif()
 
 add_compile_options(-Wall -Werror -std=gnu99 -EL -mips32 -G0
@@ -48,7 +59,19 @@ add_compile_options(-Wall -Werror -std=gnu99 -EL -mips32 -G0
 add_link_options(-Wl,--gc-sections -Wl,--print-memory-usage -Wl,--wrap=__assert_func
                  -EL -nostdlib -nostartfiles -mips32 -mabi=32 -G0)
 
-add_subdirectory(common)
+if(UART_ENABLE)
+    add_compile_definitions(UART_ENABLE)
+endif()
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+add_subdirectory(drivers)
+add_subdirectory(libs)
+
+add_library(common STATIC
+            $<TARGET_OBJECTS:drivers>
+            $<TARGET_OBJECTS:libs>)
+
 add_subdirectory(sbl-s1)
 add_subdirectory(sbl-xip)
 add_subdirectory(scripts)

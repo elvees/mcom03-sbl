@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef WDT_H
-#define WDT_H
+#ifndef __WDT_H__
+#define __WDT_H__
 
-#include <mcom03-errors.h>
 #include <stdint.h>
-#include <stddef.h>
 
-#define WDT0 0
-#define WDT1 1
+#include <libs/utils-def.h>
 
 #define WDT_RST_MODE 0
 #define WDT_IRQ_MODE 1
@@ -53,7 +50,6 @@ typedef struct {
 } wdt_regs_t;
 
 typedef struct {
-	uint32_t id;
 	wdt_regs_t *regs;
 	uint32_t wdt_freq;
 	uint32_t rpl; // Reset pulse length
@@ -66,16 +62,16 @@ typedef struct {
 } wdt_dev_t;
 
 int wdt_is_enabled(wdt_dev_t *wdt_dev);
-mcom_err_t wdt_init(wdt_dev_t *wdt_dev);
-mcom_err_t wdt_reset(wdt_dev_t *wdt_dev);
-mcom_err_t wdt_stop(wdt_dev_t *wdt_dev);
-mcom_err_t wdt_start(wdt_dev_t *wdt_dev);
-mcom_err_t wdt_set_timeout(wdt_dev_t *wdt_dev, uint32_t timeout);
-mcom_err_t wdt_reset_irq(wdt_dev_t *wdt_dev);
+int wdt_init(wdt_dev_t *wdt_dev);
+int wdt_reset(wdt_dev_t *wdt_dev);
+int wdt_stop(wdt_dev_t *wdt_dev);
+int wdt_start(wdt_dev_t *wdt_dev);
+int wdt_set_timeout(wdt_dev_t *wdt_dev, uint32_t timeout);
+int wdt_reset_irq(wdt_dev_t *wdt_dev);
 
 uint32_t wdt_get_timeleft(wdt_dev_t *wdt_dev);
 uint32_t wdt_get_timeout(wdt_dev_t *wdt_dev);
 uint32_t wdt_get_min_timeout(wdt_dev_t *wdt_dev);
 uint32_t wdt_get_max_timeout(wdt_dev_t *wdt_dev);
 
-#endif /* WDT_H */
+#endif // __WDT_H__

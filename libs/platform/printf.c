@@ -1,11 +1,10 @@
-// Copyright 2023 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 
 #include <stdarg.h>
-#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
-
-#include "uart-printf.h"
+#include <stdio.h>
 
 #define get_num_va_args(_args, _lcount)                   \
 	(((_lcount) > 1) ? va_arg(_args, long long int) : \
@@ -16,22 +15,22 @@
 	                   (((_lcount) == 1) ? va_arg(_args, unsigned long int) : \
 	                                       va_arg(_args, unsigned int)))
 
-static int string_print(uart_param_t *uart, const char *str)
+static int string_print(const char *str)
 {
 	int count = 0;
 
 	for (; *str != '\0'; str++) {
-		(void)uart_drv_putchar(uart, *str);
+		(void)putchar(*str);
 		count++;
 	}
 
 	return count;
 }
 
-static int unsigned_num_print(uart_param_t *uart, unsigned long long int unum, unsigned int radix,
-                              char padc, int padn, unsigned char is_upper)
+static int unsigned_num_print(unsigned long long int unum, unsigned int radix, char padc, int padn,
+                              unsigned char is_upper)
 {
-	/* Just need enough space to store 64 bit decimal integer */
+	// Just need enough space to store 64 bit decimal integer
 	char num_buf[20];
 	int i = 0, count = 0;
 	unsigned int rem;
@@ -49,14 +48,14 @@ static int unsigned_num_print(uart_param_t *uart, unsigned long long int unum, u
 
 	if (padn > 0) {
 		while (i < padn) {
-			(void)uart_drv_putchar(uart, padc);
+			(void)putchar(padc);
 			count++;
 			padn--;
 		}
 	}
 
 	while (--i >= 0) {
-		(void)uart_drv_putchar(uart, num_buf[i]);
+		(void)putchar(num_buf[i]);
 		count++;
 	}
 
@@ -83,15 +82,15 @@ static int unsigned_num_print(uart_param_t *uart, unsigned long long int unum, u
  * The print exits on all other formats specifiers other than valid
  * combinations of the above specifiers.
  *******************************************************************/
-int uart_vprintf(uart_param_t *uart, const char *fmt, va_list args)
+int vprintf(const char *fmt, va_list args)
 {
 	int l_count;
 	long long int num;
 	unsigned long long int unum;
 	char *str;
-	char padc = '\0'; /* Padding character */
-	int padn; /* Number of characters to pad */
-	int count = 0; /* Number of printed characters */
+	char padc = '\0'; // Padding character
+	int padn; // Number of characters to pad
+	int count = 0; // Number of printed characters
 
 	while (*fmt != '\0') {
 		l_count = 0;
@@ -99,46 +98,46 @@ int uart_vprintf(uart_param_t *uart, const char *fmt, va_list args)
 
 		if (*fmt == '%') {
 			fmt++;
-			/* Check the format specifier */
+			// Check the format specifier
 loop:
 			switch (*fmt) {
-			case 'i': /* Fall through to next one */
+			case 'i': // Fall through to next one
 			case 'd':
 				num = get_num_va_args(args, l_count);
 				if (num < 0) {
-					(void)uart_drv_putchar(uart, '-');
+					(void)putchar('-');
 					unum = (unsigned long long int)-num;
 					padn--;
 				} else
 					unum = (unsigned long long int)num;
 
-				count += unsigned_num_print(uart, unum, 10, padc, padn, 0);
+				count += unsigned_num_print(unum, 10, padc, padn, 0);
 				break;
 			case 's':
 				str = va_arg(args, char *);
-				count += string_print(uart, str);
+				count += string_print(str);
 				break;
 			case 'c':
 				num = get_num_va_args(args, l_count);
-				(void)uart_drv_putchar(uart, num);
+				(void)putchar(num);
 				count++;
 				break;
 			case 'p':
 				unum = (uintptr_t)va_arg(args, void *);
 				if (unum > 0U) {
-					count += string_print(uart, "0x");
+					count += string_print("0x");
 					padn -= 2;
 				}
 
-				count += unsigned_num_print(uart, unum, 16, padc, padn, 0);
+				count += unsigned_num_print(unum, 16, padc, padn, 0);
 				break;
 			case 'x':
 				unum = get_unum_va_args(args, l_count);
-				count += unsigned_num_print(uart, unum, 16, padc, padn, 0);
+				count += unsigned_num_print(unum, 16, padc, padn, 0);
 				break;
 			case 'X':
 				unum = get_unum_va_args(args, l_count);
-				count += unsigned_num_print(uart, unum, 16, padc, padn, 1);
+				count += unsigned_num_print(unum, 16, padc, padn, 1);
 				break;
 			case 'z':
 				if (sizeof(size_t) == 8U)
@@ -152,7 +151,7 @@ loop:
 				goto loop;
 			case 'u':
 				unum = get_unum_va_args(args, l_count);
-				count += unsigned_num_print(uart, unum, 10, padc, padn, 0);
+				count += unsigned_num_print(unum, 10, padc, padn, 0);
 				break;
 			case '0':
 				padc = '0';
@@ -168,13 +167,13 @@ loop:
 					fmt++;
 				}
 			default:
-				/* Exit on any other format specifier */
+				// Exit on any other format specifier
 				return -1;
 			}
 			fmt++;
 			continue;
 		}
-		(void)uart_drv_putchar(uart, *fmt);
+		(void)putchar(*fmt);
 		fmt++;
 		count++;
 	}
@@ -182,13 +181,13 @@ loop:
 	return count;
 }
 
-int uart_printf(uart_param_t *uart, const char *fmt, ...)
+int printf(const char *fmt, ...)
 {
 	int count;
 	va_list va;
 
 	va_start(va, fmt);
-	count = uart_vprintf(uart, fmt, va);
+	count = vprintf(fmt, va);
 	va_end(va);
 
 	return count;

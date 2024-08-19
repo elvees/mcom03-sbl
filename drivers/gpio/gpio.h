@@ -4,8 +4,7 @@
 #ifndef __GPIO_H__
 #define __GPIO_H__
 
-#include <utils-def.h>
-#include <mcom03.h>
+#include <libs/utils-def.h>
 
 typedef struct {
 	volatile unsigned int dr;
@@ -59,7 +58,7 @@ static inline gpio_regs_t *gpio_get_registers(void *base)
 
 int gpio_init(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned int mode,
               unsigned int direction);
-int gpio_read_pin(gpio_regs_t *gpio, unsigned int port, unsigned int pin);
+int gpio_read_pin(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned int *pin_state);
 int gpio_write_pin(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned int pin_state);
 
 #endif /* __GPIO_H__ */

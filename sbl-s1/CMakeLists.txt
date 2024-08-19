@@ -2,43 +2,12 @@
 
 project(sbl-s1 ASM C)
 
-set(WDT_ENABLE TRUE CACHE BOOL "WDT is enabled")
-set(PRESETUP_UARTS TRUE CACHE BOOL "Pre-setup UART")
-
-# Get common library include path
-get_target_property(COMMON_INCLUDE_DIRECTORIES common INCLUDE_DIRECTORIES)
-
 add_executable(${PROJECT_NAME}.elf
-               drivers/gpio.c
-               drivers/hs-periph-urb.c
-               drivers/ls-periph1-urb.c
-               drivers/pll.c
-               drivers/service-urb.c
-               drivers/uart.c
-               drivers/ucg.c
-               drivers/wdt.c
-               library/uart-printf.c
-               source/hwinit.c
-               source/startup.S)
+               hwinit.c
+               startup.S)
 
-target_include_directories(${PROJECT_NAME}.elf PRIVATE
-                           ${CMAKE_CURRENT_SOURCE_DIR}
-                           ${CMAKE_CURRENT_SOURCE_DIR}/include
-                           ${COMMON_INCLUDE_DIRECTORIES})
-
-if(PRESETUP_UARTS)
-    target_compile_definitions(${PROJECT_NAME}.elf PRIVATE -DPRESETUP_UARTS)
-endif()
-
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-    target_compile_definitions(${PROJECT_NAME}.elf PRIVATE
-                               -DENABLE_ASSERTIONS -DDEBUG_IFACE_USE)
-else()
-    if (WDT_ENABLE)
-        target_compile_definitions(${PROJECT_NAME}.elf PRIVATE -DWDT_USE)
-    endif()
-endif()
-
+# Link static libraries
+target_link_libraries(${PROJECT_NAME}.elf common)
 
 target_link_options(${PROJECT_NAME}.elf PRIVATE
                     -T ${CMAKE_CURRENT_BINARY_DIR}/link.ld
@@ -46,7 +15,7 @@ target_link_options(${PROJECT_NAME}.elf PRIVATE
 
 add_custom_command(TARGET ${PROJECT_NAME}.elf PRE_LINK COMMAND ${CMAKE_C_COMPILER}
                    $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS)
-                   -E ${CMAKE_CURRENT_SOURCE_DIR}/source/link.ld.S -P
+                   -E ${CMAKE_CURRENT_SOURCE_DIR}/link.ld.S -P
                    -o ${CMAKE_CURRENT_BINARY_DIR}/link.ld)
 
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD

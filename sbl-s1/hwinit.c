@@ -1,491 +1,134 @@
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
 
 #include <stdint.h>
+#include <stdio.h>
 
+#include <drivers/mcom03-regs.h>
+#include <drivers/service/service.h>
 #include <drivers/top/top.h>
-#include <stddef.h>
-#include <stdbool.h>
+#include <libs/console/console.h>
+#include <libs/errors.h>
+#include <libs/helpers/helpers.h>
+#include <libs/mmio.h>
+#include <libs/utils-def.h>
 
-#include <mmio.h>
-#include <mcom03.h>
-#include <mcom03-errors.h>
+#ifdef WDT_ENABLE
+#include <drivers/wdt/wdt-config.h>
+#include <drivers/wdt/wdt.h>
+#endif
 
-#include "library/uart-printf.h"
-
-#include "drivers/gpio.h"
-#include "drivers/hs-periph-urb.h"
-#include "drivers/ls-periph1-urb.h"
-#include "drivers/pll.h"
-#include "drivers/service-urb.h"
-#include "drivers/uart.h"
-#include "drivers/ucg.h"
-#include "drivers/wdt.h"
+#ifdef UART_ENABLE
+#include <drivers/uart/uart-config.h>
+#include <drivers/uart/uart.h>
+#endif
 
 #define PREFIX "SBL-S1"
 
-#define UART0_PORT     GPIO_PORTB
-#define UART0_SOUT_PIN GPIO_PIN_6
-#define UART0_SIN_PIN  GPIO_PIN_7
-
-#define UART1_PORT     GPIO_PORTB
-#define UART1_SOUT_PIN GPIO_PIN_6
-#define UART1_SIN_PIN  GPIO_PIN_5
-
-#define INTERCONNECT_PLL_ADDR (BASE_ADDR_TOP_URB_BASE)
-#define SERVICE_PLL_ADDR      (BASE_ADDR_SERVICE_URB + 0x1000)
-
-struct ucg_channel {
-	int ucg_id;
-	int chan_id;
-	int div;
-	bool enable;
-};
-
-/* Service Subsystem PLL output frequency is 594 MHz, assuming that XTI = 27 MHz */
-/* Commenting any line below means "Don't touch", keep as is */
-static struct ucg_channel mcom03_risc0_ucg_param[] = {
-	{ 1, 0, 6, true }, /* SERVICE UCG1 APB       99 MHz */
-	{ 1, 1, 1, true }, /* SERVICE UCG1 CORE      594 MHz */
-	{ 1, 2, 1, true }, /* SERVICE UCG1 QSPI0     594 MHz */
-	{ 1, 4, 1, true }, /* SERVICE UCG1 RISC0     594 MHz */
-	{ 1, 5, 6, true }, /* SERVICE UCG1 MFBSP0    99 MHz */
-	{ 1, 6, 6, true }, /* SERVICE UCG1 MFBSP1    99 MHz */
-	{ 1, 7, 6, true }, /* SERVICE UCG1 MAILBOX0  99 MHz */
-	{ 1, 8, 6, true }, /* SERVICE UCG1 PVTCTR    99 MHz */
-	{ 1, 9, 6, true }, /* SERVICE UCG1 I2C4      99 MHz */
-	{ 1, 10, 6, true }, /* SERVICE UCG1 TRNG      99 MHz */
-	{ 1, 11, 6, true }, /* SERVICE UCG1 SPIOTP    99 MHz */
-	{ 1, 12, 12, true }, /* SERVICE UCG1 I2C4_EXT  49.5 MHz */
-	{ 1, 13, 22, true }, /* SERVICE UCG1 QSPI0_EXT 27 MHz */
-};
-
-#ifdef WDT_USE
-static wdt_dev_t wdt0;
-static uint32_t apb_freq;
-
-void wdt_set_config(wdt_dev_t *wdt_dev, uint32_t wdt_clk, uint32_t timeout);
-mcom_err_t service_get_apb_clock(uint32_t *apb_freq);
-#endif /* WDT_USE */
-
-#ifdef PRESETUP_UARTS
-static uart_param_t uart;
-
-mcom_err_t uart_subs_init(void);
-#endif /* PRESETUP_UARTS */
-
-mcom_err_t soc_debug_disable(void);
-mcom_err_t service_set_clock(void);
-mcom_err_t ucg_hsp_refclk_setup(void);
-mcom_err_t ucg_lsp1_i2s_rstn(void);
-
 int main(void)
 {
-	mcom_err_t ret_code = MCOM03_SUCCESS;
+	int ret;
 
-	/* Initialize and configure the TOP clock gate */
+	// Initialize and configure the TOP clock gate
 	uint32_t top_clkgate = (SERVICE_TOP_CLK_GATE_SERVICE) | (SERVICE_TOP_CLK_GATE_LSPERIPH0) |
 	                       (SERVICE_TOP_CLK_GATE_LSPERIPH1) | (SERVICE_TOP_CLK_GATE_HSPERIPH) |
 	                       (SERVICE_TOP_CLK_GATE_DDR) | (SERVICE_TOP_CLK_GATE_TOP_INTERCONNECT);
 
-	mmio_write_32(SERV_URB_TOP_CLKGATE, top_clkgate);
+	service_urb_regs_t *serv_urb = service_get_urb_registers();
+	serv_urb->top_clkgate = top_clkgate;
 
-#ifdef PRESETUP_UARTS
-	/* Initialize LS Peripheral 0 and 1 for UART 0 and 1 */
-	ret_code = uart_subs_init();
-	if (ret_code != MCOM03_SUCCESS) {
-		goto exit;
-	}
+#ifdef UART_ENABLE
+	uart_param_t uart = { .uartNum = UART0 };
 
-	ret_code = uart_drv_config_default(&uart);
-	if (ret_code != MCOM03_SUCCESS) {
-		goto exit;
-	}
+	console_ops_t uart_console_ops = { .init = uart_drv_config_default,
+		                           .putchar = uart_drv_putchar,
+		                           .getchar = uart_drv_getchar,
+		                           .flush = uart_drv_flush,
+		                           .deinit = uart_drv_deinit };
 
-	uart_printf(&uart, PREFIX " (" __DATE__ " - " __TIME__ "): " COMMIT "\r\n");
-#ifdef BUILD_ID
-	uart_printf(&uart, PREFIX ": Build: %s\r\n", BUILD_ID);
+	console_t console = { .hw = &uart, .ops = &uart_console_ops };
+
+	// Initialize LS Peripheral 1 for UART 0
+	ret = uart_hw_enable();
+	if (ret)
+		return ret;
+
+	ret = console_register(&console);
+	if (ret)
+		return ret;
+
 #endif
 
-#endif /* PRESETUP_UARTS */
+	ret = console_init();
+	if (ret)
+		return ret;
 
-	/* Initialize and configure the RISC0 clocking system */
-	ret_code = service_set_clock();
-	if (ret_code != MCOM03_SUCCESS) {
-		goto exit;
-	}
+	printf(PREFIX " (" __DATE__ " - " __TIME__ "): " COMMIT "\n");
+#ifdef BUILD_ID
+	printf(PREFIX ": Build: %s\n", BUILD_ID);
+#endif
 
-#ifdef WDT_USE
-	ret_code = service_get_apb_clock(&apb_freq);
-	if (ret_code != MCOM03_SUCCESS) {
-		goto exit;
-	}
+	// Initialize and configure the RISC0 clocking system
+	uint32_t ch_mask =
+		BIT(SERVICE_UCG1_CHANNEL_CLK_APB) | BIT(SERVICE_UCG1_CHANNEL_CLK_CORE) |
+		BIT(SERVICE_UCG1_CHANNEL_CLK_QSPI0) | BIT(SERVICE_UCG1_CHANNEL_CLK_RISC0) |
+		BIT(SERVICE_UCG1_CHANNEL_CLK_BPAM) | BIT(SERVICE_UCG1_CHANNEL_CLK_MFBSP0) |
+		BIT(SERVICE_UCG1_CHANNEL_CLK_MFBSP1) | BIT(SERVICE_UCG1_CHANNEL_CLK_MAILBOX0) |
+		BIT(SERVICE_UCG1_CHANNEL_CLK_PVTCTR) | BIT(SERVICE_UCG1_CHANNEL_CLK_I2C4) |
+		BIT(SERVICE_UCG1_CHANNEL_CLK_TRNG) | BIT(SERVICE_UCG1_CHANNEL_CLK_QSPI0_EXT);
 
-	/* Initialize and configure the watchdog */
-	wdt_set_config(&wdt0, apb_freq, WDT_MAX_TIMEOUT);
+	ret = service_set_clock(ch_mask, ch_mask);
+	if (ret)
+		return ret;
 
-	ret_code = wdt_init(&wdt0);
-	if ((ret_code != MCOM03_SUCCESS) && (ret_code != MCOM03_ERROR_ALREADY_INITIALIZED)) {
-		goto exit;
-	}
+#ifdef WDT_ENABLE
+	wdt_dev_t *wdt0 = wdt_return_instance();
 
-#ifdef PRESETUP_UARTS
-	if (wdt_is_enabled(&wdt0))
-		uart_printf(&uart, "WDT0 is already enabled\r\n");
-#endif /* PRESETUP_UARTS */
+	// Initialize and configure the watchdog
+	ret = wdt_set_config(wdt0, WDT_MAX_TIMEOUT);
+	if (ret)
+		return ret;
 
-	ret_code = wdt_start(&wdt0);
-	if (ret_code != MCOM03_SUCCESS) {
-		goto exit;
-	}
-#endif /* WDT_USE */
+	ret = wdt_init(wdt0);
+	if (ret && (ret != -EALREADYINITIALIZED))
+		return ret;
 
-	/* Initialize and configure the InterConnect clocking system */
-	ret_code = top_set_clock();
-	if (ret_code != MCOM03_SUCCESS) {
-		goto exit;
-	}
+#ifdef UART_ENABLE
+	if (ret == -EALREADYINITIALIZED)
+		printf("WDT0 is already enabled\n");
+#endif
 
-	/* Disabling the debugging subsystem */
-	ret_code = soc_debug_disable();
-	if (ret_code != MCOM03_SUCCESS) {
-		goto exit;
-	}
+	ret = wdt_start(wdt0);
+	if (ret)
+		return ret;
 
-	/*
-	 * This is a temporary solution.
-	 * All clocks should be configured by clock driver.
-	 */
-	ucg_hsp_refclk_setup();
+#endif
 
-	/* I2S RSTN must be enabled before LSP1 UCGs setup */
-	ucg_lsp1_i2s_rstn();
+	// Initialize and configure the top clocking system
+	ret = top_set_clock();
+	if (ret)
+		return ret;
 
-	/* TODO: May be necessary to block writing to the flash memory */
+	// Disabling the debugging subsystem
+	ret = soc_debug_if_disable();
+	if (ret)
+		return ret;
 
-#ifdef WDT_USE
-	/* Reconfigure the watchdog */
-	wdt_set_config(&wdt0, apb_freq, 3000);
-	ret_code = wdt_start(&wdt0);
-	if (ret_code != MCOM03_SUCCESS) {
-		goto exit;
-	}
-#endif /* WDT_USE */
+	// I2S RSTN must be enabled before LSP1 UCGs setup
+	lsp1_i2s_ucg1_rstn();
+
+	// TODO: May be necessary to block writing to the flash memory
+
+#ifdef WDT_ENABLE
+	// Reconfigure the watchdog
+	ret = wdt_set_config(wdt0, 3000);
+	if (ret)
+		return ret;
+
+	ret = wdt_start(wdt0);
+	if (ret)
+		return ret;
+#endif
 
 	return 0;
-
-exit:
-	for (;;) {
-		__asm__ __volatile__("nop");
-	}
-}
-
-#ifdef WDT_USE
-void wdt_set_config(wdt_dev_t *wdt_dev, uint32_t wdt_clk, uint32_t timeout)
-{
-	wdt_dev->id = WDT0;
-	wdt_dev->rmod = WDT_RST_MODE;
-	wdt_dev->rpl = WDT_RST_PULSE_LEN_2;
-	wdt_dev->timeout = timeout;
-	wdt_dev->wdt_freq = wdt_clk;
-}
-#endif /* WDT_USE */
-
-#ifdef PRESETUP_UARTS
-mcom_err_t uart_subs_init(void)
-{
-	mcom_err_t ret_code = MCOM03_SUCCESS;
-
-	/* Initialize and configure the TOP clock gate */
-	uint32_t top_clkgate = mmio_read_32(SERV_URB_TOP_CLKGATE);
-
-	top_clkgate |= (SERVICE_TOP_CLK_GATE_LSPERIPH0) | (SERVICE_TOP_CLK_GATE_LSPERIPH1) |
-	               (SERVICE_TOP_CLK_GATE_HSPERIPH);
-
-	mmio_write_32(SERV_URB_TOP_CLKGATE, top_clkgate);
-
-	service_urb_regs_t *service_urb = service_get_urb_registers();
-
-	/* Release reset signal LS Peripheral 0 */
-	ret_code = service_reset_ls_periph0_deassert(service_urb, 1000);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-
-	/* Release reset signal LS Peripheral 1 */
-	ret_code = service_reset_ls_periph1_deassert(service_urb, 1000);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-
-	/* Initialize the UCG register for clocking LS Peripheral 1 */
-	ucg_regs_t *lsp1_ucg = ucg_get_ls_periph1_registers(0);
-	uint32_t lsp1_ucg_mask = (1 << LS1_UCG_CLK_GPIO1) | (1 << LS1_UCG_CLK_UART0);
-
-	ucg_enable_bp(lsp1_ucg, lsp1_ucg_mask);
-	ret_code = ucg_set_divider(lsp1_ucg, LS1_UCG_CLK_GPIO1, 1, true, 1000);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-	ret_code = ucg_set_divider(lsp1_ucg, LS1_UCG_CLK_UART0, 1, true, 1000);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-	ucg_sync_and_disable_bp(lsp1_ucg, lsp1_ucg_mask);
-
-	/* Initialize GPIO for UART 0 */
-	gpio_regs_t *gpio1 = gpio_get_registers((void *)BASE_ADDR_LS1_GPIO1_BASE);
-	gpio_init(gpio1, UART0_PORT, UART0_SIN_PIN, GPIO_MODE_HW, GPIO_DIR_INPUT);
-	gpio_init(gpio1, UART0_PORT, UART0_SOUT_PIN, GPIO_MODE_HW, GPIO_DIR_OUTPUT);
-
-	/* Initialize the UCG register for clocking LS Peripheral 0 */
-	ucg_regs_t *lsp0_ucg = ucg_get_ls_periph0_registers(0);
-	uint32_t lsp0_ucg_mask = (1 << LS0_UCG2_CLK_UART1) | (1 << LS0_UCG2_CLK_GPIO0);
-
-	ucg_enable_bp(lsp0_ucg, lsp0_ucg_mask);
-	ret_code = ucg_set_divider(lsp0_ucg, LS0_UCG2_CLK_UART1, 1, true, 1000);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-	ret_code = ucg_set_divider(lsp0_ucg, LS0_UCG2_CLK_GPIO0, 1, true, 1000);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-	ucg_sync_and_disable_bp(lsp0_ucg, lsp0_ucg_mask);
-
-	/* Initialize GPIO for UART 1 */
-	gpio_regs_t *gpio0 = gpio_get_registers((void *)BASE_ADDR_LS0_GPIO0_BASE);
-	gpio_init(gpio0, UART1_PORT, UART1_SIN_PIN, GPIO_MODE_HW, GPIO_DIR_INPUT);
-	gpio_init(gpio0, UART1_PORT, UART1_SOUT_PIN, GPIO_MODE_HW, GPIO_DIR_OUTPUT);
-
-	return ret_code;
-}
-#endif /* PRESETUP_UARTS */
-
-mcom_err_t service_set_clock(void)
-{
-	mcom_err_t ret_code = MCOM03_SUCCESS;
-
-	ucg_regs_t *ucg = ucg_get_service_registers(0);
-
-	uint32_t ucg_ena_mask =
-		(1 << SERVICE_UCG1_CHANNEL_CLK_APB) | (1 << SERVICE_UCG1_CHANNEL_CLK_CORE) |
-		(1 << SERVICE_UCG1_CHANNEL_CLK_QSPI0) | (1 << SERVICE_UCG1_CHANNEL_CLK_RISC0) |
-		(1 << SERVICE_UCG1_CHANNEL_CLK_MFBSP0) | (1 << SERVICE_UCG1_CHANNEL_CLK_MFBSP1) |
-		(1 << SERVICE_UCG1_CHANNEL_CLK_MAILBOX0) | (1 << SERVICE_UCG1_CHANNEL_CLK_PVTCTR) |
-		(1 << SERVICE_UCG1_CHANNEL_CLK_I2C4) | (1 << SERVICE_UCG1_CHANNEL_CLK_TRNG) |
-		(1 << SERVICE_UCG1_CHANNEL_CLK_QSPI0_EXT);
-
-	/* Enable UCG1 bypass */
-	ucg_enable_bp(ucg, ucg_ena_mask);
-
-	/* Setup PLL to 594 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
-	 * minimize PLL output jitter.
-	 */
-	pll_cfg_t pll_cfg;
-	pll_cfg.nf_value = 131;
-	pll_cfg.nr_value = 0;
-	pll_cfg.od_value = 5;
-	pll_cfg.inp_freq = MCOM03_XTI_CLK_HZ;
-	pll_cfg.out_freq = 0;
-
-	ret_code = pll_set_manual_freq((pll_cfg_reg_t *)(SERVICE_PLL_ADDR), &pll_cfg, 1000);
-	if (ret_code != MCOM03_SUCCESS) {
-		return ret_code;
-	}
-
-	/* Setup UCG1 Divider */
-	for (int i = 0; i < ARRAY_SIZE(mcom03_risc0_ucg_param); i++) {
-		ret_code = ucg_set_divider(ucg, mcom03_risc0_ucg_param[i].chan_id,
-		                           mcom03_risc0_ucg_param[i].div,
-		                           mcom03_risc0_ucg_param[i].enable, 1000);
-		if (ret_code != MCOM03_SUCCESS) {
-			return ret_code;
-		}
-	}
-
-	/* Sync and disable UCG1 bypass */
-	ucg_sync_and_disable_bp(ucg, ucg_ena_mask);
-
-	return ret_code;
-}
-
-mcom_err_t service_get_apb_clock(uint32_t *apb_freq)
-{
-	mcom_err_t ret_code = MCOM03_SUCCESS;
-	uint32_t freq_mul = 0;
-	uint32_t freq_div = 0;
-	ucg_regs_t *ucg = ucg_get_service_registers(0);
-
-	if (!apb_freq) {
-		return MCOM03_ERROR_NULL;
-	}
-
-	ret_code = pll_get_freq_mult((pll_cfg_reg_t *)(SERVICE_PLL_ADDR), &freq_mul);
-	if (ret_code != MCOM03_SUCCESS) {
-		return ret_code;
-	}
-
-	ret_code = ucg_get_divider(ucg, SERVICE_UCG1_CHANNEL_CLK_APB, &freq_div);
-	if (ret_code != MCOM03_SUCCESS) {
-		return ret_code;
-	}
-
-	*apb_freq = ((MCOM03_XTI_CLK_HZ * freq_mul) / freq_div);
-
-	return ret_code;
-}
-
-#ifdef DEBUG_IFACE_USE
-mcom_err_t soc_debug_disable(void)
-{
-	mcom_err_t ret_code = MCOM03_SUCCESS;
-
-	return ret_code;
-}
-#else
-mcom_err_t soc_debug_disable(void)
-{
-	mcom_err_t ret_code = MCOM03_SUCCESS;
-
-	/* Check Clock Service Subs UCG1 CH3 & CH15 (BPAM & RISC0_TCK_UCG)*/
-	ucg_regs_t *serv_ucg = ucg_get_service_registers(0);
-	uint32_t bpam_div = 0;
-	uint32_t risc0_tck_div = 0;
-	bool bpam_enable = false;
-	bool risc0_tck_enable = false;
-
-	ret_code = ucg_get_state(serv_ucg, SERVICE_UCG1_CHANNEL_CLK_BPAM, &bpam_div, &bpam_enable);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-
-	ret_code = ucg_get_state(serv_ucg, SERVICE_UCG1_CHANNEL_RISC0_TCK_UCG, &risc0_tck_div,
-	                         &risc0_tck_enable);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-
-	/* Disable Clock Service Subs UCG1 CH3 & CH15 */
-	if (bpam_enable || risc0_tck_enable) {
-		uint32_t ucg_ena_mask = (1 << SERVICE_UCG1_CHANNEL_CLK_BPAM) |
-		                        (1 << SERVICE_UCG1_CHANNEL_RISC0_TCK_UCG);
-
-		ucg_enable_bp(serv_ucg, ucg_ena_mask);
-
-		ret_code = ucg_set_divider(serv_ucg, SERVICE_UCG1_CHANNEL_CLK_BPAM, bpam_div, false,
-		                           1000);
-		if (ret_code != MCOM03_SUCCESS) {
-			return ret_code;
-		}
-
-		ret_code = ucg_set_divider(serv_ucg, SERVICE_UCG1_CHANNEL_RISC0_TCK_UCG,
-		                           risc0_tck_div, false, 1000);
-		if (ret_code != MCOM03_SUCCESS) {
-			return ret_code;
-		}
-
-		ucg_sync_and_disable_bp(serv_ucg, ucg_ena_mask);
-	}
-
-	/* Disable Debugging in Service Subs URB Register */
-	service_urb_regs_t *service_urb = service_get_urb_registers();
-	bool is_dbg_enable = true;
-
-	ret_code = service_get_tp_dbgen(service_urb, &is_dbg_enable);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-
-	if (is_dbg_enable != false) {
-		ret_code = service_set_tp_dbgen(service_urb, false);
-		if (ret_code != MCOM03_SUCCESS)
-			return ret_code;
-	}
-
-	is_dbg_enable = true;
-	ret_code = service_get_sdr_dbgen(service_urb, &is_dbg_enable);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-
-	if (is_dbg_enable != false) {
-		ret_code = service_set_sdr_dbgen(service_urb, false);
-		if (ret_code != MCOM03_SUCCESS)
-			return ret_code;
-	}
-
-	is_dbg_enable = true;
-	ret_code = service_get_sp_dbgen(service_urb, &is_dbg_enable);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-
-	if (is_dbg_enable != false) {
-		ret_code = service_set_sp_dbgen(service_urb, false);
-		if (ret_code != MCOM03_SUCCESS)
-			return ret_code;
-	}
-
-	is_dbg_enable = true;
-	ret_code = service_get_s_dbgen(service_urb, &is_dbg_enable);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-
-	if (is_dbg_enable != false) {
-		ret_code = service_set_s_dbgen(service_urb, false);
-		if (ret_code != MCOM03_SUCCESS)
-			return ret_code;
-	}
-
-	is_dbg_enable = true;
-	ret_code = service_get_ust_dbgen(service_urb, &is_dbg_enable);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-
-	if (is_dbg_enable != false) {
-		ret_code = service_set_ust_dbgen(service_urb, false);
-		if (ret_code != MCOM03_SUCCESS)
-			return ret_code;
-	}
-
-	/* Check Clock HS Peripheral Subs UCG1 CH4 */
-	ucg_regs_t *hsp_ucg = ucg_get_hs_periph_registers(1);
-	uint32_t hsp_dbg_div = 0;
-	bool hsp_dbg_enable = false;
-
-	ret_code = ucg_get_state(hsp_ucg, HS_UCG1_CHANNEL_CLK_DBG, &hsp_dbg_div, &hsp_dbg_enable);
-	if (ret_code != MCOM03_SUCCESS)
-		return ret_code;
-
-	/* Disable Clock HS Peripheral Subs UCG1 CH4 */
-	if (hsp_dbg_enable) {
-		uint32_t ucg_ena_mask = HS_UCG1_CHANNEL_CLK_DBG;
-
-		ucg_enable_bp(hsp_ucg, ucg_ena_mask);
-
-		ret_code =
-			ucg_set_divider(hsp_ucg, HS_UCG1_CHANNEL_CLK_DBG, hsp_dbg_div, false, 1000);
-		if (ret_code != MCOM03_SUCCESS) {
-			return ret_code;
-		}
-
-		ucg_sync_and_disable_bp(hsp_ucg, ucg_ena_mask);
-	}
-
-	/* Disable Debugging in HS Peripheral Subs URB Register */
-	hs_urb_regs_t *hs_urb = hs_periph_get_urb_registers();
-
-	if ((hs_urb->dbg_ctr & HS_URB_DBG_CTR_MASK) != 0) {
-		hs_urb->dbg_ctr = 0;
-	}
-	return ret_code;
-}
-#endif /* DEBUG_IFACE_USE */
-
-mcom_err_t ucg_hsp_refclk_setup(void)
-{
-	hs_urb_regs_t *urb = hs_periph_get_urb_registers();
-	urb->refclk = 0;
-	return MCOM03_SUCCESS;
-}
-
-mcom_err_t ucg_lsp1_i2s_rstn(void)
-{
-	ls1_urb_regs_t *urb = ls1_periph_get_urb_registers();
-
-	urb->i2s_ucg_rstn_ppolicy = 0x10;
-	while ((urb->i2s_ucg_rstn_pstatus & 0x1f) != 0x10) {
-	}
-
-	return MCOM03_SUCCESS;
 }

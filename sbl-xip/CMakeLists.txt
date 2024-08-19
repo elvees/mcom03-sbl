@@ -34,11 +34,9 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-    add_executable(sbl-xip-${DTB_NAME}.elf start.S sbl.c pll.c ucg.c printf.c)
+    add_executable(sbl-xip-${DTB_NAME}.elf startup.S sbl.c)
 
-    # Link common static library
-    get_target_property(COMMON_INCLUDE_DIRECTORIES common INCLUDE_DIRECTORIES)
-    target_include_directories(sbl-xip-${DTB_NAME}.elf PRIVATE ${COMMON_INCLUDE_DIRECTORIES})
+    # Link static libraries
     target_link_libraries(sbl-xip-${DTB_NAME}.elf common)
 
     target_link_options(sbl-xip-${DTB_NAME}.elf PRIVATE -T ${CMAKE_CURRENT_BINARY_DIR}/link.ld)

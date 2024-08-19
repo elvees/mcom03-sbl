@@ -1,13 +1,21 @@
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
 
-#include <mcom03.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include <drivers/mcom03-regs.h>
+#include <libs/errors.h>
+#include <libs/utils-def.h>
+
 #include "wdt.h"
 
 /**
- * @brief the function calculates a coefficient to set the required timeout period
+ * @brief The function calculates a coefficient to set the required timeout period
+ *
  * @param wdt_dev WDT handler contains desirable user's timeout. After calculation
- * timeout variable sets to real value of WDT timeout in milliseconds
+ *                timeout variable sets to real value of WDT timeout in milliseconds
+ *
  * @return coefficient that must be written to the TOP and TOP_INT fields of the WDT_TOPR register
  */
 static uint32_t __wdt_get_timeout_coef(wdt_dev_t *wdt_dev)
@@ -18,36 +26,21 @@ static uint32_t __wdt_get_timeout_coef(wdt_dev_t *wdt_dev)
 		wdt_dev->timeout *
 		((wdt_dev->wdt_freq) / 1000UL); // number of claps to obtain the required delay
 	for (i = WDT_MIN_TIMEOUT_COEF; i < WDT_MAX_TIMEOUT_COEF; i++) {
-		clk_number_to_zero = ((1U << WDT_NUM_TOPS) << i);
+		clk_number_to_zero = BIT(WDT_NUM_TOPS + i);
 		if (clk_number <= clk_number_to_zero) {
 			break;
 		}
 	}
-	wdt_dev->timeout = (1U << (WDT_NUM_TOPS + i)) / (wdt_dev->wdt_freq / 1000UL);
+	wdt_dev->timeout = BIT(WDT_NUM_TOPS + i) / (wdt_dev->wdt_freq / 1000UL);
 	wdt_dev->pretimeout = wdt_dev->timeout;
 	return i;
 }
 
 /**
- * @brief function get base address wdt registers
- * param wdt_num timer wdt number. possible values 0, 1
- * return returns the base address of the wdt timer
- */
-static wdt_regs_t *__wdt_get_registers(uint32_t wdt_num)
-{
-	if (wdt_num == WDT0)
-		return (wdt_regs_t *)BASE_ADDR_SERVICE_WDT0;
-	else {
-		if (wdt_num == WDT1)
-			return (wdt_regs_t *)BASE_ADDR_LS1_WDT1_BASE;
-	}
-	return NULL;
-}
-
-/**
- * @brief Check if wdt enabled or not
+ * @brief Check if wdt is enabled or not
  *
- * @param wdt base address of wdt block registers
+ * @param wdt_dev pointer to wdt device structure
+ *
  * @return 1 - if enabled, 0 - otherwise
  */
 int wdt_is_enabled(wdt_dev_t *wdt_dev)
@@ -58,28 +51,29 @@ int wdt_is_enabled(wdt_dev_t *wdt_dev)
 /**
  * @brief Initializing wdt timer before starting
  *
- * @param wdt base address of wdt block registers
- * @return errors
+ * @param wdt_dev pointer to wdt device structure
+ *
+ * @return  0                   - Success,
+ *         -ENULL               - wdt_dev is not provided (NULL pointer)
+ *         -EINVALIDPARAM       - rmod field in wdt_dev is bigger than 1 or
+ *                                rpl field in wdt_dev is bigger than 7
+ *         -EALREADYINITIALIZED - WDT is already enabled
  */
-mcom_err_t wdt_init(wdt_dev_t *wdt_dev)
+int wdt_init(wdt_dev_t *wdt_dev)
 {
 	if (wdt_dev == NULL)
-		return MCOM03_ERROR_NULL;
+		return -ENULL;
 
 	if (wdt_dev->rmod > 1)
-		return MCOM03_ERROR_INVALID_PARAM;
+		return -EINVALIDPARAM;
 	if (wdt_dev->rpl > 7)
-		return MCOM03_ERROR_INVALID_PARAM;
+		return -EINVALIDPARAM;
 
-	wdt_dev->regs = __wdt_get_registers(wdt_dev->id);
-	if (wdt_dev->regs == NULL)
-		return MCOM03_ERROR_NULL;
-
-	uint32_t wdt_cr_val = wdt_dev->regs->WDT_CR;
-	uint32_t wdt_torr_val = wdt_dev->regs->WDT_TORR;
+	wdt_dev->regs = (wdt_regs_t *)BASE_ADDR_SERVICE_WDT0;
 
 	/* Set maximum timeout if WDT is already run */
-	if (wdt_cr_val & WDT_CR_WDT_EN_MASK) {
+	if (wdt_is_enabled(wdt_dev)) {
+		uint32_t wdt_torr_val = wdt_dev->regs->WDT_TORR;
 		wdt_torr_val &= ~WDT_TORR_TOP_MASK;
 		wdt_torr_val |= WDT_MAX_TIMEOUT_COEF;
 		wdt_dev->regs->WDT_TORR = wdt_torr_val;
@@ -88,23 +82,26 @@ mcom_err_t wdt_init(wdt_dev_t *wdt_dev)
 
 		wdt_dev->status = WDT_ON;
 
-		return MCOM03_ERROR_ALREADY_INITIALIZED;
+		return -EALREADYINITIALIZED;
 	}
 
-	return MCOM03_SUCCESS;
+	return 0;
 }
 
 /**
  * @brief Launches WDT. After executing this command, the timer cannot be stopped.
- * @param wdt base address of wdt block registers
- * return errors
+ *
+ * @param wdt_dev pointer to wdt device structure
+ *
+ * @return  0     - Success,
+ *         -ENULL - wdt_dev is not provided (NULL pointer)
  */
-mcom_err_t wdt_start(wdt_dev_t *wdt_dev)
+int wdt_start(wdt_dev_t *wdt_dev)
 {
-	uint32_t err = MCOM03_SUCCESS;
+	int err = 0;
 
 	if (wdt_dev == NULL)
-		return MCOM03_ERROR_NULL;
+		return -ENULL;
 
 	uint32_t wdt_torr_val = wdt_dev->regs->WDT_TORR;
 
@@ -116,12 +113,12 @@ mcom_err_t wdt_start(wdt_dev_t *wdt_dev)
 
 	switch (wdt_dev->timeout) {
 	case WDT_MIN_TIMEOUT:
-		wdt_dev->timeout = (1U << (WDT_NUM_TOPS)) / (wdt_dev->wdt_freq / 1000UL);
+		wdt_dev->timeout = BIT(WDT_NUM_TOPS) / (wdt_dev->wdt_freq / 1000UL);
 		timeout_top = WDT_MIN_TIMEOUT_COEF;
 		break;
 	case WDT_MAX_TIMEOUT:
-		wdt_dev->timeout = (1U << (WDT_NUM_TOPS + WDT_MAX_TIMEOUT_COEF)) /
-		                   (wdt_dev->wdt_freq / 1000UL);
+		wdt_dev->timeout =
+			BIT(WDT_NUM_TOPS + WDT_MAX_TIMEOUT_COEF) / (wdt_dev->wdt_freq / 1000UL);
 		timeout_top = WDT_MAX_TIMEOUT_COEF;
 		break;
 	default:
@@ -131,7 +128,8 @@ mcom_err_t wdt_start(wdt_dev_t *wdt_dev)
 
 	timeout_top_int = timeout_top;
 
-	wdt_torr_val = WDT_TORR_TOP_INT(timeout_top_int) | WDT_TORR_TOP(timeout_top);
+	wdt_torr_val = FIELD_PREP(WDT_TORR_TOP_INT_MASK, timeout_top_int) |
+	               FIELD_PREP(WDT_TORR_TOP_MASK, timeout_top);
 
 	wdt_dev->regs->WDT_TORR = wdt_torr_val;
 
@@ -142,19 +140,19 @@ mcom_err_t wdt_start(wdt_dev_t *wdt_dev)
 	uint32_t wdt_cr_val = wdt_dev->regs->WDT_CR;
 
 	if (wdt_dev->rmod == WDT_IRQ_MODE) {
-		wdt_cr_val |= WDT_CR_RMOD(WDT_IRQ_MODE);
+		wdt_cr_val |= FIELD_PREP(WDT_CR_RMOD_MASK, WDT_IRQ_MODE);
 		wdt_dev->pretimeout = timeout_top;
 	} else {
-		wdt_cr_val &= ~WDT_CR_RMOD(WDT_IRQ_MODE);
+		wdt_cr_val &= ~FIELD_PREP(WDT_CR_RMOD_MASK, WDT_IRQ_MODE);
 		wdt_dev->pretimeout = 0;
 	}
 
 	wdt_cr_val &= ~WDT_CR_RPL_MASK;
-	wdt_cr_val |= WDT_CR_RPL(wdt_dev->rpl);
+	wdt_cr_val |= FIELD_PREP(WDT_CR_RPL_MASK, wdt_dev->rpl);
 
 	if (!(wdt_cr_val & WDT_CR_WDT_EN_MASK)) {
 		wdt_dev->status = WDT_ON;
-		wdt_cr_val |= WDT_CR_WDT_EN(WDT_ON);
+		wdt_cr_val |= FIELD_PREP(WDT_CR_WDT_EN_MASK, WDT_ON);
 	}
 
 	wdt_dev->regs->WDT_CR = wdt_cr_val;
@@ -162,38 +160,40 @@ mcom_err_t wdt_start(wdt_dev_t *wdt_dev)
 	return err;
 }
 
-mcom_err_t wdt_stop(wdt_dev_t *wdt_dev)
+int wdt_stop(wdt_dev_t *wdt_dev)
 {
 	(void)wdt_dev;
-	return MCOM03_ERROR_FORBIDDEN;
+	return -EFORBIDDEN;
 }
 
-mcom_err_t wdt_reset_irq(wdt_dev_t *wdt_dev)
+int wdt_reset_irq(wdt_dev_t *wdt_dev)
 {
 	if (wdt_dev == NULL)
-		return MCOM03_ERROR_NULL;
+		return -ENULL;
 
 	register volatile uint32_t eoi_read = wdt_dev->regs->WDT_EOI;
 	(void)eoi_read;
 
-	return MCOM03_SUCCESS;
+	return 0;
 }
 
 /**
- * @brief reset counter to initial value and clear interrupt
+ * @brief Reset counter to initial value and clear interrupt
  *
- * @param wdt_dev base address of wdt block registers
- * @return errors
+ * @param wdt_dev pointer to wdt device structure
+ *
+ * @return  0     - Success,
+ *         -ENULL - wdt_dev is not provided (NULL pointer)
  */
-mcom_err_t wdt_reset(wdt_dev_t *wdt_dev)
+int wdt_reset(wdt_dev_t *wdt_dev)
 {
 	if (wdt_dev == NULL)
-		return MCOM03_ERROR_NULL;
+		return -ENULL;
 
 	wdt_dev->regs->WDT_CRR = WDT_CRR_RESET_VALUE;
 	wdt_reset_irq(wdt_dev);
 
-	return MCOM03_SUCCESS;
+	return 0;
 }
 
 uint32_t wdt_get_timeleft(wdt_dev_t *wdt_dev)
@@ -216,12 +216,17 @@ uint32_t wdt_get_timeleft(wdt_dev_t *wdt_dev)
 /**
  * @brief Set current timeout value
  *
- * @param wdt_dev base address of wdt block registers
+ * @param wdt_dev pointer to wdt device structure
  * @param timeout new timeout value
- * @return  errors
+ *
+ * @return  0     - Success,
+ *         -ENULL - wdt_dev is not provided (NULL pointer)
  */
-mcom_err_t wdt_set_timeout(wdt_dev_t *wdt_dev, uint32_t timeout)
+int wdt_set_timeout(wdt_dev_t *wdt_dev, uint32_t timeout)
 {
+	if (wdt_dev == NULL)
+		return -ENULL;
+
 	wdt_dev->timeout = timeout;
 	return wdt_start(wdt_dev);
 }
@@ -229,7 +234,8 @@ mcom_err_t wdt_set_timeout(wdt_dev_t *wdt_dev, uint32_t timeout)
 /**
  * @brief Get current timeout value
  *
- * @param wdt_dev base address of wdt block registers
+ * @param wdt_dev pointer to wdt device structure
+ *
  * @return current timeout value
  */
 uint32_t wdt_get_timeout(wdt_dev_t *wdt_dev)
@@ -240,21 +246,23 @@ uint32_t wdt_get_timeout(wdt_dev_t *wdt_dev)
 /**
  * @brief Get min timeout value depends on freq
  *
- * @param wdt_dev base address of wdt block registers
+ * @param wdt_dev pointer to wdt device structure
+ *
  * @return min timeout value
  */
 uint32_t wdt_get_min_timeout(wdt_dev_t *wdt_dev)
 {
-	return (1U << (WDT_NUM_TOPS)) / (wdt_dev->wdt_freq / 1000UL);
+	return BIT(WDT_NUM_TOPS) / (wdt_dev->wdt_freq / 1000UL);
 }
 
 /**
  * @brief Get max timeout value depends on freq
  *
- * @param wdt_dev base address of wdt block registers
+ * @param wdt_dev pointer to wdt device structure
+ *
  * @return max timeout value
  */
 uint32_t wdt_get_max_timeout(wdt_dev_t *wdt_dev)
 {
-	return (1U << (WDT_NUM_TOPS + WDT_MAX_TIMEOUT_COEF)) / (wdt_dev->wdt_freq / 1000UL);
+	return BIT(WDT_NUM_TOPS + WDT_MAX_TIMEOUT_COEF) / (wdt_dev->wdt_freq / 1000UL);
 }

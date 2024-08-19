@@ -1,9 +1,11 @@
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
 
-#include "hs-periph-urb.h"
+#include <drivers/mcom03-regs.h>
 
-inline hs_urb_regs_t *hs_periph_get_urb_registers(void)
+#include "hs-periph.h"
+
+hs_urb_regs_t *hs_periph_get_urb_registers(void)
 {
 	return (hs_urb_regs_t *)BASE_ADDR_HS_URB;
 }
