@@ -30,6 +30,13 @@ typedef struct {
 #define UCG_CTR_REG_Q_FSM_STATE GENMASK(9, 7)
 #define UCG_CTR_REG_DIV_COEFF   GENMASK(29, 10)
 #define UCG_CTR_REG_DIV_LOCK    BIT(30)
+
+struct ucg_channel {
+	int ucg_id;
+	int chan_id;
+	int div;
+};
+
 /**
  * @brief      Bypass enable function
  *

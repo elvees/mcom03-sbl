@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include <string.h>
+
+#include <drivers/cpu/cpu.h>
 #include <common.h>
 #include "printf.h"
 #include "mips/m32c0.h"
@@ -127,13 +129,6 @@ static struct ucg_channel serv_ucg_channels[] = {
 	{ 1, SERV_UCG1_CHANNEL_CLK_SPIOTP, 6 }, /* 99 MHz */
 	{ 1, SERV_UCG1_CHANNEL_CLK_I2C4_EXT, 12 }, /* 49.5 MHz */
 	{ 1, SERV_UCG1_CHANNEL_CLK_QSPI0_EXT, 22 }, /* 27 MHz */
-};
-
-/* CPU Subsystem PLL output frequency is 1161 MHz, assuming that XTI = 27 MHz */
-static struct ucg_channel cpu_ucg_channels[] = {
-	{ 0, CPU_UCG_CHANNEL_CLK_SYS, 4 }, /* 290.25 MHz */
-	{ 0, CPU_UCG_CHANNEL_CLK_CORE, 1 }, /* 1161 MHz */
-	{ 0, CPU_UCG_CHANNEL_CLK_DBUS, 2 }, /* 580.5 MHz */
 };
 
 static inline void writel(unsigned long addr, uint32_t value)
@@ -340,55 +335,6 @@ static void set_ppolicy(unsigned long addr, uint32_t value)
 	writel(addr, value);
 	while ((readl(addr + 0x4) & 0x1f) != value) {
 	}
-}
-
-static int start_arm_cpu(void)
-{
-	int ret;
-
-	ucg_regs_t *cpu_ucg = ucg_get_cpu_registers();
-
-	/* Enable CPU_SUBS */
-	set_ppolicy(SERV_CPU_PPOLICY, PP_ON);
-
-	/* Enable CPU Sub UCG bypass for all channel */
-	ret = ucg_enable_bp(cpu_ucg, CPU_UCG_ALL_CH_MASK);
-	if (ret)
-		return ret;
-
-	/* Setup PLL to 1161 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
-	 * minimize PLL output jitter.
-	 */
-	pll_cfg_t pll_cfg;
-	pll_cfg.nf_value = 85;
-	pll_cfg.nr_value = 0;
-	pll_cfg.od_value = 1;
-
-	ret = pll_set_manual_freq((pll_cfg_reg_t *)CPU_PLL_ADDR, &pll_cfg, 1000);
-	if (ret)
-		return ret;
-
-	/* Set dividers */
-	for (int i = 0; i < ARRAY_SIZE(cpu_ucg_channels); i++) {
-		ret = ucg_set_divider(cpu_ucg, cpu_ucg_channels[i].chan_id, cpu_ucg_channels[i].div,
-		                      1000);
-		if (ret) {
-			return ret;
-		}
-	}
-
-	/* Sync and disable CPU UCG bypass */
-	ret = ucg_sync_and_disable_bp(cpu_ucg, CPU_UCG_ALL_CH_MASK, CPU_UCG_SYNC_MASK);
-	if (ret)
-		return ret;
-
-	set_ppolicy(CPU_SYS_PPOLICY, PP_ON);
-	/* Setup CPU cores start addresses */
-	for (int i = 0; i < 4; i++)
-		WRITE_CPU_START_ADDR_REG(CPU_RVBADDR(i), TFA_START_ADDR_PHYS);
-	set_ppolicy(CPU_CPU0_PPOLICY, PP_ON);
-
-	return 0;
 }
 
 int lsp1_set_clock(void)
@@ -600,7 +546,11 @@ int main(void)
 
 	/* Initialize and configure the CPU clocking system and run it */
 	INFO("Done.\nRun TF-A ... \n");
-	ret = start_arm_cpu();
+	ret = cpu_set_clock();
+	if (ret)
+		goto exit;
+
+	ret = cpu_start_arm0_core(TFA_START_ADDR_PHYS);
 	if (ret)
 		goto exit;
 
