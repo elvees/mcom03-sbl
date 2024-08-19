@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include <drivers/cpu/cpu.h>
+#include <drivers/top/top.h>
 #include <common.h>
 #include "printf.h"
 #include "mips/m32c0.h"
@@ -89,28 +90,6 @@ struct ucg_channel {
 	int ucg_id;
 	int chan_id;
 	int div;
-};
-
-static struct ucg_channel top_ucg_channels[] = {
-	{ 0, TOP_UCG0_CHANNEL_DDR_DP, 6 }, /* 198 MHz */
-	{ 0, TOP_UCG0_CHANNEL_DDR_VPU, 4 }, /* 297 MHz */
-	{ 0, TOP_UCG0_CHANNEL_DDR_GPU, 4 }, /* 297 MHz */
-	{ 0, TOP_UCG0_CHANNEL_DDR_ISP, 6 }, /* 198 MHz */
-	{ 0, TOP_UCG0_CHANNEL_DDR_CPU, 2 }, /* 594 MHz */
-	{ 0, TOP_UCG0_CHANNEL_CPU_ACP, 4 }, /* 297 MHz */
-	{ 0, TOP_UCG0_CHANNEL_DDR_LSPERIPH0, 12 }, /* 99 MHz */
-	{ 0, TOP_UCG0_CHANNEL_AXI_COH_COMM, 2 }, /* 594 MHz */
-
-	/* To work around MCOM03SW-1192 the following frequency ratio must be met:
-	 * SLOW_COMM_FREQ < 1/2 * min(LSP0_SYS_FREQ, LSP1_SYS_FREQ, DDR_SYS_FREQ).
-	 */
-	{ 1, TOP_UCG1_CHANNEL_AXI_SLOW_COMM, 30 }, /* 39.6 MHz */
-	{ 1, TOP_UCG1_CHANNEL_AXI_FAST_COMM, 8 }, /* 148.5 MHz */
-	{ 1, TOP_UCG1_CHANNEL_DDR_SDR_DSP, 2 }, /* 594 MHz */
-	{ 1, TOP_UCG1_CHANNEL_DDR_SDR_PICE, 4 }, /* 297 MHz */
-	{ 1, TOP_UCG1_CHANNEL_DDR_LSPERIPH1, 12 }, /* 99 MHz */
-	{ 1, TOP_UCG1_CHANNEL_DDR_SERVICE, 8 }, /* 148.5 MHz */
-	{ 1, TOP_UCG1_CHANNEL_DDR_HSPERIPH, 6 }, /* 198 MHz */
 };
 
 /* Service Subsystem PLL output frequency is 594 MHz, assuming that XTI = 27 MHz */
@@ -237,57 +216,6 @@ void *memcpy(void *dest, const void *src, size_t count)
 		*d8++ = *s8++;
 
 	return dest;
-}
-
-int top_set_clock(void)
-{
-	int ret;
-	ucg_regs_t *top_ucg[2];
-
-	/* Enable interconnect UCG0 bypass */
-	top_ucg[0] = ucg_get_top_registers(0);
-	ret = ucg_enable_bp(top_ucg[0], TOP_UCG0_ALL_CH_MASK);
-	if (ret)
-		return ret;
-
-	/* Enable interconnect UCG1 bypass */
-	top_ucg[1] = ucg_get_top_registers(1);
-	ret = ucg_enable_bp(top_ucg[1], TOP_UCG1_ALL_CH_MASK);
-	if (ret)
-		return ret;
-
-	/* Setup PLL to 1188 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
-	 * minimize PLL output jitter.
-	 */
-	pll_cfg_t pll_cfg;
-	pll_cfg.nf_value = 87;
-	pll_cfg.nr_value = 0;
-	pll_cfg.od_value = 1;
-
-	ret = pll_set_manual_freq((pll_cfg_reg_t *)TOP_PLL_ADDR, &pll_cfg, 1000);
-	if (ret)
-		return ret;
-
-	/* Set dividers */
-	for (int i = 0; i < ARRAY_SIZE(top_ucg_channels); i++) {
-		ret = ucg_set_divider(top_ucg[top_ucg_channels[i].ucg_id],
-		                      top_ucg_channels[i].chan_id, top_ucg_channels[i].div, 1000);
-		if (ret) {
-			return ret;
-		}
-	}
-
-	/* Sync and disable interconnect UCG0 bypass */
-	ret = ucg_sync_and_disable_bp(top_ucg[0], TOP_UCG0_ALL_CH_MASK, TOP_UCG0_SYNC_MASK);
-	if (ret)
-		return ret;
-
-	/* Sync and disable interconnect UCG1 bypass */
-	ret = ucg_sync_and_disable_bp(top_ucg[1], TOP_UCG1_ALL_CH_MASK, TOP_UCG1_SYNC_MASK);
-	if (ret)
-		return ret;
-
-	return 0;
 }
 
 int service_set_clock(void)

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 #include <stdint.h>
+
+#include <drivers/top/top.h>
 #include <stddef.h>
 #include <stdbool.h>
 
@@ -40,28 +42,6 @@ struct ucg_channel {
 	bool enable;
 };
 
-/* Interconnect PLL output frequency is 1188 MHz, assuming that XTI = 27 MHz */
-static struct ucg_channel interconnect_ucg_channels[] = {
-	{ 0, 0, 6, true }, /* DP           198 MHz */
-	{ 0, 1, 4, true }, /* VPU          297 MHz */
-	{ 0, 2, 4, true }, /* GPU          297 MHz */
-	{ 0, 3, 6, true }, /* ISP          198 MHz */
-	{ 0, 4, 2, true }, /* CPU          594 MHz */
-	{ 0, 5, 4, true }, /* ACP          297 MHz */
-	{ 0, 6, 12, true }, /* LSP0          99 MHz */
-	{ 0, 7, 2, true }, /* COH_COMM    594  MHz */
-	/* To work around MCOM03SW-1192 the following frequency ratio must be met:
-	 * SLOW_COMM_FREQ < 1/2 * min(LSP0_SYS_FREQ, LSP1_SYS_FREQ, DDR_SYS_FREQ).
-	 */
-	{ 1, 0, 30, true }, /* SLOW_COMM    39.6 MHz */
-	{ 1, 2, 8, true }, /* FAST_COMM   148.5 MHz */
-	{ 1, 4, 2, true }, /* DSP         594   MHz */
-	{ 1, 5, 4, true }, /* PCIe        297   MHz */
-	{ 1, 6, 12, true }, /* LSP1         99   MHz */
-	{ 1, 7, 8, true }, /* SERVICE     148.5 MHz */
-	{ 1, 8, 6, true }, /* HSP         198   MHz */
-};
-
 /* Service Subsystem PLL output frequency is 594 MHz, assuming that XTI = 27 MHz */
 /* Commenting any line below means "Don't touch", keep as is */
 static struct ucg_channel mcom03_risc0_ucg_param[] = {
@@ -96,7 +76,6 @@ mcom_err_t uart_subs_init(void);
 
 mcom_err_t soc_debug_disable(void);
 mcom_err_t service_set_clock(void);
-mcom_err_t interconnect_set_clock(void);
 mcom_err_t ucg_hsp_refclk_setup(void);
 mcom_err_t ucg_lsp1_i2s_rstn(void);
 
@@ -162,7 +141,7 @@ int main(void)
 #endif /* WDT_USE */
 
 	/* Initialize and configure the InterConnect clocking system */
-	ret_code = interconnect_set_clock();
+	ret_code = top_set_clock();
 	if (ret_code != MCOM03_SUCCESS) {
 		goto exit;
 	}
@@ -347,66 +326,6 @@ mcom_err_t service_get_apb_clock(uint32_t *apb_freq)
 	}
 
 	*apb_freq = ((MCOM03_XTI_CLK_HZ * freq_mul) / freq_div);
-
-	return ret_code;
-}
-
-mcom_err_t interconnect_set_clock(void)
-{
-	mcom_err_t ret_code = MCOM03_SUCCESS;
-
-	/* Enable bypass for all channels */
-
-	/* Enable UCG0 bypass */
-	ucg_regs_t *interconnect_ucg0 = ucg_get_top_registers(0);
-	ucg_enable_bp(interconnect_ucg0, TOP_UCG0_ALL_CH_MASK);
-
-	/* Enable UCG1 bypass */
-	ucg_regs_t *interconnect_ucg1 = ucg_get_top_registers(1);
-	ucg_enable_bp(interconnect_ucg1, TOP_UCG1_ALL_CH_MASK);
-
-	/* Setup PLL to 1188 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
-	 * minimize PLL output jitter.
-	 */
-	pll_cfg_t pll_cfg;
-	pll_cfg.nf_value = 87;
-	pll_cfg.nr_value = 0;
-	pll_cfg.od_value = 1;
-	pll_cfg.inp_freq = MCOM03_XTI_CLK_HZ;
-	pll_cfg.out_freq = 0;
-
-	ret_code = pll_set_manual_freq((pll_cfg_reg_t *)INTERCONNECT_PLL_ADDR, &pll_cfg, 1000);
-	if (ret_code != MCOM03_SUCCESS) {
-		return ret_code;
-	}
-
-	/* Set dividers */
-	for (int i = 0; i < ARRAY_SIZE(interconnect_ucg_channels); i++) {
-		if (interconnect_ucg_channels[i].ucg_id == 0) {
-			ret_code = ucg_set_divider(interconnect_ucg0,
-			                           interconnect_ucg_channels[i].chan_id,
-			                           interconnect_ucg_channels[i].div,
-			                           interconnect_ucg_channels[i].enable, 1000);
-			if (ret_code != MCOM03_SUCCESS) {
-				return ret_code;
-			}
-		}
-		if (interconnect_ucg_channels[i].ucg_id == 1) {
-			ret_code = ucg_set_divider(interconnect_ucg1,
-			                           interconnect_ucg_channels[i].chan_id,
-			                           interconnect_ucg_channels[i].div,
-			                           interconnect_ucg_channels[i].enable, 1000);
-			if (ret_code != MCOM03_SUCCESS) {
-				return ret_code;
-			}
-		}
-	}
-
-	/* Sync and disable UCG0 bypass */
-	ucg_sync_and_disable_bp(interconnect_ucg0, TOP_UCG0_ALL_CH_MASK);
-
-	/* Sync and disable UCG0 bypass */
-	ucg_sync_and_disable_bp(interconnect_ucg1, TOP_UCG1_ALL_CH_MASK);
 
 	return ret_code;
 }
