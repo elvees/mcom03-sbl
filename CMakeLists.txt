@@ -45,7 +45,7 @@ add_compile_options(-Wall -Werror -std=gnu99 -EL -mips32 -G0
                     -fno-builtin -fno-delayed-branch
                     -ftrivial-auto-var-init=zero)
 
-add_link_options(-Wl,--gc-sections -Wl,--print-memory-usage
+add_link_options(-Wl,--gc-sections -Wl,--print-memory-usage -Wl,--wrap=__assert_func
                  -EL -nostdlib -nostartfiles -mips32 -mabi=32 -G0)
 
 add_subdirectory(common)
