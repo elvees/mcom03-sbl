@@ -14,7 +14,7 @@ pb import helpers
 pb end
 
 pb python
-pb dtb = os.environ.get('MDB_DTB_FILE', 'mcom03-bub-r1.3.0.dtb')
+pb dtb = os.environ.get('MDB_DTB_FILE', 'mcom03-mcom03bub-r1.3.0.dtb')
 pb board = helpers.parse_ddrinit_dtb_map('%s/ddrinit-dtb-map.txt' % SCRIPTS_PATH, dtb)
 pb end
 
