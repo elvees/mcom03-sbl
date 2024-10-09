@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include <drivers/cpu/cpu.h>
+#include <drivers/ls-periph1/ls-periph1.h>
 #include <drivers/mcom03-regs.h>
 #include <drivers/service/service.h>
 #include <drivers/top/top.h>

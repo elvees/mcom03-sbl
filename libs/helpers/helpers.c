@@ -70,13 +70,6 @@ void set_secure_region(void)
 	}
 }
 
-void lsp1_i2s_ucg1_rstn(void)
-{
-	ls1_urb_regs_t *urb = ls1_periph_get_urb_registers();
-
-	SET_PPOLICY(&urb->i2s_ucg_rstn_ppolicy, PP_ON);
-}
-
 int soc_debug_if_disable(void)
 {
 #ifdef DEBUG_INTERFACE_DISABLE

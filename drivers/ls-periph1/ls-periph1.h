@@ -30,4 +30,6 @@ enum pad_driver_strength {
 
 ls1_urb_regs_t *ls1_periph_get_urb_registers(void);
 
+void lsp1_i2s_ucg1_rstn(void);
+
 #endif /* __LS_PERIPH1_H__ */

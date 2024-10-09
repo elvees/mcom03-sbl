@@ -20,7 +20,6 @@
 	})
 
 void set_secure_region(void);
-void lsp1_i2s_ucg1_rstn(void);
 int soc_debug_if_disable(void);
 
 #endif /* __HELPERS_H__ */

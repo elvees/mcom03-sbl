@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <drivers/ls-periph1/ls-periph1.h>
 #include <drivers/mcom03-regs.h>
 #include <drivers/service/service.h>
 #include <drivers/top/top.h>
