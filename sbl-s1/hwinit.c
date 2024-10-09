@@ -16,7 +16,6 @@
 #include <libs/utils-def.h>
 
 #ifdef WDT_ENABLE
-#include <drivers/wdt/wdt-config.h>
 #include <drivers/wdt/wdt.h>
 #endif
 
@@ -84,7 +83,7 @@ int main(void)
 		return ret;
 
 #ifdef WDT_ENABLE
-	wdt_dev_t *wdt0 = wdt_return_instance();
+	wdt_dev_t *wdt0 = wdt_get_instance();
 
 	// Initialize and configure the watchdog
 	ret = wdt_set_config(wdt0, WDT_MAX_TIMEOUT);

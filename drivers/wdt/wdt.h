@@ -60,6 +60,9 @@ typedef struct {
 	uint32_t status; // Run or stop wdt status
 } wdt_dev_t;
 
+wdt_dev_t *wdt_get_instance(void);
+
+int wdt_set_config(wdt_dev_t *wdt_dev, uint32_t timeout);
 int wdt_is_enabled(wdt_dev_t *wdt_dev);
 int wdt_init(wdt_dev_t *wdt_dev);
 int wdt_reset(wdt_dev_t *wdt_dev);

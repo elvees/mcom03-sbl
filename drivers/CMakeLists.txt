@@ -11,5 +11,4 @@ add_library(drivers OBJECT
             ${CMAKE_CURRENT_SOURCE_DIR}/uart/uart.c
             ${CMAKE_CURRENT_SOURCE_DIR}/uart/uart-config.c
             ${CMAKE_CURRENT_SOURCE_DIR}/ucg/ucg.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/wdt/wdt.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/wdt/wdt-config.c)
+            ${CMAKE_CURRENT_SOURCE_DIR}/wdt/wdt.c)

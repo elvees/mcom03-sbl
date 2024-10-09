@@ -5,10 +5,52 @@
 #include <stdint.h>
 
 #include <drivers/mcom03-regs.h>
+#include <drivers/service/service.h>
 #include <libs/errors.h>
 #include <libs/utils-def.h>
 
 #include "wdt.h"
+
+static wdt_dev_t wdt_dev;
+
+/**
+ * @brief The function gets pointer of the wdt device structure instance
+ *
+ * @return pointer of the wdt device structure instance
+ */
+wdt_dev_t *wdt_get_instance(void)
+{
+	return &wdt_dev;
+}
+
+/**
+ * @brief The function configures wdt
+ *
+ * @param wdt_dev pointer to wdt device structure
+ * @param timeout timeout value in milliseconds
+ *
+ * @return  0     - Success,
+ *         -ENULL - wdt_dev is not provided (NULL pointer)
+ */
+int wdt_set_config(wdt_dev_t *wdt_dev, uint32_t timeout)
+{
+	int ret;
+	uint32_t apb_freq;
+
+	if (wdt_dev == NULL)
+		return -ENULL;
+
+	ret = service_get_apb_clock(&apb_freq);
+	if (ret)
+		return ret;
+
+	wdt_dev->rmod = WDT_RST_MODE;
+	wdt_dev->rpl = WDT_RST_PULSE_LEN_2;
+	wdt_dev->timeout = timeout;
+	wdt_dev->wdt_freq = apb_freq;
+
+	return 0;
+}
 
 /**
  * @brief The function calculates a coefficient to set the required timeout period
@@ -217,7 +259,7 @@ uint32_t wdt_get_timeleft(wdt_dev_t *wdt_dev)
  * @brief Set current timeout value
  *
  * @param wdt_dev pointer to wdt device structure
- * @param timeout new timeout value
+ * @param timeout new timeout value in milliseconds
  *
  * @return  0     - Success,
  *         -ENULL - wdt_dev is not provided (NULL pointer)
@@ -236,7 +278,7 @@ int wdt_set_timeout(wdt_dev_t *wdt_dev, uint32_t timeout)
  *
  * @param wdt_dev pointer to wdt device structure
  *
- * @return current timeout value
+ * @return current timeout value in milliseconds
  */
 uint32_t wdt_get_timeout(wdt_dev_t *wdt_dev)
 {
@@ -248,7 +290,7 @@ uint32_t wdt_get_timeout(wdt_dev_t *wdt_dev)
  *
  * @param wdt_dev pointer to wdt device structure
  *
- * @return min timeout value
+ * @return min timeout value in milliseconds
  */
 uint32_t wdt_get_min_timeout(wdt_dev_t *wdt_dev)
 {
@@ -260,7 +302,7 @@ uint32_t wdt_get_min_timeout(wdt_dev_t *wdt_dev)
  *
  * @param wdt_dev pointer to wdt device structure
  *
- * @return max timeout value
+ * @return max timeout value in milliseconds
  */
 uint32_t wdt_get_max_timeout(wdt_dev_t *wdt_dev)
 {
