@@ -20,7 +20,6 @@
 #endif
 
 #ifdef UART_ENABLE
-#include <drivers/uart/uart-config.h>
 #include <drivers/uart/uart.h>
 #endif
 

@@ -121,6 +121,25 @@ typedef struct {
 } uart_param_t;
 
 /**
+ * @brief The function configures uart
+ *
+ * @param ctx   The pointer to structure uart_param_t. Structure uart_param_t describes parametrs of
+ *              uart controller
+ *
+ * @return  0     - Success,
+ *         -ENULL - ctx param or uart_ptr field in ctx are not provided (NULL pointers)
+ */
+int uart_drv_config_default(void *ctx);
+
+/**
+ * @brief The function initializes the required subsystems for uart
+ *
+ * @return  0        - Success,
+ *         -ETIMEOUT - function reached maximum attempts to set one of UCG divides
+ */
+int uart_hw_enable(void);
+
+/**
  * @brief The function return pointer into uart controller
  *
  * @param uartNum    Number of uart controller

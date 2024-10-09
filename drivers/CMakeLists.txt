@@ -9,6 +9,5 @@ add_library(drivers OBJECT
             ${CMAKE_CURRENT_SOURCE_DIR}/service/service.c
             ${CMAKE_CURRENT_SOURCE_DIR}/top/top.c
             ${CMAKE_CURRENT_SOURCE_DIR}/uart/uart.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/uart/uart-config.c
             ${CMAKE_CURRENT_SOURCE_DIR}/ucg/ucg.c
             ${CMAKE_CURRENT_SOURCE_DIR}/wdt/wdt.c)
