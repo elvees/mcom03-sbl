@@ -18,7 +18,7 @@ static struct ucg_channel top_ucg_channels[] = {
 	{ 0, TOP_UCG0_CHANNEL_DDR_ISP, 6 }, // 198 MHz
 	{ 0, TOP_UCG0_CHANNEL_DDR_CPU, 2 }, // 594 MHz
 	{ 0, TOP_UCG0_CHANNEL_CPU_ACP, 4 }, // 297 MHz
-	{ 0, TOP_UCG0_CHANNEL_DDR_LSPERIPH0, 12 }, // 99 MHz
+	{ 0, TOP_UCG0_CHANNEL_DDR_LSP0, 12 }, // 99 MHz
 	{ 0, TOP_UCG0_CHANNEL_AXI_COH_COMM, 2 }, // 594 MHz
 
 	// To work around MCOM03SW-1192 the following frequency ratio must be met:
@@ -27,9 +27,9 @@ static struct ucg_channel top_ucg_channels[] = {
 	{ 1, TOP_UCG1_CHANNEL_AXI_FAST_COMM, 8 }, // 148.5 MHz
 	{ 1, TOP_UCG1_CHANNEL_DDR_SDR_DSP, 2 }, // 594 MHz
 	{ 1, TOP_UCG1_CHANNEL_DDR_SDR_PICE, 4 }, // 297 MHz
-	{ 1, TOP_UCG1_CHANNEL_DDR_LSPERIPH1, 12 }, // 99 MHz
+	{ 1, TOP_UCG1_CHANNEL_DDR_LSP1, 12 }, // 99 MHz
 	{ 1, TOP_UCG1_CHANNEL_DDR_SERVICE, 8 }, // 148.5 MHz
-	{ 1, TOP_UCG1_CHANNEL_DDR_HSPERIPH, 6 }, // 198 MHz
+	{ 1, TOP_UCG1_CHANNEL_DDR_HSP, 6 }, // 198 MHz
 };
 
 top_urb_regs_t *top_get_urb_registers(void)

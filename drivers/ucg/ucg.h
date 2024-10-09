@@ -20,12 +20,12 @@
 #define UCG_Q_FSM_STATE_CONTINUE 7
 
 // Valid UCG subsystem IDs
-#define UCG_SERVICE_ID_MAX    0
-#define UCG_CPU_ID_MAX        0
-#define UCG_TOP_ID_MAX        1
-#define UCG_LS_PERIPH0_ID_MAX 0
-#define UCG_LS_PERIPH1_ID_MAX 0
-#define UCG_HS_PERIPH_ID_MAX  3
+#define UCG_SERVICE_ID_MAX 0
+#define UCG_CPU_ID_MAX     0
+#define UCG_TOP_ID_MAX     1
+#define UCG_LSP0_ID_MAX    0
+#define UCG_LSP1_ID_MAX    0
+#define UCG_HSP_ID_MAX     3
 
 typedef enum {
 	UCG_SUBSYS_SERV,

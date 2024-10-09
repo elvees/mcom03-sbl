@@ -6,7 +6,7 @@
 
 #include <libs/utils-def.h>
 
-#define HS_URB_DBG_CTR_MASK GENMASK(2, 0)
+#define HSP_URB_DBG_CTR_MASK GENMASK(2, 0)
 
 typedef struct {
 	volatile unsigned int pll_cfg;
@@ -87,9 +87,9 @@ typedef struct {
 	volatile unsigned int misc_padcfg;
 	volatile unsigned int dbg_ctr;
 	volatile unsigned int dma_axcache;
-} hs_urb_regs_t;
+} hsp_urb_regs_t;
 
-hs_urb_regs_t *hs_periph_get_urb_registers(void);
+hsp_urb_regs_t *hsp_get_urb_registers(void);
 
 void hsp_refclk_setup(void);
 

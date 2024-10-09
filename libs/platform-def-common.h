@@ -18,7 +18,7 @@
 
 // Frequencies
 #define MCOM03_XTI_CLK_HZ (27 * _MHz_)
-#define HS_CLK_HZ         MCOM03_XTI_CLK_HZ
+#define HSP_CLK_HZ        MCOM03_XTI_CLK_HZ
 #define QSPI1_CLK_HZ      MCOM03_XTI_CLK_HZ
 #define QSPI1_EXT_CLK_HZ  (MCOM03_XTI_CLK_HZ / 2)
 #define UART_CLK_HZ       MCOM03_XTI_CLK_HZ

@@ -144,19 +144,19 @@ int soc_debug_if_disable(void)
 	uint32_t hsp_dbg_div = 0;
 	bool hsp_dbg_enable = false;
 
-	ret = ucg_get_state(hsp_ucg, HS_UCG1_CHANNEL_CLK_DBG, &hsp_dbg_div, &hsp_dbg_enable);
+	ret = ucg_get_state(hsp_ucg, HSP_UCG1_CHANNEL_CLK_DBG, &hsp_dbg_div, &hsp_dbg_enable);
 	if (ret)
 		return ret;
 
 	// Disable Clock HS Peripheral Subs UCG1 CH4
 	if (hsp_dbg_enable) {
-		uint32_t ucg_ena_mask = BIT(HS_UCG1_CHANNEL_CLK_DBG);
+		uint32_t ucg_ena_mask = BIT(HSP_UCG1_CHANNEL_CLK_DBG);
 
 		ret = ucg_enable_bp(hsp_ucg, ucg_ena_mask);
 		if (ret)
 			return ret;
 
-		ret = ucg_set_divider(hsp_ucg, HS_UCG1_CHANNEL_CLK_DBG, hsp_dbg_div, 1000);
+		ret = ucg_set_divider(hsp_ucg, HSP_UCG1_CHANNEL_CLK_DBG, hsp_dbg_div, 1000);
 		if (ret)
 			return ret;
 
@@ -166,10 +166,10 @@ int soc_debug_if_disable(void)
 	}
 
 	// Disable Debugging in HS Peripheral Subs URB Register
-	hs_urb_regs_t *hs_urb = hs_periph_get_urb_registers();
+	hsp_urb_regs_t *hsp_urb = hsp_get_urb_registers();
 
-	if (FIELD_GET(HS_URB_DBG_CTR_MASK, hs_urb->dbg_ctr))
-		hs_urb->dbg_ctr = 0;
+	if (FIELD_GET(HSP_URB_DBG_CTR_MASK, hsp_urb->dbg_ctr))
+		hsp_urb->dbg_ctr = 0;
 
 #endif /* DEBUG_INTERFACE_DISABLE */
 

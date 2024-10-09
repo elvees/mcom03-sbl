@@ -35,17 +35,17 @@ int uart_drv_get_handler(uint32_t uartNum, uart_reg_t **uart_ptr)
 		return -EINVALIDPARAM;
 	switch (uartNum) {
 	case UART1:
-		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LS0_UART1_BASE);
+		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LSP0_UART1_BASE);
 		break;
 	case UART2:
-		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LS0_UART2_BASE);
+		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LSP0_UART2_BASE);
 		break;
 	case UART3:
-		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LS0_UART3_BASE);
+		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LSP0_UART3_BASE);
 		break;
 	case UART0:
 	default:
-		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LS1_UART0_BASE);
+		*uart_ptr = (uart_reg_t *)(BASE_ADDR_LSP1_UART0_BASE);
 		break;
 	}
 	return 0;

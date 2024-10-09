@@ -27,17 +27,17 @@ ucg_regs_t *ucg_get_registers(ucg_subsys_id subsys_id, uint32_t ucg_id)
 			return NULL;
 		return (ucg_regs_t *)(BASE_ADDR_TOP_UCG0_BASE + (0x1000UL * ucg_id));
 	case UCG_SUBSYS_LSP0:
-		if (ucg_id > UCG_LS_PERIPH0_ID_MAX)
+		if (ucg_id > UCG_LSP0_ID_MAX)
 			return NULL;
-		return (ucg_regs_t *)(BASE_ADDR_LS0_UCG2_BASE);
+		return (ucg_regs_t *)(BASE_ADDR_LSP0_UCG2_BASE);
 	case UCG_SUBSYS_LSP1:
-		if (ucg_id > UCG_LS_PERIPH1_ID_MAX)
+		if (ucg_id > UCG_LSP1_ID_MAX)
 			return NULL;
-		return (ucg_regs_t *)(BASE_ADDR_LS1_UCG_BASE);
+		return (ucg_regs_t *)(BASE_ADDR_LSP1_UCG_BASE);
 	case UCG_SUBSYS_HSP:
-		if (ucg_id > UCG_HS_PERIPH_ID_MAX)
+		if (ucg_id > UCG_HSP_ID_MAX)
 			return NULL;
-		return (ucg_regs_t *)(BASE_ADDR_HS_UCG0 + (0x10000UL * ucg_id));
+		return (ucg_regs_t *)(BASE_ADDR_HSP_UCG0 + (0x10000UL * ucg_id));
 	default:
 		return NULL;
 	}

@@ -49,18 +49,18 @@ void service_disable_arm_cpu(void)
 	SET_PPOLICY(&urb->cpu_ppolicy, PP_OFF);
 }
 
-void service_enable_ls_periph1(void)
+void service_enable_lsp1(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
 	SET_PPOLICY(&urb->lsperiph1_subs_ppolicy, PP_ON);
-	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_LSPERIPH1;
+	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_LSP1;
 }
 
-void service_enable_ls_periph0(void)
+void service_enable_lsp0(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
 	SET_PPOLICY(&urb->lsperiph0_subs_ppolicy, PP_ON);
-	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_LSPERIPH0;
+	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_LSP0;
 }
 
 void service_enable_sdr(void)

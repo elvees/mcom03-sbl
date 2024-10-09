@@ -6,14 +6,14 @@
 
 #include "ls-periph1.h"
 
-ls1_urb_regs_t *ls1_periph_get_urb_registers(void)
+lsp1_urb_regs_t *lsp1_get_urb_registers(void)
 {
-	return (ls1_urb_regs_t *)BASE_ADDR_LS1_URB_BASE;
+	return (lsp1_urb_regs_t *)BASE_ADDR_LSP1_URB_BASE;
 }
 
 void lsp1_i2s_ucg1_rstn(void)
 {
-	ls1_urb_regs_t *urb = ls1_periph_get_urb_registers();
+	lsp1_urb_regs_t *urb = lsp1_get_urb_registers();
 
 	SET_PPOLICY(&urb->i2s_ucg_rstn_ppolicy, PP_ON);
 }

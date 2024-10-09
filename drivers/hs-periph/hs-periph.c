@@ -5,13 +5,13 @@
 
 #include "hs-periph.h"
 
-hs_urb_regs_t *hs_periph_get_urb_registers(void)
+hsp_urb_regs_t *hsp_get_urb_registers(void)
 {
-	return (hs_urb_regs_t *)BASE_ADDR_HS_URB;
+	return (hsp_urb_regs_t *)BASE_ADDR_HSP_URB;
 }
 
 void hsp_refclk_setup(void)
 {
-	hs_urb_regs_t *urb = hs_periph_get_urb_registers();
+	hsp_urb_regs_t *urb = hsp_get_urb_registers();
 	urb->refclk = 0;
 }

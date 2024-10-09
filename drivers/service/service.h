@@ -78,13 +78,13 @@ void service_disable_arm_cpu(void);
  * @brief The function turns on LS-PERIPH1 subsystem, waits for status register to
  *        report "on"
  */
-void service_enable_ls_periph1(void);
+void service_enable_lsp1(void);
 
 /**
  * @brief The function turns on LS-PERIPH0 subsystem, waits for status register to
  *        report "on"
  */
-void service_enable_ls_periph0(void);
+void service_enable_lsp0(void);
 
 /**
  * @brief The function turns on SDR subsystem, waits for status register to

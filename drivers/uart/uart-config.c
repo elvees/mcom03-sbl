@@ -44,7 +44,7 @@ int uart_hw_enable(void)
 
 	// Initialize and configure the LS Peripheral 1 clocking system
 	// Release reset signal of LS Peripheral 1
-	service_enable_ls_periph1();
+	service_enable_lsp1();
 
 	// Initialize the UCG register for clocking GPIO1 and UART0
 	ucg = ucg_get_registers(UCG_SUBSYS_LSP1, 0);
@@ -52,13 +52,13 @@ int uart_hw_enable(void)
 	ret = ucg_enable_bp(ucg, LSP1_SUBS_UCG_ALL_CH_MASK);
 	if (ret)
 		return ret;
-	ret = ucg_set_divider(ucg, LS1_UCG_CLK_GPIO1, 1, 1000);
+	ret = ucg_set_divider(ucg, LSP1_UCG_CLK_GPIO1, 1, 1000);
 	if (ret)
 		return ret;
-	ret = ucg_set_divider(ucg, LS1_UCG_CLK_UART0, 1, 1000);
+	ret = ucg_set_divider(ucg, LSP1_UCG_CLK_UART0, 1, 1000);
 	if (ret)
 		return ret;
-	ret = ucg_set_divider(ucg, LS1_UCG_CLK_TIMERS, 1, 1000);
+	ret = ucg_set_divider(ucg, LSP1_UCG_CLK_TIMERS, 1, 1000);
 	if (ret)
 		return ret;
 	ret = ucg_sync_and_disable_bp(ucg, LSP1_SUBS_UCG_ALL_CH_MASK, LSP1_SUBS_UCG_SYNC_MASK);
@@ -66,7 +66,7 @@ int uart_hw_enable(void)
 		return ret;
 
 	// Initialize GPIO1 PORTB PIN6 and PIN7 for UART 0
-	gpio1 = gpio_get_registers((void *)BASE_ADDR_LS1_GPIO1_BASE);
+	gpio1 = gpio_get_registers((void *)BASE_ADDR_LSP1_GPIO1_BASE);
 	gpio_init(gpio1, UART0_PORT, UART0_SOUT_PIN, GPIO_MODE_HW, GPIO_DIR_OUTPUT);
 	gpio_init(gpio1, UART0_PORT, UART0_SIN_PIN, GPIO_MODE_HW, GPIO_DIR_INPUT);
 

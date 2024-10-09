@@ -17,7 +17,7 @@ typedef struct {
 	volatile unsigned int gpio1_port_c_pad_ctr[8];
 	volatile unsigned int gpio1_port_d_pad_ctr[8];
 	volatile unsigned int gpio1_v18;
-} ls1_urb_regs_t;
+} lsp1_urb_regs_t;
 
 enum pad_driver_strength {
 	PAD_DRIVER_STREGTH_2mA = 0x1,
@@ -28,7 +28,7 @@ enum pad_driver_strength {
 	PAD_DRIVER_STREGTH_12mA = 0x3F
 };
 
-ls1_urb_regs_t *ls1_periph_get_urb_registers(void);
+lsp1_urb_regs_t *lsp1_get_urb_registers(void);
 
 void lsp1_i2s_ucg1_rstn(void);
 
