@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __LOG_H__
-#define __LOG_H__
+#pragma once
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -81,5 +80,3 @@
 #else
 #define VERBOSE(fmt, ...) no_printf(LOG_MARKER_VERBOSE fmt, ##__VA_ARGS__)
 #endif
-
-#endif /* __LOG_H__ */

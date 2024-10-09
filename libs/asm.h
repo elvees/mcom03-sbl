@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __ASM_H__
-#define __ASM_H__
+#pragma once
 
 #include "platform-def-common.h"
 
@@ -509,4 +508,3 @@ a:;
 	nop
 	.endm
 #endif /* __ASSEMBLER__ */
-#endif /* __ASM_H__ */

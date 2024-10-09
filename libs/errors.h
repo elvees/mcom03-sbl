@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __ERRORS_H__
-#define __ERRORS_H__
+#pragma once
 
 #include <sys/errno.h>
 
@@ -22,5 +21,3 @@
 #define EINVALIDADDR        (__ELASTERROR + 12)
 #define EALREADYINITIALIZED (__ELASTERROR + 13)
 #define EUNKNOWN            (__ELASTERROR + 14)
-
-#endif // __ERRORS_H__

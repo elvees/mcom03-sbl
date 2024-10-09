@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2020-2024 RnD Center "ELVEES", JSC
 
-#ifndef __PLL_H__
-#define __PLL_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -74,5 +73,3 @@ int pll_set_manual_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg, uint32_t max
  *         -ENULL - pll_reg or freq_mult params are not provided (NULL pointers)
  */
 int pll_get_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg);
-
-#endif /* __PLL_H__ */

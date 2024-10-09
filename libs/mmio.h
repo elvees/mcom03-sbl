@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023 RnD Center "ELVEES", JSC
 
-#ifndef MMIO_H
-#define MMIO_H
+#pragma once
 
 #include <stdint.h>
 
@@ -65,5 +64,3 @@ static inline void mmio_clrsetbits_32(uintptr_t addr, uint32_t clear, uint32_t s
 {
 	mmio_write_32(addr, (mmio_read_32(addr) & ~clear) | set);
 }
-
-#endif /* MMIO_H */

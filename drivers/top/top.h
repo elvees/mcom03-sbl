@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __TOP_H__
-#define __TOP_H__
+#pragma once
 
 #include <libs/utils-def.h>
 
@@ -101,5 +100,3 @@ int top_set_trusted_to_secure(top_urb_regs_t *urb, unsigned int mask);
 int top_reset_nonsecure_to_secure(top_urb_regs_t *urb, unsigned int mask);
 int top_set_nonsecure_to_secure(top_urb_regs_t *urb, unsigned int mask);
 int top_set_clock(void);
-
-#endif /* __TOP_H__ */

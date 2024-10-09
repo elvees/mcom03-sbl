@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __HS_PERIPH_H__
-#define __HS_PERIPH_H__
+#pragma once
 
 #include <libs/utils-def.h>
 
@@ -92,5 +91,3 @@ typedef struct {
 hsp_urb_regs_t *hsp_get_urb_registers(void);
 
 void hsp_refclk_setup(void);
-
-#endif /* __HS_PERIPH_H__ */

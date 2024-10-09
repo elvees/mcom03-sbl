@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2020-2024 RnD Center "ELVEES", JSC
 
-#ifndef __UCG_H__
-#define __UCG_H__
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -139,4 +138,3 @@ int ucg_get_state(ucg_regs_t *ucg, uint32_t ch, uint32_t *div, bool *enable);
 int ucg_get_divider(ucg_regs_t *ucg, uint32_t ucg_id, uint32_t *div);
 
 /** @} */
-#endif /* __UCG_H__ */

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __UART_H__
-#define __UART_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -189,5 +188,3 @@ int uart_drv_putchar(void *ctx, char c);
  *         -ENULL - ctx param or uart_ptr field in ctx are not provided (NULL pointers)
  */
 int uart_drv_flush(void *ctx);
-
-#endif // __UART_H__

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __MCOM03_REGS_H__
-#define __MCOM03_REGS_H__
+#pragma once
 
 #include <libs/utils-def.h>
 
@@ -291,5 +290,3 @@
 #define LSP1_SUBS_GPIO1_PORTBN_PADCTR_SL  GENMASK(4, 3)
 #define LSP1_SUBS_GPIO1_PORTBN_PADCTR_CTL GENMASK(10, 5)
 #define LSP1_SUBS_GPIO1_PORTBN_PADCTR_E   BIT(12)
-
-#endif // __MCOM03_REGS_H__

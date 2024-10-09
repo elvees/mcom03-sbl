@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __WDT_H__
-#define __WDT_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -73,5 +72,3 @@ uint32_t wdt_get_timeleft(wdt_dev_t *wdt_dev);
 uint32_t wdt_get_timeout(wdt_dev_t *wdt_dev);
 uint32_t wdt_get_min_timeout(wdt_dev_t *wdt_dev);
 uint32_t wdt_get_max_timeout(wdt_dev_t *wdt_dev);
-
-#endif // __WDT_H__

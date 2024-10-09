@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __CPU_H__
-#define __CPU_H__
+#pragma once
 
 #define CPU_CORE_MAX_NUMBER 0x04
 
@@ -40,5 +39,3 @@ typedef struct {
 int cpu_set_clock(void);
 int cpu_start_arm0_core(const unsigned long long int entrypoint);
 int cpu_disable_arm_core(void);
-
-#endif /* __CPU_H__ */

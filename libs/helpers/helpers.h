@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __HELPERS_H__
-#define __HELPERS_H__
+#pragma once
 
 #include <libs/mmio.h>
 #include <libs/utils-def.h>
@@ -21,5 +20,3 @@
 
 void set_secure_region(void);
 int soc_debug_if_disable(void);
-
-#endif /* __HELPERS_H__ */

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __SERVICE_H__
-#define __SERVICE_H__
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -125,5 +124,3 @@ int service_get_apb_clock(uint32_t *apb_freq);
  *                          APB ucg channel frequency
  */
 int service_set_clock(uint32_t ch_mask, uint32_t sync_mask);
-
-#endif /* __SERVICE_H__ */

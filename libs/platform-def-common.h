@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2024 RnD Center "ELVEES", JSC
 
-#ifndef __PLATFORM_DEF_COMMON_H__
-#define __PLATFORM_DEF_COMMON_H__
+#pragma once
 
 #include "utils-def.h"
 
@@ -22,5 +21,3 @@
 #define QSPI1_CLK_HZ      MCOM03_XTI_CLK_HZ
 #define QSPI1_EXT_CLK_HZ  (MCOM03_XTI_CLK_HZ / 2)
 #define UART_CLK_HZ       MCOM03_XTI_CLK_HZ
-
-#endif // __PLATFORM_DEF_COMMON_H__

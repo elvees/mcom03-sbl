@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __CONSOLE_H__
-#define __CONSOLE_H__
+#pragma once
 
 // TODO: add crash_console_* !
 
@@ -26,5 +25,3 @@ int console_putchar(int c);
 int console_getchar(void);
 int console_flush(void);
 int console_deinit(void);
-
-#endif /* __CONSOLE_H__ */

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __UTILS_DEF_H__
-#define __UTILS_DEF_H__
+#pragma once
 
 #define __bf_shf(x) (__builtin_ffsll(x) - 1)
 
@@ -84,5 +83,3 @@
 #define _Hz_  UL(1)
 #define _kHz_ (UL(1000) * _Hz_)
 #define _MHz_ (UL(1000) * _kHz_)
-
-#endif /* _UTILS_DEF_H_ */

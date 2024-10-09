@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __LS_PERIPH1_H__
-#define __LS_PERIPH1_H__
+#pragma once
 
 typedef struct {
 	volatile unsigned int pll_cfg;
@@ -31,5 +30,3 @@ enum pad_driver_strength {
 lsp1_urb_regs_t *lsp1_get_urb_registers(void);
 
 void lsp1_i2s_ucg1_rstn(void);
-
-#endif /* __LS_PERIPH1_H__ */

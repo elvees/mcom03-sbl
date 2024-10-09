@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __GPIO_H__
-#define __GPIO_H__
+#pragma once
 
 #include <libs/utils-def.h>
 
@@ -60,5 +59,3 @@ int gpio_init(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned i
               unsigned int direction);
 int gpio_read_pin(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned int *pin_state);
 int gpio_write_pin(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned int pin_state);
-
-#endif /* __GPIO_H__ */
