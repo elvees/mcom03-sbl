@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <drivers/hs-periph/hs-periph.h>
 #include <drivers/ls-periph1/ls-periph1.h>
 #include <drivers/mcom03-regs.h>
 #include <drivers/service/service.h>
@@ -114,6 +115,16 @@ int main(void)
 	ret = soc_debug_if_disable();
 	if (ret)
 		return ret;
+
+	/* Set PLL as clock source for all HSPERIPH UCGs
+	 * Some HSperiph UCGs use CLK125 external pad as default source
+	 * (this is considered as chip bug).
+	 * Some boards might not have CLK125 routed so it's not possible
+	 * to read/write UCG registers (UCG configuration hangs).
+	 * This is a temporary solution.
+	 * All clocks should be configured by clock driver.
+	 */
+	hsp_refclk_setup();
 
 	// I2S RSTN must be enabled before LSP1 UCGs setup
 	lsp1_i2s_ucg1_rstn();

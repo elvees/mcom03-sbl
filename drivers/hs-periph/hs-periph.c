@@ -9,3 +9,9 @@ hs_urb_regs_t *hs_periph_get_urb_registers(void)
 {
 	return (hs_urb_regs_t *)BASE_ADDR_HS_URB;
 }
+
+void hsp_refclk_setup(void)
+{
+	hs_urb_regs_t *urb = hs_periph_get_urb_registers();
+	urb->refclk = 0;
+}

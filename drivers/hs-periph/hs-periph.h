@@ -91,4 +91,6 @@ typedef struct {
 
 hs_urb_regs_t *hs_periph_get_urb_registers(void);
 
+void hsp_refclk_setup(void);
+
 #endif /* __HS_PERIPH_H__ */
