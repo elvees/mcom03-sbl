@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright 2023 RnD Center "ELVEES", JSC
+# Copyright 2023-2024 RnD Center "ELVEES", JSC
 
 import mdb
 
@@ -17,21 +17,21 @@ def parse_ddrinit_dtb_map(map_file, dtb_file):
         break
 
     if not board:
-        raise ValueError("{0} not in {1}".format(dtb, map_file))
+        raise ValueError(f"{dtb} not in {map_file}")
     return board
 
 
 def loadbin(file, addr):
-    mdb.execute("loadbin {0} 0x{1:x}".format(file, addr))
+    mdb.execute(f"loadbin {file} 0x{addr:x}")
 
 
 # Declare setters and getters
 def set_32bit(addr, val):
-    mdb.execute("set 0x{0:x} 0x{1:x}".format(addr, val & 0xFFFFFFFF))
+    mdb.execute(f"set 0x{addr:x} 0x{val & 0xFFFFFFFF:x}")
 
 
 def get_32bit(addr):
-    output = mdb.execute("show 0x{0:x}".format(addr), to_string=True)
+    output = mdb.execute(f"show 0x{addr:x}", to_string=True)
     val = int(output.strip().split(":")[1], base=0)
     return val & 0xFFFFFFFF
 
