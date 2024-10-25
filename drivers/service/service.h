@@ -62,6 +62,11 @@ typedef struct {
 } service_urb_regs_t;
 
 /**
+ * @brief The function turns off RISC0 CPU
+ */
+void service_disable_risc0_cpu(void);
+
+/**
  * @brief The function turns on CPU subsystem, waits for status register to
  *        report "on"
  */

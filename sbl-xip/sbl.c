@@ -191,5 +191,10 @@ int main(void)
 	if (ret)
 		return ret;
 
+	/* As SBL-XIP no need anymore disable RISC0 CPU here */
+	service_disable_risc0_cpu();
+
+	ERROR("Should not be here!!!!!\n");
+
 	return 0;
 }

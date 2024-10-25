@@ -35,6 +35,12 @@ struct ucg_channel serv_ucg_channels[] = {
 	{ 1, SERVICE_UCG1_CHANNEL_CLK_QSPI0_EXT, 22 }, // 27 MHz
 };
 
+void service_disable_risc0_cpu(void)
+{
+	service_urb_regs_t *urb = service_get_urb_registers();
+	SET_PPOLICY(&urb->risc0_ppolicy, PP_OFF);
+}
+
 void service_enable_arm_cpu(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
