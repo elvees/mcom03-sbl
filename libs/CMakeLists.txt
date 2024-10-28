@@ -16,4 +16,5 @@ add_library(libs OBJECT
             ${CMAKE_CURRENT_SOURCE_DIR}/platform/sbrk.c
             ${CMAKE_CURRENT_SOURCE_DIR}/platform/snprintf.c
             ${CMAKE_CURRENT_SOURCE_DIR}/platform/stack-protector.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/queue/queue.c)
+            ${CMAKE_CURRENT_SOURCE_DIR}/queue/queue.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/sbimage/sbexecutor.c)
