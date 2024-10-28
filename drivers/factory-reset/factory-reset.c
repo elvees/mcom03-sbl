@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
-#include <platform_def.h>
-#include <platform_helpers.h>
-#include "factory_reset.h"
+#include <stdint.h>
+#include <string.h>
+
+#include <drivers/gpio/gpio.h>
+#include <libs/fdt-helpers/fdt-helpers.h>
+#include <libs/helpers/helpers.h>
+#include <third-party/libfdt/libfdt.h>
+
+#include "factory-reset.h"
 
 int factory_reset_get_info(const void *fdt, factory_reset_info_t *info)
 {
@@ -23,7 +29,7 @@ int factory_reset_get_info(const void *fdt, factory_reset_info_t *info)
 	if (ret)
 		return ret;
 
-	/*
+	/**
 	 * If we are not given the size, make do with calculating it.
 	 * This is not as secure.
 	 */
@@ -66,7 +72,7 @@ int factory_reset_get_info(const void *fdt, factory_reset_info_t *info)
 	if (ret)
 		return ret;
 
-	info->gpio_regs = gpio_get_registers(plat_convert_pa_to_va(base));
+	info->gpio_regs = gpio_get_registers(convert_pa_to_va(base));
 
 	return 0;
 }
