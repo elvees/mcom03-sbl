@@ -477,6 +477,23 @@ void AES_ECB_decrypt(const struct AES_ctx* ctx, uint8_t* buf)
   InvCipher((state_t*)buf, ctx->RoundKey);
 }
 
+void AES_ECB_encrypt_wrap(const uint8_t *input, const uint8_t *key, uint8_t *output,
+			  const uint32_t length)
+{
+	struct AES_ctx ctx;
+	AES_init_ctx(&ctx, key);
+	memcpy(output, input, length);
+	AES_ECB_encrypt(&ctx, output);
+}
+
+void AES_ECB_decrypt_wrap(const uint8_t *input, const uint8_t *key, uint8_t *output,
+			  const uint32_t length)
+{
+	struct AES_ctx ctx;
+	AES_init_ctx(&ctx, key);
+	memcpy(output, input, length);
+	AES_ECB_decrypt(&ctx, output);
+}
 
 #endif // #if defined(ECB) && (ECB == 1)
 
@@ -525,6 +542,24 @@ void AES_CBC_decrypt_buffer(struct AES_ctx* ctx, uint8_t* buf,  uint32_t length)
     buf += AES_BLOCKLEN;
   }
 
+}
+
+void AES_CBC_encrypt_buffer_wrap(uint8_t *output, const uint8_t *input, const uint32_t length,
+				 const uint8_t *key, const uint8_t *iv)
+{
+	struct AES_ctx ctx;
+	AES_init_ctx_iv(&ctx, key, iv);
+	memcpy(output, input, length);
+	AES_CBC_encrypt_buffer(&ctx, output, length);
+}
+
+void AES_CBC_decrypt_buffer_wrap(uint8_t *output, const uint8_t *input, const uint32_t length,
+				 const uint8_t *key, const uint8_t *iv)
+{
+	struct AES_ctx ctx;
+	AES_init_ctx_iv(&ctx, key, iv);
+	memcpy(output, input, length);
+	AES_CBC_decrypt_buffer(&ctx, output, length);
 }
 
 #endif // #if defined(CBC) && (CBC == 1)
