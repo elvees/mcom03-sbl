@@ -77,6 +77,7 @@ add_library(common STATIC
             $<TARGET_OBJECTS:libs>)
 
 add_subdirectory(sbl-s1)
+add_subdirectory(sbl-s2)
 add_subdirectory(sbl-s3)
 add_subdirectory(sbl-xip)
 add_subdirectory(scripts)
