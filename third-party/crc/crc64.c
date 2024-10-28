@@ -39,7 +39,7 @@
  * Include the lookup table for the CRC 64 calculation
  */
 
-#include "../tab/gentab64.inc"
+#include "gentab64.inc"
 
 /*
  * uint64_t crc_64_ecma( const unsigned char *input_str, size_t num_bytes );

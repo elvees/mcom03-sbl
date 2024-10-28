@@ -39,7 +39,7 @@
  * Include the lookup table for the CRC 32 calculation
  */
 
-#include "../tab/gentab32.inc"
+#include "gentab32.inc"
 
 /*
  * uint32_t crc_32( const unsigned char *input_str, size_t num_bytes );
