@@ -2,6 +2,8 @@
 
 add_library(libs OBJECT
             ${CMAKE_CURRENT_SOURCE_DIR}/console/console.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/env/env.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/env/env-io.c
             ${CMAKE_CURRENT_SOURCE_DIR}/fdt-helpers/fdt-helpers.c
             ${CMAKE_CURRENT_SOURCE_DIR}/helpers/helpers.c
             ${CMAKE_CURRENT_SOURCE_DIR}/platform/assert.c
