@@ -1,11 +1,13 @@
-/*
- * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
+// Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
+// SPDX-License-Identifier: BSD-3-Clause
 
-#include <lib/libfdt/libfdt.h>
-#include "fdt_helpers.h"
+#include <stddef.h>
+#include <stdint.h>
+
+#include <third-party/libfdt/libfdt.h>
+
+#include "fdt-helpers.h"
 
 static uint64_t fdt_read_prop_cells(const fdt32_t *prop, int cells)
 {
@@ -18,7 +20,7 @@ static uint64_t fdt_read_prop_cells(const fdt32_t *prop, int cells)
 }
 
 static int fdt_read_uint32_array(const void *fdt, int node_off, const char *prop_name,
-				 unsigned int cells, uint32_t *value)
+                                 unsigned int cells, uint32_t *value)
 {
 	const fdt32_t *prop;
 	int value_len;
@@ -26,12 +28,12 @@ static int fdt_read_uint32_array(const void *fdt, int node_off, const char *prop
 	if (!fdt || !prop_name || !value || node_off < 0)
 		return -FDT_ERR_MAX;
 
-	/* Access property and obtain its length (in bytes) */
+	// Access property and obtain its length (in bytes)
 	prop = fdt_getprop(fdt, node_off, prop_name, &value_len);
-	if (prop == NULL)
+	if (!prop)
 		return -FDT_ERR_NOTFOUND;
 
-	/* Verify that property length can fill the entire array. */
+	// Verify that property length can fill the entire array
 	if ((unsigned int)value_len < cells * sizeof(uint32_t))
 		return -FDT_ERR_BADVALUE;
 

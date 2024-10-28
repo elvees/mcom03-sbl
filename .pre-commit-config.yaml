@@ -14,6 +14,10 @@ repos:
         args:
           - --license-filepath=.license-header
           - --comment-style=//
+        exclude: |
+          (?x)^(
+            libs/fdt-helpers/.*
+          )$
       - id: insert-license
         files: ''
         types_or: [cmake, python]
