@@ -64,7 +64,8 @@ if(UART_ENABLE)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/third-party)
+                    ${CMAKE_CURRENT_SOURCE_DIR}/third-party
+                    ${CMAKE_CURRENT_SOURCE_DIR}/third-party/libfdt)
 
 add_subdirectory(third-party)
 add_subdirectory(drivers)
