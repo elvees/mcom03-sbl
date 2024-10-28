@@ -8,7 +8,8 @@
 // Compute the number of elements in the given array
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-#define BIT(nr) (U(1) << (nr))
+#define BIT(nr)   (U(1) << (nr))
+#define BIT64(nr) (ULL(1) << (nr))
 
 /**
  * Create a contiguous bitmask starting at bit position @l and ending at
@@ -16,10 +17,12 @@
  * GENMASK(19, 9) gives us the 32bit vector 0x000ffe00.
  */
 #if defined(__LINKER__) || defined(__ASSEMBLER__)
-#define GENMASK(h, l) (((0xFFFFFFFF) << (l)) & (0xFFFFFFFF >> (32 - 1 - (h))))
+#define GENMASK(h, l)   (((0xFFFFFFFF) << (l)) & (0xFFFFFFFF >> (32 - 1 - (h))))
+#define GENMASK64(h, l) (((0xFFFFFFFFFFFFFFFF) << (l)) & (0xFFFFFFFFFFFFFFFF >> (64 - 1 - (h))))
 #else
 #include <stdint.h>
-#define GENMASK(h, l) (((~UINT32_C(0)) << (l)) & (~UINT32_C(0) >> (32 - 1 - (h))))
+#define GENMASK(h, l)   (((~UINT32_C(0)) << (l)) & (~UINT32_C(0) >> (32 - 1 - (h))))
+#define GENMASK64(h, l) (((~UINT64_C(0)) << (l)) & (~UINT64_C(0) >> (64 - 1 - (h))))
 #endif
 
 #define FIELD_PREP(_mask, _val) ({ ((__typeof__(_mask))(_val) << __bf_shf(_mask)) & (_mask); })
