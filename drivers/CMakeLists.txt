@@ -2,6 +2,7 @@
 
 add_library(drivers OBJECT
             ${CMAKE_CURRENT_SOURCE_DIR}/cpu/cpu.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/factory-reset/factory-reset.c
             ${CMAKE_CURRENT_SOURCE_DIR}/gpio/gpio.c
             ${CMAKE_CURRENT_SOURCE_DIR}/hs-periph/hs-periph.c
             ${CMAKE_CURRENT_SOURCE_DIR}/iommu/iommu.c
