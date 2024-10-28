@@ -1,40 +1,59 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
-#ifndef __SBIMAGE_H__
-#define __SBIMAGE_H__
+#pragma once
 
 typedef struct {
-	unsigned int objType : 3; //!< Тип данных, которые содержит образ (Смотри в таблице 2.4)
-	unsigned int
-		checksum : 1; //!< 0: Проверка целостности не проводится 1: Проверка целостности проводится
-	unsigned int encrypted : 1; //!< 0: Данные не зашифрованы 1: Данные зашифрованы
-	unsigned int
-		signOfEncrypted : 1; //!< 0: Поле Payload digest содержит хэш нешифрованных данных 1: Поле Payload digest содержит хэш шифрованных данных
-	unsigned int signedObj : 1; //!< 0: Объект не подписан 1: Объект подписан
-	unsigned int
-		skipHeaderHash : 1; //!< 1: В режиме bs_en=0 пропустить проверку контрольной суммы заголовка
-	unsigned int Reserved : 24; //!< Зарезервировано
+	// Data type that contain image (Table 2.4)
+	unsigned int obj_type : 3;
+	/**
+	 * 0: Integrity checking is off.
+	 * 1: Integrity checking is on.
+	 */
+	unsigned int checksum : 1;
+	/**
+	 * 0: Data are not encrypted.
+	 * 1: Data are encrypted.
+	 */
+	unsigned int encrypted : 1;
+	/**
+	 * 0: Payload digest field contain unencrypted data hash.
+	 * 1: Payload digest field contain encrypted data hash.
+	 */
+	unsigned int sign_of_encrypted : 1;
+	/**
+	 * 0: Object is not signed.
+	 * 1: Object is signed.
+	 */
+	unsigned int signed_obj : 1;
+	// 1: In bs_en=0 mode skip header checksum verification
+	unsigned int skip_header_hash : 1;
+	// Reserved
+	unsigned int reserved : 24;
 } flags_t;
 
 typedef struct {
-	unsigned int hId; //!< ID типа образа, всегда 0x53424d47 ("SBMG")
-	unsigned int plSize; //!< Размер данных в байтах, следующих сразу за этим заголовком
-	unsigned int lAddr; //!< Адрес, по которому загружаются данные
-	unsigned int eAddr; //!< Адрес входа в программу (если образ содержит исполняемую программу)
-
+	// Image type ID always 0x53424d47 ("SBMG")
+	unsigned int h_id;
+	// Data size in bytes leading after this header
+	unsigned int pl_size;
+	// Loading data address
+	unsigned int l_addr;
+	// Program enter address (if image contain executing program)
+	unsigned int e_addr;
 	union {
 		unsigned int flags;
-		flags_t flagsBits; //!< Поле Flags
+		// Flags Field
+		flags_t flags_bits;
 	};
-	unsigned int aesKeyNum; //!< Номер ключа для расшифровки (используются младшие 16 бит)
-	unsigned int certId; //!< ID номер, если это сертификат
-	unsigned int
-		signCertId; //!< ID номер сертификата, который использовался для подписи данных (если использовался)
-	unsigned char
-		plDgst[32]; //!< Хэш данных, следующих за этим заголовком (Функция хэширования SHA-256)
-	unsigned char hDgst
-		[32]; //!< Хэш заголовка (Функция хэширования SHA-256). При его расчёте это поле принимается равным 0
+	// Key number for decription (lowest 16 bits are used)
+	unsigned int aes_key_num;
+	// ID number if it is certificate
+	unsigned int cert_id;
+	// Certificate ID number which is used for data signature (if it is used)
+	unsigned int sign_cert_id;
+	// Data hash leading after that header (hash function SHA-256)
+	unsigned char pl_dgst[32];
+	// Header hash (hash function SHA-256). While calculating this field equals 0
+	unsigned char h_dgst[32];
 } sbimghdr_t;
-
-#endif /* __SBIMAGE_H__ */
