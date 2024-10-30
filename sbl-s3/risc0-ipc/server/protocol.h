@@ -1,160 +1,146 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __TL_SERVICES_H__
-#define __TL_SERVICES_H__
+#pragma once
 
-#include <stdio.h>
-#include <stddef.h>
 #include <stdint.h>
-#include <limits.h>
 
-#define TL_MBOX_SERVICES_MAGIC (0x4d424f58) // "MBOX" in ASCII
-
-typedef enum {
-	TL_MBOX_SERVICES_INIT = 0x00U,
-	TL_MBOX_SERVICES_TL_PROTO = 0x01U,
-	TL_MBOX_SERVICES_WDT = 0x02U,
-	TL_MBOX_SERVICES_DDR_SUBS = 0x05U,
-	TL_MBOX_SERVICES_COUNT,
-} TL_MBOX_SERVICES_t;
+#define RISC0_IPC_MAGIC 0x4D424F58 // "MBOX" in ASCII
 
 typedef enum {
-	TL_MBOX_SERVICES_INIT_FUNC_GET_CAPABILITY = 0x00U,
-	TL_MBOX_SERVICES_INIT_FUNC_COUNT,
-} TL_MBOX_SERVICES_INIT_FUNC_t;
+	RISC0_IPC_INIT = 0x00U,
+	RISC0_IPC_RESERVED = 0x01U,
+	RISC0_IPC_WDT = 0x02U,
+	RISC0_IPC_DDR_SUBS = 0x05U,
+	RISC0_IPC_COUNT,
+} risc0_ipc;
 
 typedef enum {
-	TL_MBOX_SERVICES_TL_PROTO_FUNC_STOP = 0x00U,
-	TL_MBOX_SERVICES_TL_PROTO_FUNC_START = 0x01U,
-	TL_MBOX_SERVICES_TL_PROTO_FUNC_COUNT,
-} TL_MBOX_SERVICES_TL_PROTO_FUNC_t;
+	RISC0_IPC_INIT_FUNC_GET_CAPABILITY = 0x00U,
+	RISC0_IPC_INIT_FUNC_COUNT,
+} risc0_ipc_init_func;
 
 typedef enum {
-	TL_MBOX_SERVICES_WDT_FUNC_IS_ENABLE = 0x01U,
-	TL_MBOX_SERVICES_WDT_FUNC_START = 0x02U,
-	TL_MBOX_SERVICES_WDT_FUNC_PING = 0x03U,
-	TL_MBOX_SERVICES_WDT_FUNC_SET_TIMEOUT_S = 0x04U,
-	TL_MBOX_SERVICES_WDT_FUNC_GET_TIMEOUT_S = 0x05U,
-	TL_MBOX_SERVICES_WDT_FUNC_GET_MAX_TIMEOUT_S = 0x06U,
-	TL_MBOX_SERVICES_WDT_FUNC_GET_MIN_TIMEOUT_S = 0x07U,
-	TL_MBOX_SERVICES_WDT_FUNC_COUNT,
-} TL_MBOX_SERVICES_WDT_FUNC_t;
+	RISC0_IPC_WDT_FUNC_IS_ENABLE = 0x01U,
+	RISC0_IPC_WDT_FUNC_START = 0x02U,
+	RISC0_IPC_WDT_FUNC_PING = 0x03U,
+	RISC0_IPC_WDT_FUNC_SET_TIMEOUT_S = 0x04U,
+	RISC0_IPC_WDT_FUNC_GET_TIMEOUT_S = 0x05U,
+	RISC0_IPC_WDT_FUNC_GET_MAX_TIMEOUT_S = 0x06U,
+	RISC0_IPC_WDT_FUNC_GET_MIN_TIMEOUT_S = 0x07U,
+	RISC0_IPC_WDT_FUNC_COUNT,
+} risc0_ipc_wdt_func;
 
 typedef enum {
-	TL_MBOX_SERVICES_DDR_SUBS_FUNC_SET_HSPERIPH_BAR = 0x01U,
-	TL_MBOX_SERVICES_DDR_SUBS_FUNC_SET_LSPERIPH0_BAR = 0x02U,
-	TL_MBOX_SERVICES_DDR_SUBS_FUNC_SET_LSPERIPH1_BAR = 0x03U,
-	TL_MBOX_SERVICES_DDR_SUBS_FUNC_SET_GPU_BAR = 0x04U,
-	TL_MBOX_SERVICES_DDR_SUBS_FUNC_COUNT,
-} TL_MBOX_SERVICES_DDR_SUBS_FUNC_t;
+	RISC0_IPC_DDR_SUBS_FUNC_SET_HSPERIPH_BAR = 0x01U,
+	RISC0_IPC_DDR_SUBS_FUNC_SET_LSPERIPH0_BAR = 0x02U,
+	RISC0_IPC_DDR_SUBS_FUNC_SET_LSPERIPH1_BAR = 0x03U,
+	RISC0_IPC_DDR_SUBS_FUNC_SET_GPU_BAR = 0x04U,
+	RISC0_IPC_DDR_SUBS_FUNC_COUNT,
+} risc0_ipc_ddr_subs_func;
 
 typedef enum {
-	TL_MBOX_SERVICES_RESP_STATE_BUSY = 0x00U,
-	TL_MBOX_SERVICES_RESP_STATE_COMPLETE = 0x01U,
-	TL_MBOX_SERVICES_RESP_STATE_COUNT,
-} TL_MBOX_SERVICES_RESP_STATE_t;
+	RISC0_IPC_RESP_STATE_BUSY = 0x00U,
+	RISC0_IPC_RESP_STATE_COMPLETE = 0x01U,
+	RISC0_IPC_RESP_STATE_COUNT,
+} risc0_ipc_resp_state;
 
 #pragma pack(push, 1)
-/* Command params */
+// Command params
 typedef struct {
-	uint64_t shrmem;
-} TL_MBOX_SERVICES_TL_PROTO_start_t;
+	uint64_t unused;
+} risc0_ipc_reserved_t;
 
 typedef struct {
 	uint32_t timeout;
-} TL_MBOX_SERVICES_WDT_start_t;
+} risc0_ipc_wdt_start_t;
 
 typedef struct {
 	uint32_t value;
-} TL_MBOX_SERVICES_WDT_set_timeout_t;
+} risc0_ipc_wdt_set_timeout_t;
 
 typedef struct {
 	uint32_t value;
-} TL_MBOX_SERVICES_DDR_SUBS_set_bar_t;
+} risc0_ipc_ddr_subs_set_bar_t;
 
 typedef union {
+	risc0_ipc_reserved_t reserved;
 	union {
-		TL_MBOX_SERVICES_TL_PROTO_start_t start;
-	} tlProto;
-	union {
-		TL_MBOX_SERVICES_WDT_start_t start;
-		TL_MBOX_SERVICES_WDT_set_timeout_t setTimeout;
+		risc0_ipc_wdt_start_t start;
+		risc0_ipc_wdt_set_timeout_t set_timeout;
 	} wdt;
 	union {
-		TL_MBOX_SERVICES_DDR_SUBS_set_bar_t bar;
+		risc0_ipc_ddr_subs_set_bar_t bar;
 	} ddr_subs;
-} TL_MBOX_SERVICES_cmd_param_t;
+} risc0_ipc_cmd_param_t;
 
-/* Response params */
+// Response params
 typedef struct {
 	uint32_t value;
-} TL_MBOX_SERVICES_INIT_get_capability_t;
-
-typedef struct {
-	uint32_t value;
-} TL_MBOX_SERVICES_WDT_is_enable_t;
+} risc0_ipc_init_get_capability_t;
 
 typedef struct {
 	uint32_t value;
-} TL_MBOX_SERVICES_WDT_get_timeout_t;
+} risc0_ipc_wdt_is_enable_t;
 
 typedef struct {
 	uint32_t value;
-} TL_MBOX_SERVICES_WDT_get_max_timeout_t;
+} risc0_ipc_wdt_get_timeout_t;
 
 typedef struct {
 	uint32_t value;
-} TL_MBOX_SERVICES_WDT_get_min_timeout_t;
+} risc0_ipc_wdt_get_max_timeout_t;
+
+typedef struct {
+	uint32_t value;
+} risc0_ipc_wdt_get_min_timeout_t;
 
 typedef union {
 	union {
-		TL_MBOX_SERVICES_INIT_get_capability_t capability;
+		risc0_ipc_init_get_capability_t capability;
 	} init;
 	union {
-		TL_MBOX_SERVICES_WDT_is_enable_t isEnable;
-		TL_MBOX_SERVICES_WDT_get_timeout_t timeout;
-		TL_MBOX_SERVICES_WDT_get_max_timeout_t minTimeout;
-		TL_MBOX_SERVICES_WDT_get_min_timeout_t maxTimeout;
+		risc0_ipc_wdt_is_enable_t is_enable;
+		risc0_ipc_wdt_get_timeout_t timeout;
+		risc0_ipc_wdt_get_max_timeout_t min_timeout;
+		risc0_ipc_wdt_get_min_timeout_t max_timeout;
 	} wdt;
-} TL_MBOX_SERVICES_resp_param_t;
+} risc0_ipc_resp_param_t;
 
-/* Command message */
+// Command message
 typedef struct {
 	uint16_t service;
 	uint16_t func;
-} TL_MBOX_SERVICES_cmd_hdr_t;
+} risc0_ipc_cmd_hdr_t;
 
 typedef struct {
-	TL_MBOX_SERVICES_cmd_hdr_t hdr;
-	TL_MBOX_SERVICES_cmd_param_t param;
-} TL_MBOX_SERVICES_cmd_t;
+	risc0_ipc_cmd_hdr_t hdr;
+	risc0_ipc_cmd_param_t param;
+} risc0_ipc_cmd_t;
 
-/* Response message */
+// Response message
 typedef struct {
 	uint32_t value;
-} TL_MBOX_SERVICES_resp_state_t;
+} risc0_ipc_resp_state_t;
 
 typedef struct {
-	TL_MBOX_SERVICES_resp_state_t state;
-	TL_MBOX_SERVICES_resp_param_t param;
-} TL_MBOX_SERVICES_resp_t;
+	risc0_ipc_resp_state_t state;
+	risc0_ipc_resp_param_t param;
+} risc0_ipc_resp_t;
 
 typedef struct {
 	uint64_t data;
-} TL_MBOX_SERVICES_shrmem_t;
+} risc0_ipc_shrmem_t;
 
 typedef struct {
 	uint32_t magic_num;
 	uint16_t cmd_len;
 	uint16_t shrmem_len;
-} TL_MBOX_SERVICES_hdr_t;
+} risc0_ipc_hdr_t;
 
 typedef struct {
-	TL_MBOX_SERVICES_hdr_t hdr;
-	TL_MBOX_SERVICES_cmd_t cmd;
-	TL_MBOX_SERVICES_shrmem_t shrmem;
-} TL_MBOX_SERVICES_req_t;
+	risc0_ipc_hdr_t hdr;
+	risc0_ipc_cmd_t cmd;
+	risc0_ipc_shrmem_t shrmem;
+} risc0_ipc_req_t;
 #pragma pack(pop)
-
-#endif /* __TL_SERVICES_H__ */
