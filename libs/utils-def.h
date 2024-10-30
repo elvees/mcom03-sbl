@@ -25,11 +25,17 @@
 #define FIELD_PREP(_mask, _val) ({ ((__typeof__(_mask))(_val) << __bf_shf(_mask)) & (_mask); })
 #define FIELD_GET(_mask, _reg)  ({ (__typeof__(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask)); })
 
+#define COMPARE_TYPE(x, y) (void)(&(x) == &(y));
+
+#define for_each_llist(node, head) \
+	COMPARE_TYPE(node, head);  \
+	for (node = head; node; node = node->next)
+
 #define MIN(x, y)                       \
 	__extension__({                 \
 		__typeof__(x) _x = (x); \
 		__typeof__(y) _y = (y); \
-		(void)(&_x == &_y);     \
+		COMPARE_TYPE(_x, _y);   \
 		_x < _y ? _x : _y;      \
 	})
 
@@ -37,7 +43,7 @@
 	__extension__({                 \
 		__typeof__(x) _x = (x); \
 		__typeof__(y) _y = (y); \
-		(void)(&_x == &_y);     \
+		COMPARE_TYPE(_x, _y);   \
 		_x > _y ? _x : _y;      \
 	})
 
