@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <assert.h>
+
+#include "utils-def.h"
+
 // Read C0 coprocessor register.
 #define mips_read_c0_register(reg)                                             \
 	({                                                                     \
@@ -54,3 +58,42 @@
 #define EXC_CPU  11 // CpU  Coprocessort unavailability exception
 #define EXC_OV   12 // Ov   Integer overflow exception
 #define EXC_TR   13 // Tr   Trap exception
+
+#define MIPS_QLIC_TARGET_IP GENMASK(15, 10)
+
+/**
+ * @brief Enables all MIPS global interrupts
+ */
+static inline void mips_global_irq_enable(void)
+{
+	unsigned int co_status = mips_read_c0_register(C0_STATUS);
+	co_status |= 1;
+	mips_write_c0_register(C0_STATUS, co_status);
+}
+
+/**
+ * @brief Disables all MIPS global interrupts
+ */
+static inline void mips_global_irq_disable(void)
+{
+	unsigned int co_status = mips_read_c0_register(C0_STATUS);
+	co_status &= ~1;
+	mips_write_c0_register(C0_STATUS, co_status);
+}
+
+/**
+ * @brief Gets current IRQ target. Function is called in ISR
+ *
+ * @return Current IRQ target
+ */
+static inline int mips_get_irq_target(void)
+{
+	unsigned int co_cause = mips_read_c0_register(C0_CAUSE); // get C0 cause
+	// get HW IRQ pending requests
+	unsigned int pending_irq = FIELD_GET(MIPS_QLIC_TARGET_IP, co_cause);
+	// select HW IRQ pending requests with highest priority
+	unsigned int ls_bit = ((pending_irq) & (-pending_irq));
+	assert(ls_bit > 0);
+
+	return __builtin_ctz(ls_bit); // return current target number
+}

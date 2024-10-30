@@ -18,6 +18,7 @@
 #if defined(__LINKER__) || defined(__ASSEMBLER__)
 #define GENMASK(h, l) (((0xFFFFFFFF) << (l)) & (0xFFFFFFFF >> (32 - 1 - (h))))
 #else
+#include <stdint.h>
 #define GENMASK(h, l) (((~UINT32_C(0)) << (l)) & (~UINT32_C(0) >> (32 - 1 - (h))))
 #endif
 
