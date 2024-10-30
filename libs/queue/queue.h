@@ -1,18 +1,28 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#ifndef __QUEUE_H__
-#define __QUEUE_H__
+#pragma once
 
-#include <stdint.h>
-#include <lib/llist/llist.h>
+#include <third-party/llist/llist.h>
 
 typedef struct {
-	struct llist *head; /*!< queue head */
-	struct llist *tail; /*!< queue tail */
+	struct llist *head; // queue head
+	struct llist *tail; // queue tail
 } queue_t;
 
-void queue_push(queue_t *queue, struct llist *node);
-struct llist *queue_pop(queue_t *queue);
+/**
+ * @brief The function places new data at the head of the list
+ *
+ * @param queue - Pointer to queue
+ * @param data  - Pointer to data to add
+ */
+void queue_push(queue_t *queue, void *data);
 
-#endif /* __QUEUE_H__ */
+/**
+ * @brief The function gets the data from the tail of list
+ *
+ * @param queue - Pointer to queue
+ *
+ * @return The data from the tail of list
+ */
+void *queue_pop(queue_t *queue);
