@@ -46,9 +46,8 @@
  */
 #define no_printf(fmt, ...)                           \
 	do {                                          \
-		if (false) {                          \
+		if (false)                            \
 			printf((fmt), ##__VA_ARGS__); \
-		}                                     \
 	} while (false)
 
 #if LOG_LEVEL >= LOG_LEVEL_ERROR

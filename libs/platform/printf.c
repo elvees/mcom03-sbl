@@ -46,13 +46,12 @@ static int unsigned_num_print(unsigned long long int unum, unsigned int radix, c
 		unum /= radix;
 	} while (unum > 0U);
 
-	if (padn > 0) {
+	if (padn > 0)
 		while (i < padn) {
 			(void)putchar(padc);
 			count++;
 			padn--;
 		}
-	}
 
 	while (--i >= 0) {
 		(void)putchar(num_buf[i]);
@@ -160,9 +159,8 @@ loop:
 
 				for (;;) {
 					char ch = *fmt;
-					if ((ch < '0') || (ch > '9')) {
+					if ((ch < '0') || (ch > '9'))
 						goto loop;
-					}
 					padn = (padn * 10) + (ch - '0');
 					fmt++;
 				}

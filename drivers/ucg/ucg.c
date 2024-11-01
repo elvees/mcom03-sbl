@@ -59,9 +59,8 @@ int ucg_enable_bp(ucg_regs_t *ucg, uint32_t ch_mask)
 
 	for (; ch_mask != 0; ch_mask >>= 1U) {
 		if ((ch_mask & 0x1) && (FIELD_GET(UCG_CTR_REG_Q_FSM_STATE, ucg->UCG_CTR_REG[id]) ==
-		                        UCG_Q_FSM_STATE_RUN)) {
+		                        UCG_Q_FSM_STATE_RUN))
 			val |= BIT(id);
-		}
 		id++;
 	}
 
@@ -133,9 +132,8 @@ int ucg_sync_and_disable_bp(ucg_regs_t *ucg, uint32_t ch_mask, uint32_t sync_mas
 	unsigned int bp_val = ucg->UCG_BP_CTR_REG;
 
 	for (; ch_mask != 0; ch_mask >>= 1U) {
-		if ((ch_mask & 0x1) && (FIELD_GET(BIT(id), bp_val) == 0x1)) {
+		if ((ch_mask & 0x1) && (FIELD_GET(BIT(id), bp_val) == 0x1))
 			bp_val &= ~BIT(id);
-		}
 		id++;
 	}
 

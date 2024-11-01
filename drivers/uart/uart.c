@@ -212,9 +212,8 @@ int uart_drv_flush(void *ctx)
 	uint32_t max_retries = uart->max_retries;
 
 	while (!(uart->uart_ptr->LSR & (UART_LSR_THRE_MASK | UART_LSR_TEMT_MASK))) {
-		if (max_retries == 0) {
+		if (max_retries == 0)
 			break;
-		}
 
 		max_retries--;
 	}
@@ -235,9 +234,8 @@ int uart_drv_putchar(void *ctx, char c)
 		uint32_t max_retries = uart->max_retries;
 
 		while (!(uart->uart_ptr->LSR & (UART_LSR_THRE_MASK | UART_LSR_TEMT_MASK))) {
-			if (max_retries == 0) {
+			if (max_retries == 0)
 				break;
-			}
 
 			max_retries--;
 		}
@@ -266,9 +264,8 @@ int uart_drv_getchar(void *ctx, int *c)
 	uint32_t lsr_reg = 0;
 
 	do {
-		if (max_retries == 0) {
+		if (max_retries == 0)
 			break;
-		}
 		max_retries--;
 
 		lsr_reg = uart->uart_ptr->LSR;

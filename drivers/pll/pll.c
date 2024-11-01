@@ -12,9 +12,8 @@
 
 int pll_set_manual_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg, uint32_t max_retries)
 {
-	if ((pll_reg == NULL) || (pll_cfg == NULL)) {
+	if ((pll_reg == NULL) || (pll_cfg == NULL))
 		return -ENULL;
-	}
 
 	bool is_timeout = (max_retries) ? true : false;
 	uint32_t reg_value = 0;
@@ -26,14 +25,12 @@ int pll_set_manual_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg, uint32_t max
 	*pll_reg = reg_value;
 
 	for (;;) {
-		if (FIELD_GET(PLL_CFG_LOCK, *pll_reg) == 1) {
+		if (FIELD_GET(PLL_CFG_LOCK, *pll_reg) == 1)
 			break;
-		}
 		if (is_timeout) {
 			max_retries--;
-			if (max_retries == 0) {
+			if (max_retries == 0)
 				return -ETIMEOUT;
-			}
 		}
 		__asm__ volatile("nop");
 	}
@@ -43,9 +40,8 @@ int pll_set_manual_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg, uint32_t max
 
 int pll_get_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg)
 {
-	if ((pll_reg == NULL) || (pll_cfg == NULL)) {
+	if ((pll_reg == NULL) || (pll_cfg == NULL))
 		return -ENULL;
-	}
 
 	uint32_t freq_coef;
 
@@ -57,11 +53,10 @@ int pll_get_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg)
 		             (pll_cfg->od_value + 1));
 	} else {
 		freq_coef = FIELD_GET(PLL_CFG_SEL, *pll_reg);
-		if (freq_coef >= 0x73) {
+		if (freq_coef >= 0x73)
 			freq_coef = 116;
-		} else {
+		else
 			freq_coef += 1;
-		}
 	}
 
 	pll_cfg->out_freq = pll_cfg->inp_freq * freq_coef;
