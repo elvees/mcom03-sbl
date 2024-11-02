@@ -76,7 +76,7 @@ int main(void)
 	if (ret)
 		return ret;
 
-	printf(PREFIX " (" __DATE__ " - " __TIME__ "): " COMMIT "\r\n");
+	printf(PREFIX " (" __DATE__ " - " __TIME__ "): " COMMIT "\n");
 #ifdef BUILD_ID
 	printf(PREFIX ": Build: %s\n", BUILD_ID);
 #endif
