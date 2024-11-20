@@ -45,10 +45,10 @@ ucg_regs_t *ucg_get_registers(ucg_subsys_id subsys_id, uint32_t ucg_id)
 
 int ucg_enable_bp(ucg_regs_t *ucg, uint32_t ch_mask)
 {
-	if (ucg == NULL)
+	if (!ucg)
 		return -ENULL;
 
-	if (ch_mask == 0)
+	if (!ch_mask)
 		return -EINVALIDPARAM;
 
 	if ((31 - __builtin_clz(ch_mask)) > UCG_CTR_REG_CH_ID_MAX)
@@ -57,7 +57,7 @@ int ucg_enable_bp(ucg_regs_t *ucg, uint32_t ch_mask)
 	unsigned int id = 0;
 	unsigned int val = ucg->UCG_BP_CTR_REG;
 
-	for (; ch_mask != 0; ch_mask >>= 1U) {
+	for (; ch_mask; ch_mask >>= 1U) {
 		if ((ch_mask & 0x1) && (FIELD_GET(UCG_CTR_REG_Q_FSM_STATE, ucg->UCG_CTR_REG[id]) ==
 		                        UCG_Q_FSM_STATE_RUN))
 			val |= BIT(id);
@@ -71,7 +71,7 @@ int ucg_enable_bp(ucg_regs_t *ucg, uint32_t ch_mask)
 
 int ucg_set_divider(ucg_regs_t *ucg, uint32_t ch, uint32_t div, uint32_t max_retries)
 {
-	if (ucg == NULL)
+	if (!ucg)
 		return -ENULL;
 
 	if (ch > UCG_CTR_REG_CH_ID_MAX)
@@ -89,7 +89,7 @@ int ucg_set_divider(ucg_regs_t *ucg, uint32_t ch, uint32_t div, uint32_t max_ret
 
 			if (is_timeout) {
 				max_retries--;
-				if (max_retries == 0)
+				if (!max_retries)
 					return -ETIMEOUT;
 			}
 			__asm__ volatile("nop");
@@ -108,7 +108,7 @@ int ucg_set_divider(ucg_regs_t *ucg, uint32_t ch, uint32_t div, uint32_t max_ret
 
 		if (is_timeout) {
 			max_retries--;
-			if (max_retries == 0)
+			if (!max_retries)
 				return -ETIMEOUT;
 		}
 		__asm__ volatile("nop");
@@ -119,10 +119,10 @@ int ucg_set_divider(ucg_regs_t *ucg, uint32_t ch, uint32_t div, uint32_t max_ret
 
 int ucg_sync_and_disable_bp(ucg_regs_t *ucg, uint32_t ch_mask, uint32_t sync_mask)
 {
-	if (ucg == NULL)
+	if (!ucg)
 		return -ENULL;
 
-	if (ch_mask == 0)
+	if (!ch_mask)
 		return -EINVALIDPARAM;
 
 	if ((31 - __builtin_clz(ch_mask)) > UCG_CTR_REG_CH_ID_MAX)
@@ -131,7 +131,7 @@ int ucg_sync_and_disable_bp(ucg_regs_t *ucg, uint32_t ch_mask, uint32_t sync_mas
 	unsigned int id = 0;
 	unsigned int bp_val = ucg->UCG_BP_CTR_REG;
 
-	for (; ch_mask != 0; ch_mask >>= 1U) {
+	for (; ch_mask; ch_mask >>= 1U) {
 		if ((ch_mask & 0x1) && (FIELD_GET(BIT(id), bp_val) == 0x1))
 			bp_val &= ~BIT(id);
 		id++;
@@ -146,26 +146,26 @@ int ucg_sync_and_disable_bp(ucg_regs_t *ucg, uint32_t ch_mask, uint32_t sync_mas
 
 int ucg_get_state(ucg_regs_t *ucg, uint32_t ch, uint32_t *div, bool *enable)
 {
-	if (ucg == NULL)
+	if (!ucg)
 		return -ENULL;
 
 	if (ch > UCG_CTR_REG_CH_ID_MAX)
 		return -EINVALIDPARAM;
 
-	if (div == NULL)
+	if (!div)
 		return -ENULL;
 
-	if (enable == NULL)
+	if (!enable)
 		return -ENULL;
 
 	unsigned int ucg_ctr_reg = ucg->UCG_CTR_REG[ch];
 
 	/* Get State Enable or Disable */
-	if ((FIELD_GET(UCG_CTR_REG_CLK_EN, ucg_ctr_reg) != 0) &&
+	if (FIELD_GET(UCG_CTR_REG_CLK_EN, ucg_ctr_reg) &&
 	    (FIELD_GET(UCG_CTR_REG_Q_FSM_STATE, ucg_ctr_reg) == UCG_Q_FSM_STATE_RUN))
 		*enable = true;
 
-	if ((FIELD_GET(UCG_CTR_REG_CLK_EN, ucg_ctr_reg) == 0) &&
+	if (!FIELD_GET(UCG_CTR_REG_CLK_EN, ucg_ctr_reg) &&
 	    (FIELD_GET(UCG_CTR_REG_Q_FSM_STATE, ucg_ctr_reg) == UCG_Q_FSM_STATE_STOPPED))
 		*enable = false;
 
@@ -177,10 +177,10 @@ int ucg_get_state(ucg_regs_t *ucg, uint32_t ch, uint32_t *div, bool *enable)
 
 int ucg_get_divider(ucg_regs_t *ucg, uint32_t ucg_id, uint32_t *div)
 {
-	if (ucg == NULL)
+	if (!ucg)
 		return -ENULL;
 
-	if (div == NULL)
+	if (!div)
 		return -ENULL;
 
 	if (ucg_id > UCG_CTR_REG_CH_ID_MAX)
@@ -191,7 +191,7 @@ int ucg_get_divider(ucg_regs_t *ucg, uint32_t ucg_id, uint32_t *div)
 
 	/* Get Divider */
 	*div = FIELD_GET(UCG_CTR_REG_DIV_COEFF, ucg_ctr_reg);
-	if (*div == 0)
+	if (!(*div))
 		*div += 1;
 	return 0;
 }

@@ -36,7 +36,7 @@ int uart_drv_config_default(void *ctx)
 {
 	uart_param_t *uart = (uart_param_t *)ctx;
 
-	if (uart == NULL)
+	if (!uart)
 		return -ENULL;
 
 	uart->uartNum = UART0;
@@ -99,7 +99,7 @@ int uart_hw_enable(void)
 
 int uart_drv_get_handler(uint32_t uartNum, uart_reg_t **uart_ptr)
 {
-	if (uart_ptr == NULL)
+	if (!uart_ptr)
 		return -ENULL;
 	if (uartNum > UART_MAX_NUMBER)
 		return -EINVALIDPARAM;
@@ -125,9 +125,9 @@ int uart_drv_config(void *ctx)
 {
 	uart_param_t *uart = (uart_param_t *)ctx;
 
-	if (uart == NULL)
+	if (!uart)
 		return -ENULL;
-	if (uart->uart_ptr == NULL)
+	if (!uart->uart_ptr)
 		return -ENULL;
 
 	// Setup baudrate rate generator.
@@ -180,9 +180,9 @@ int uart_drv_deinit(void *ctx)
 {
 	uart_param_t *uart = (uart_param_t *)ctx;
 
-	if (uart == NULL)
+	if (!uart)
 		return -ENULL;
-	if (uart->uart_ptr == NULL)
+	if (!uart->uart_ptr)
 		return -ENULL;
 
 	uart_drv_flush(ctx);
@@ -204,15 +204,15 @@ int uart_drv_flush(void *ctx)
 {
 	uart_param_t *uart = (uart_param_t *)ctx;
 
-	if (uart == NULL)
+	if (!uart)
 		return -ENULL;
-	if (uart->uart_ptr == NULL)
+	if (!uart->uart_ptr)
 		return -ENULL;
 
 	uint32_t max_retries = uart->max_retries;
 
 	while (!(uart->uart_ptr->LSR & (UART_LSR_THRE_MASK | UART_LSR_TEMT_MASK))) {
-		if (max_retries == 0)
+		if (!max_retries)
 			break;
 
 		max_retries--;
@@ -225,16 +225,16 @@ int uart_drv_putchar(void *ctx, char c)
 {
 	uart_param_t *uart = (uart_param_t *)ctx;
 
-	if (uart == NULL)
+	if (!uart)
 		return -ENULL;
-	if (uart->uart_ptr == NULL)
+	if (!uart->uart_ptr)
 		return -ENULL;
 
 	while (1) {
 		uint32_t max_retries = uart->max_retries;
 
 		while (!(uart->uart_ptr->LSR & (UART_LSR_THRE_MASK | UART_LSR_TEMT_MASK))) {
-			if (max_retries == 0)
+			if (!max_retries)
 				break;
 
 			max_retries--;
@@ -253,18 +253,18 @@ int uart_drv_getchar(void *ctx, int *c)
 {
 	uart_param_t *uart = (uart_param_t *)ctx;
 
-	if (uart == NULL)
+	if (!uart)
 		return -ENULL;
-	if (uart->uart_ptr == NULL)
+	if (!uart->uart_ptr)
 		return -ENULL;
-	if (c == NULL)
+	if (!c)
 		return -ENULL;
 
 	uint32_t max_retries = uart->max_retries;
 	uint32_t lsr_reg = 0;
 
 	do {
-		if (max_retries == 0)
+		if (!max_retries)
 			break;
 		max_retries--;
 

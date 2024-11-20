@@ -12,7 +12,7 @@
 
 int pll_set_manual_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg, uint32_t max_retries)
 {
-	if ((pll_reg == NULL) || (pll_cfg == NULL))
+	if (!pll_reg || !pll_cfg)
 		return -ENULL;
 
 	bool is_timeout = (max_retries) ? true : false;
@@ -29,7 +29,7 @@ int pll_set_manual_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg, uint32_t max
 			break;
 		if (is_timeout) {
 			max_retries--;
-			if (max_retries == 0)
+			if (!max_retries)
 				return -ETIMEOUT;
 		}
 		__asm__ volatile("nop");
@@ -40,7 +40,7 @@ int pll_set_manual_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg, uint32_t max
 
 int pll_get_freq(pll_cfg_reg_t *pll_reg, pll_cfg_t *pll_cfg)
 {
-	if ((pll_reg == NULL) || (pll_cfg == NULL))
+	if (!pll_reg || !pll_cfg)
 		return -ENULL;
 
 	uint32_t freq_coef;

@@ -37,7 +37,7 @@ int wdt_set_config(wdt_dev_t *wdt_dev, uint32_t timeout)
 	int ret;
 	uint32_t apb_freq;
 
-	if (wdt_dev == NULL)
+	if (!wdt_dev)
 		return -ENULL;
 
 	ret = service_get_apb_clock(&apb_freq);
@@ -102,7 +102,7 @@ int wdt_is_enabled(wdt_dev_t *wdt_dev)
  */
 int wdt_init(wdt_dev_t *wdt_dev)
 {
-	if (wdt_dev == NULL)
+	if (!wdt_dev)
 		return -ENULL;
 
 	if (wdt_dev->rmod > 1)
@@ -141,7 +141,7 @@ int wdt_start(wdt_dev_t *wdt_dev)
 {
 	int err = 0;
 
-	if (wdt_dev == NULL)
+	if (!wdt_dev)
 		return -ENULL;
 
 	uint32_t wdt_torr_val = wdt_dev->regs->WDT_TORR;
@@ -209,7 +209,7 @@ int wdt_stop(wdt_dev_t *wdt_dev)
 
 int wdt_reset_irq(wdt_dev_t *wdt_dev)
 {
-	if (wdt_dev == NULL)
+	if (!wdt_dev)
 		return -ENULL;
 
 	register volatile uint32_t eoi_read = wdt_dev->regs->WDT_EOI;
@@ -228,7 +228,7 @@ int wdt_reset_irq(wdt_dev_t *wdt_dev)
  */
 int wdt_reset(wdt_dev_t *wdt_dev)
 {
-	if (wdt_dev == NULL)
+	if (!wdt_dev)
 		return -ENULL;
 
 	wdt_dev->regs->WDT_CRR = WDT_CRR_RESET_VALUE;
@@ -265,7 +265,7 @@ uint32_t wdt_get_timeleft(wdt_dev_t *wdt_dev)
  */
 int wdt_set_timeout(wdt_dev_t *wdt_dev, uint32_t timeout)
 {
-	if (wdt_dev == NULL)
+	if (!wdt_dev)
 		return -ENULL;
 
 	wdt_dev->timeout = timeout;
