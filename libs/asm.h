@@ -460,7 +460,7 @@ a:;
 	addiu $sp, $sp, 16
 	.endm
 
-	/*
+	/**
 	 * This macro sets the stack pointer to stack memory allocated in linker script and
 	 * stack check guard to pseudo random value.
 	 *
@@ -487,7 +487,7 @@ a:;
 	nop
 	.endm
 
-	/*
+	/**
 	 * In some cases it required to save predecessor's stack to restore it before jump back
 	 * to predecessor. This macro saves the stack pointer returned by INIT_STACK to
 	 * current stack.
@@ -498,7 +498,7 @@ a:;
 	nop
 	.endm
 
-	/*
+	/**
 	 * This macro restores the stack pointer returned by INIT_STACK from
 	 * current stack.
 	 */
@@ -507,4 +507,4 @@ a:;
 	move    $sp, $k0
 	nop
 	.endm
-#endif /* __ASSEMBLER__ */
+#endif // __ASSEMBLER__

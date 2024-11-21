@@ -58,8 +58,10 @@ int uart_hw_enable(void)
 	ucg_regs_t *ucg;
 	gpio_regs_t *gpio1;
 
-	// Initialize and configure the LS Peripheral 1 clocking system
-	// Release reset signal of LS Peripheral 1
+	/**
+	 * Initialize and configure the LS Peripheral 1 clocking system.
+	 * Release reset signal of LS Peripheral 1.
+	 */
 	service_enable_lsp1();
 
 	// Initialize the UCG register for clocking GPIO1 and UART0

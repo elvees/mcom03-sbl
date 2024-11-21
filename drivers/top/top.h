@@ -5,7 +5,7 @@
 
 #include <libs/utils-def.h>
 
-// @brief Bit position in NONESECURETOSECURE Register
+// Bit position in NONESECURETOSECURE Register
 #define TOP_HSP_SUBS_SYS_SECURE_POS      BIT(0)
 #define TOP_CPU_SUBS_GIC500_SECURE_POS   BIT(1)
 #define TOP_MEDIA_SUBS_SYS_SECURE_POS    BIT(2)
@@ -16,7 +16,7 @@
 #define TOP_SDR_SUBS_PCIE_LOW_SECURE_POS BIT(7)
 #define TOP_NONSECURETOSECURE_MASK       GENMASK(7, 0)
 
-// @brief Bit position in SDRTOSECURE Register
+// Bit position in SDRTOSECURE Register
 #define TOP_SDR_SUBS_SYS0_SDRTRUSTED_POS        BIT(0)
 #define TOP_SDR_SUBS_PHYPCIE0_SDRTRUSTED_POS    BIT(1)
 #define TOP_SDR_SUBS_SYS1_SDRTRUSTED_POS        BIT(2)
@@ -28,7 +28,7 @@
 #define TOP_SDR_SUBS_MEM_SDRTRUSTED_POS         BIT(8)
 #define TOP_SDRTOSECURE_MASK                    GENMASK(8, 0)
 
-// @brief Bit position in TRUSTEDTOSECURE Register
+// Bit position in TRUSTEDTOSECURE Register
 #define TOP_CPU_SUBS_SYS_TRUSTED_POS             BIT(0)
 #define TOP_CPU_SUBS_DEBUG_TRUSTED_POS           BIT(1)
 #define TOP_MEDIA_SUBS_SYS_TRUSTED_POS           BIT(2)
@@ -44,7 +44,7 @@
 #define TOP_SDR_SUBS_PCIE_MID_TRUSTED_POS        BIT(13)
 #define TOP_TRUSTEDTOSECURE_MASK                 (GENMASK(11, 0) | BIT(13))
 
-// @brief Bit position in DDR_LOW_RANGE_SECURE_CTR Register
+// Bit position in DDR_LOW_RANGE_SECURE_CTR Register
 #define TOP_DDR_LOW_TRUSTED_TO_SECURE_RANGE_0_POS BIT(0)
 #define TOP_DDR_LOW_TRUSTED_TO_SECURE_RANGE_1_POS BIT(1)
 #define TOP_DDR_LOW_SDR_TO_SECURE_RANGE_0_POS     BIT(2)

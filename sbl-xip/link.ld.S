@@ -86,11 +86,13 @@ SECTIONS
 		__stack = ORIGIN(ram) + LENGTH(ram) - 0x20;
 	} > ram
 
-/* DEBUG section is not used in SBL-XIP project.
+/**
+ * DEBUG section is not used in SBL-XIP project.
  * It is added to correspond with unified linker scripts style.
  */
 #ifndef NDEBUG
-	/* DWARF debug sections.
+	/**
+	 * DWARF debug sections.
 	 * Symbols in the DWARF debugging sections are relative to the beginning
 	 * of the section so we begin them at 0.
 	 */

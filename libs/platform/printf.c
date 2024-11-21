@@ -61,7 +61,7 @@ static int unsigned_num_print(unsigned long long int unum, unsigned int radix, c
 	return count;
 }
 
-/*******************************************************************
+/**
  * Reduced format print for Trusted firmware.
  * The following type specifiers are supported by this print
  * %x - hexadecimal format
@@ -80,7 +80,7 @@ static int unsigned_num_print(unsigned long long int unum, unsigned int radix, c
  *
  * The print exits on all other formats specifiers other than valid
  * combinations of the above specifiers.
- *******************************************************************/
+ */
 int vprintf(const char *fmt, va_list args)
 {
 	int l_count;

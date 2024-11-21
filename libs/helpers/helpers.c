@@ -42,7 +42,8 @@ struct ddrinfo {
 
 void set_secure_region(void)
 {
-	/* Mark the first 256 MB of DDR High as Secure.
+	/**
+	 * Mark the first 256 MB of DDR High as Secure.
 	 * This code is provided as example and doesn't affect on security levels at VS_EN = 1
 	 * but can be useful for test purpose in case of boot with VS_EN = 0.
 	 */
@@ -54,7 +55,8 @@ void set_secure_region(void)
 	              (uint32_t)(SECURE_REGIONS_PHYS_ADDR_MASK >> 32ULL) & 0xF);
 	mmio_write_32(DDR_SYS_URB_CTRSECUREREGION, 0x1);
 
-	/* TODO: Currently we are support one secure region started from the beginning of
+	/**
+	 * TODO: Currently we are support one secure region started from the beginning of
 	 * DDR High. The region size must be a power of 2. It is required to modify of
 	 * ddrinfo struct to add several regions dynamically.
 	 */
@@ -171,7 +173,7 @@ int soc_debug_if_disable(void)
 	if (FIELD_GET(HSP_URB_DBG_CTR_MASK, hsp_urb->dbg_ctr))
 		hsp_urb->dbg_ctr = 0;
 
-#endif /* DEBUG_INTERFACE_DISABLE */
+#endif // DEBUG_INTERFACE_DISABLE
 
 	return 0;
 }

@@ -21,8 +21,10 @@ static struct ucg_channel top_ucg_channels[] = {
 	{ 0, TOP_UCG0_CHANNEL_DDR_LSP0, 12 }, // 99 MHz
 	{ 0, TOP_UCG0_CHANNEL_AXI_COH_COMM, 2 }, // 594 MHz
 
-	// To work around MCOM03SW-1192 the following frequency ratio must be met:
-	// SLOW_COMM_FREQ < 1/2 * min(LSP0_SYS_FREQ, LSP1_SYS_FREQ, DDR_SYS_FREQ).
+	/**
+	 * To work around MCOM03SW-1192 the following frequency ratio must be met:
+	 * SLOW_COMM_FREQ < 1/2 * min(LSP0_SYS_FREQ, LSP1_SYS_FREQ, DDR_SYS_FREQ).
+	 */
 	{ 1, TOP_UCG1_CHANNEL_AXI_SLOW_COMM, 30 }, // 39.6 MHz
 	{ 1, TOP_UCG1_CHANNEL_AXI_FAST_COMM, 8 }, // 148.5 MHz
 	{ 1, TOP_UCG1_CHANNEL_DDR_SDR_DSP, 2 }, // 594 MHz
@@ -113,7 +115,8 @@ int top_set_clock(void)
 			return ret;
 	}
 
-	/* Setup PLL to 1188 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
+	/**
+	 * Setup PLL to 1188 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
 	 * minimize PLL output jitter.
 	 */
 	pll_cfg_t pll_cfg;

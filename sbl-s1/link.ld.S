@@ -13,7 +13,8 @@ GROUP(-lc -lgcc)
 
 MEMORY
 {
-	spram (rwx)  : ORIGIN = 0x80000000, LENGTH = 64K - 4096 // use cached address for fast access
+	// use cached address for fast access
+	spram (rwx)  : ORIGIN = 0x80000000, LENGTH = 64K - 4096
 }
 
 SECTIONS
@@ -57,7 +58,8 @@ SECTIONS
 	} > spram
 
 #ifndef NDEBUG
-	/* DWARF debug sections.
+	/**
+	 * DWARF debug sections.
 	 * Symbols in the DWARF debugging sections are relative to the beginning
 	 * of the section so we begin them at 0.
 	 */

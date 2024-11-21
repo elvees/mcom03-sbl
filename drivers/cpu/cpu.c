@@ -38,7 +38,8 @@ int cpu_set_clock(void)
 	if (ret)
 		return ret;
 
-	/* Setup PLL to 1161 MHz, assuming that XTI = 27 MHz. Use NR = 0 to minimize PLL output
+	/**
+	 * Setup PLL to 1161 MHz, assuming that XTI = 27 MHz. Use NR = 0 to minimize PLL output
 	 * jitter.
 	 */
 	pll_cfg_t pll_cfg;

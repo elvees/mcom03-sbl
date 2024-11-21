@@ -5,12 +5,12 @@
 
 #define __bf_shf(x) (__builtin_ffsll(x) - 1)
 
-/* Compute the number of elements in the given array */
+// Compute the number of elements in the given array
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 #define BIT(nr) (U(1) << (nr))
 
-/*
+/**
  * Create a contiguous bitmask starting at bit position @l and ending at
  * position @h. For example
  * GENMASK(19, 9) gives us the 32bit vector 0x000ffe00.
@@ -45,24 +45,27 @@
 #define COMPILE_TIME_ASSERT2(expr, cnt) \
 	typedef char ct_assert_##cnt[(expr) ? 1 : -1] __attribute__((unused))
 
-/** Align to the nearest lower address.
+/**
+ * @brief Aligns to the nearest lower address
  *
- * @param s Address or size to be aligned.
- * @param a Size of alignment, must be a power of 2.
+ * @param s - Address or size to be aligned
+ * @param a - Size of alignment, must be a power of 2
  */
 #define ALIGN_DOWN(s, a) ((s) & ~((a)-1))
 
-/** Align to the nearest higher address.
+/**
+ * @brief Aligns to the nearest higher address
  *
- * @param s Address or size to be aligned.
- * @param a Size of alignment, must be a power of 2.
+ * @param s - Address or size to be aligned
+ * @param a - Size of alignment, must be a power of 2
  */
 #define ALIGN_UP(s, a) (((s) + ((a)-1)) & ~((a)-1))
 
-/** Check alignment.
+/**
+ * @brief Checks alignment
  *
- * @param s Address or size to be checked for alignment.
- * @param a Size of alignment, must be a power of 2.
+ * @param s - Address or size to be checked for alignment
+ * @param a - Size of alignment, must be a power of 2
  */
 #define IS_ALIGNED(s, a) (ALIGN_UP((s), (a)) == (s))
 

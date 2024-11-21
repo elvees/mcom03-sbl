@@ -79,7 +79,7 @@ int ucg_set_divider(ucg_regs_t *ucg, uint32_t ch, uint32_t div, uint32_t max_ret
 
 	unsigned int is_timeout = (max_retries) ? (1) : (0);
 
-	/* Set Divider */
+	// Set Divider
 	if (FIELD_GET(UCG_CTR_REG_DIV_COEFF, ucg->UCG_CTR_REG[ch]) != div) {
 		ucg->UCG_CTR_REG[ch] = FIELD_PREP(UCG_CTR_REG_DIV_COEFF, div);
 
@@ -96,7 +96,7 @@ int ucg_set_divider(ucg_regs_t *ucg, uint32_t ch, uint32_t div, uint32_t max_ret
 		}
 	}
 
-	/* Enable CLK */
+	// Enable CLK
 	unsigned int ucg_ctr_reg = ucg->UCG_CTR_REG[ch];
 	ucg_ctr_reg |= (UCG_CTR_REG_CLK_EN);
 	ucg_ctr_reg &= ~(UCG_CTR_REG_LPI_EN);
@@ -160,7 +160,7 @@ int ucg_get_state(ucg_regs_t *ucg, uint32_t ch, uint32_t *div, bool *enable)
 
 	unsigned int ucg_ctr_reg = ucg->UCG_CTR_REG[ch];
 
-	/* Get State Enable or Disable */
+	// Get State Enable or Disable
 	if (FIELD_GET(UCG_CTR_REG_CLK_EN, ucg_ctr_reg) &&
 	    (FIELD_GET(UCG_CTR_REG_Q_FSM_STATE, ucg_ctr_reg) == UCG_Q_FSM_STATE_RUN))
 		*enable = true;
@@ -169,7 +169,7 @@ int ucg_get_state(ucg_regs_t *ucg, uint32_t ch, uint32_t *div, bool *enable)
 	    (FIELD_GET(UCG_CTR_REG_Q_FSM_STATE, ucg_ctr_reg) == UCG_Q_FSM_STATE_STOPPED))
 		*enable = false;
 
-	/* Get Divider */
+	// Get Divider
 	*div = FIELD_GET(UCG_CTR_REG_DIV_COEFF, ucg_ctr_reg);
 
 	return 0;
@@ -189,7 +189,7 @@ int ucg_get_divider(ucg_regs_t *ucg, uint32_t ucg_id, uint32_t *div)
 	unsigned int ucg_ctr_reg;
 	ucg_ctr_reg = ucg->UCG_CTR_REG[ucg_id];
 
-	/* Get Divider */
+	// Get Divider
 	*div = FIELD_GET(UCG_CTR_REG_DIV_COEFF, ucg_ctr_reg);
 	if (!(*div))
 		*div += 1;

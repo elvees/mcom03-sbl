@@ -107,9 +107,9 @@ void service_enable_sdr(void);
 service_urb_regs_t *service_get_urb_registers(void);
 
 /**
- * @brief The function get frequency of UCG1 service subsystem APB channel
+ * @brief The function gets frequency of UCG1 service subsystem APB channel
  *
- * @param apb_freq   The pointer to APB channel frequency value
+ * @param apb_freq - The pointer to APB channel frequency value
  *
  * @return  0     - Success,
  *         -ENULL - apb_freq param is not provided (NULL pointer)
@@ -117,10 +117,10 @@ service_urb_regs_t *service_get_urb_registers(void);
 int service_get_apb_clock(uint32_t *apb_freq);
 
 /**
- * @brief The function set clock for service subsystem
+ * @brief The function sets clock for service subsystem
  *
- * @param ch_mask     Service subsystem UCG channel mask
- * @param sync_mask   Service subsystem UCG synchronization mask
+ * @param ch_mask   - Service subsystem UCG channel mask
+ * @param sync_mask - Service subsystem UCG synchronization mask
  *
  * @return  0             - Success,
  *         -ETIMEOUT      - Operation for PLL setup is timed out or

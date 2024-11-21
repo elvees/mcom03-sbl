@@ -6,7 +6,7 @@
 #include <libs/log.h>
 #include <libs/platform-def-common.h>
 
-/*
+/**
  * Canary value used by the compiler runtime checks to detect stack corruption.
  *
  * Force the canary to be in .stack to allow predictable memory layout relatively
@@ -15,7 +15,7 @@
 register_t __stack_chk_guard
 	__attribute__((section(".stack"))) = (register_t)(PLAT_RANDOM_CANARY_VALUE);
 
-/*
+/**
  * Function called when the stack's canary check fails, which means the stack
  * was corrupted. It must not return.
  */

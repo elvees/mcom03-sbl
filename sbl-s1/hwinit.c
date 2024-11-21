@@ -114,7 +114,8 @@ int main(void)
 	if (ret)
 		return ret;
 
-	/* Set PLL as clock source for all HSPERIPH UCGs
+	/**
+	 * Set PLL as clock source for all HSPERIPH UCGs
 	 * Some HSperiph UCGs use CLK125 external pad as default source
 	 * (this is considered as chip bug).
 	 * Some boards might not have CLK125 routed so it's not possible

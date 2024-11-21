@@ -6,7 +6,7 @@
 #include <libs/mmio.h>
 #include <libs/utils-def.h>
 
-/* PPolicy */
+// PPolicy
 #define PP_OFF      0x01
 #define PP_WARM_RST 0x08
 #define PP_ON       0x10

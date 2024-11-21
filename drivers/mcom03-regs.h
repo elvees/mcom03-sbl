@@ -5,7 +5,7 @@
 
 #include <libs/utils-def.h>
 
-/* Service Subs */
+// Service Subs
 #define BASE_ADDR_SERVICE_URB       0xbf000000
 #define BASE_ADDR_SERVICE_UCG1      0xbf020000
 #define BASE_ADDR_SERVICE_OTP       0xbf030000
@@ -25,7 +25,7 @@
 #define BASE_ADDR_SERVICE_QSPI0_XIP 0x00000000
 #define BASE_ADDR_SERVICE_MAILBOX0  0xbefd0000
 
-/* Service Subs TOP Clk Gate*/
+// Service Subs TOP Clk Gate
 #define SERVICE_TOP_CLK_GATE_SERVICE          BIT(0)
 #define SERVICE_TOP_CLK_GATE_MEDIA            BIT(1)
 #define SERVICE_TOP_CLK_GATE_CPU              BIT(2)
@@ -37,7 +37,7 @@
 #define SERVICE_TOP_CLK_GATE_TOP_INTERCONNECT BIT(8)
 #define SERVICE_TOP_CLK_GATE_ALL_CH_MASK      GENMASK(8, 0)
 
-/* Service Subs Debug Status*/
+// Service Subs Debug Status
 #define SERVICE_DBG_RISC0_DISABLE 0
 #define SERVICE_DBG_RISC0_ENABLE  1
 
@@ -69,7 +69,7 @@
 #define SERVICE_DBG_UST_VIRT_CONS_ENABLE  0x80
 #define SERVICE_DBG_UST_ALL_ENABLE        GENMASK(7, 0)
 
-/* SDR */
+// SDR
 #define BASE_ADDR_SDR_UCG0          0xa1900000
 #define BASE_ADDR_SDR_UCG_PCIE0_REF 0xa1908000
 #define BASE_ADDR_SDR_URB           0xa1910000
@@ -81,7 +81,7 @@
 #define BASE_ADDR_SDR_SPINLOCK      0xa1c20000
 #define BASE_ADDR_SDR_MAILBOX1      0xa1e00000
 
-/* HS Periph */
+// HS Periph
 #define BASE_ADDR_HSP_USB0      0xb0000000
 #define BASE_ADDR_HSP_USB1      0xb0100000
 #define BASE_ADDR_HSP_EMAC0     0xb0200000
@@ -98,13 +98,13 @@
 #define BASE_ADDR_HSP_UCG3      0xb0440000
 #define BASE_ADDR_HSP_QSPI1_XIP 0x10000000
 
-/* CPU Subs */
+// CPU Subs
 #define BASE_ADDR_CPU_URB            0xa1000000
 #define BASE_ADDR_CPU_UCG            0xa1080000
 #define BASE_ADDR_CPU_GIC500         0xa1100000
 #define BASE_ADDR_CPU_GIC500_REDISTR 0xa1180000
 
-/* TOP */
+// TOP
 #define BASE_ADDR_TOP_URB_BASE        0xa1800000
 #define BASE_ADDR_TOP_UCG0_BASE       0xa1801000
 #define TOP_UCG0_ALL_CH_MASK          GENMASK(7, 0)
@@ -129,7 +129,7 @@
 #define TOP_UCG1_CHANNEL_DDR_SERVICE   7
 #define TOP_UCG1_CHANNEL_DDR_HSP       8
 
-/* LSPeriph0 */
+// LSPeriph0
 #define BASE_ADDR_LSP0_PDMA0_BASE 0xa1600000
 #define BASE_ADDR_LSP0_GPIO0_BASE 0xa1610000
 #define BASE_ADDR_LSP0_SPI0_BASE  0xa1620000
@@ -140,7 +140,7 @@
 #define BASE_ADDR_LSP0_URB_BASE   0xa1680000
 #define BASE_ADDR_LSP0_UCG2_BASE  0xa1690000
 
-/* LSPeriph1 */
+// LSPeriph1
 #define BASE_ADDR_LSP1_PDMA1_BASE   0xa1700000
 #define BASE_ADDR_LSP1_I2C0_BASE    0xa1710000
 #define BASE_ADDR_LSP1_I2C1_BASE    0xa1720000
@@ -156,7 +156,7 @@
 #define BASE_ADDR_LSP1_I2S_UCG_BASE 0xa17d0000
 #define BASE_ADDR_LSP1_URB_BASE     0xa17e0000
 
-/* DDR subs */
+// DDR subs
 #define BASE_ADDR_DDR0_PHY_REG 0xa4000000
 #define BASE_ADDR_DDR0_UMCTL2  0xa6000000
 
@@ -173,7 +173,7 @@
 #define DDR_SYS_URB_MASKSECUREREGIONLOW(num)  (BASE_ADDR_DDR_SYS_URB + (0x98 + (num * 0x10)))
 #define DDR_SYS_URB_MASKSECUREREGIONHIGH(num) (BASE_ADDR_DDR_SYS_URB + (0x9C + (num * 0x10)))
 
-/* Media system */
+// Media system
 #define BASE_ADDR_MEDIA_SYS   0xa1200000
 #define MEDIA_SYS_GPU_PPOLICY 0x121008
 #define MEDIA_SYS_GPU_PSTATUS 0x12100c
@@ -184,14 +184,14 @@
 #define MC_CSR_FLUSH_I   0x00001000
 #define MC_CSR_FLUSH_D   0x00004000
 
-/* CPU Subs UCG Channels */
+// CPU Subs UCG Channels
 #define CPU_UCG_ALL_CH_MASK      GENMASK(2, 0)
 #define CPU_UCG_SYNC_MASK        CPU_UCG_ALL_CH_MASK
 #define CPU_UCG_CHANNEL_CLK_CORE 1
 #define CPU_UCG_CHANNEL_CLK_DBUS 2
 #define CPU_UCG_CHANNEL_CLK_SYS  0
 
-/* SERVICE UCG1 Channels */
+// SERVICE UCG1 Channels
 #define SERVICE_UCG1_ALL_CH_MASK           GENMASK(15, 0)
 #define SERVICE_UCG1_SYNC_MASK             GENMASK(11, 0)
 #define SERVICE_UCG1_CHANNEL_CLK_APB       0
@@ -211,7 +211,7 @@
 #define SERVICE_UCG1_CHANNEL_CLKOUT_EXT    14
 #define SERVICE_UCG1_CHANNEL_RISC0_TCK_UCG 15
 
-/* SDR UCG0 Channels */
+// SDR UCG0 Channels
 #define SDR_UCG0_CFG_CLK     0
 #define SDR_UCG0_EXT_CLK     1
 #define SDR_UCG0_INT_CLK     2
@@ -226,7 +226,7 @@
 #define SDR_UCG0_VCU_TCLK    11
 #define SDR_UCG0_LVDS_CLK    12
 
-/* HS Periph UCG0-UCG3 Channels */
+// HS Periph UCG0-UCG3 Channels
 #define HSP_UCG0_CHANNEL_CLK_SYS    0
 #define HSP_UCG0_CHANNEL_CLK_DMA    1
 #define HSP_UCG0_CHANNEL_CLK_CTR    2
@@ -257,7 +257,7 @@
 #define HSP_UCG3_CHANNEL_CLK_USB1_REF_ALT 2
 #define HSP_UCG3_CHANNEL_CLK_USB1_SUSPEND 3
 
-/* LSPeriph0 UCG2 Channels */
+// LSPeriph0 UCG2 Channels
 #define LSP0_UCG2_CLK_SYS   0
 #define LSP0_UCG2_CLK_UART3 1
 #define LSP0_UCG2_CLK_UART1 2
@@ -266,7 +266,7 @@
 #define LSP0_UCG2_CLK_I2C0  5
 #define LSP0_UCG2_CLK_GPIO0 6
 
-/* LSPeriph1 UCG Channels */
+// LSPeriph1 UCG Channels
 #define LSP1_UCG_CLK_SYS    0
 #define LSP1_UCG_CLK_I2C0   1
 #define LSP1_UCG_CLK_I2C1   2
@@ -278,10 +278,10 @@
 #define LSP1_UCG_CLK_PWM    8
 #define LSP1_UCG_CLK_WDT1   9
 
-/* LSPeriph1 I2S UCG Channels */
+// LSPeriph1 I2S UCG Channels
 #define LSP1_I2S_UCG_CLK_I2S0 0
 
-/* LSPeriph1 subs */
+// LSPeriph1 subs
 #define LSP1_SUBS_UCG_ALL_CH_MASK GENMASK(9, 0)
 #define LSP1_SUBS_UCG_SYNC_MASK   LSP1_SUBS_UCG_ALL_CH_MASK
 

@@ -120,7 +120,8 @@ int main(void)
 	uint32_t size = (unsigned long)end - (unsigned long)start;
 	memcpy((void *)DDRINIT_START_ADDR_VIRT, (void *)start, size);
 
-	/* Note that ddrinit does memory mapping:
+	/**
+	 * Note that ddrinit does memory mapping:
 	 * +----------------------------+-------------------------+
 	 * | 64Bit phys addrs           |   32bit virt addrs      |
 	 * +----------------------------+-------------------------+
@@ -132,7 +133,8 @@ int main(void)
 	void (*start_ddrinit)(void) = (void *)DDRINIT_START_ADDR_VIRT;
 	start_ddrinit();
 
-	/* Mark the first 256 MB of DDR High as Secure.
+	/**
+	 * Mark the first 256 MB of DDR High as Secure.
 	 * This code is provided as example and doesn't affect on security levels at VS_EN = 1
 	 * but can be useful for test purpose in case of boot with VS_EN = 0.
 	 */
@@ -164,7 +166,7 @@ int main(void)
 	size = (unsigned long)end - (unsigned long)start;
 	memcpy((void *)UBOOT_START_ADDR_VIRT, (void *)start, size);
 
-	/*
+	/**
 	 * Set PLL as clock source for all HSPERIPH UCGs
 	 * Some HSperiph UCGs use CLK125 external pad as default source
 	 * (this is considered as chip bug).
@@ -189,7 +191,7 @@ int main(void)
 	if (ret)
 		return ret;
 
-	/* As SBL-XIP no need anymore disable RISC0 CPU here */
+	// As SBL-XIP no need anymore disable RISC0 CPU here
 	service_disable_risc0_cpu();
 
 	ERROR("Should not be here!!!!!\n");

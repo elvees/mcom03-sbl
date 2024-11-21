@@ -20,11 +20,11 @@ int gpio_init(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned i
 	if (!gpio)
 		return -ENULL;
 
-	/* Set pin direction */
+	// Set pin direction
 	if (mode == GPIO_MODE_SW)
 		GPIO_SET_BIT(gpio->swport[port].ddr, pin, direction);
 
-	/* Set pin mode */
+	// Set pin mode
 	GPIO_SET_BIT(gpio->swport[port].ctl, pin, mode);
 
 	return 0;

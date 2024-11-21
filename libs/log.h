@@ -10,7 +10,7 @@
 #define LOG_LEVEL LOG_LEVEL_NONE
 #endif
 
-/*
+/**
  * The log output macros print output to the console. These macros produce
  * compiled log output only if the LOG_LEVEL defined in the makefile (or the
  * make command line) is greater or equal than the level required for that
@@ -28,7 +28,7 @@
 #define LOG_LEVEL_INFO    40
 #define LOG_LEVEL_VERBOSE 50
 
-/*
+/**
  * Define Log Markers corresponding to each log level which will
  * be embedded in the format string and is expected by printf() to determine
  * the log level.
@@ -39,7 +39,7 @@
 #define LOG_MARKER_INFO    "INFO: "
 #define LOG_MARKER_VERBOSE "VERB: "
 
-/*
+/**
  * If the log output is too low then this macro is used in place of printf()
  * below. The intent is to get the compiler to evaluate the function call for
  * type checking and format specifier correctness but let it optimize it out.

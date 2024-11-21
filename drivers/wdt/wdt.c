@@ -13,25 +13,11 @@
 
 static wdt_dev_t wdt_dev;
 
-/**
- * @brief The function gets pointer of the wdt device structure instance
- *
- * @return pointer of the wdt device structure instance
- */
 wdt_dev_t *wdt_get_instance(void)
 {
 	return &wdt_dev;
 }
 
-/**
- * @brief The function configures wdt
- *
- * @param wdt_dev pointer to wdt device structure
- * @param timeout timeout value in milliseconds
- *
- * @return  0     - Success,
- *         -ENULL - wdt_dev is not provided (NULL pointer)
- */
 int wdt_set_config(wdt_dev_t *wdt_dev, uint32_t timeout)
 {
 	int ret;
@@ -55,10 +41,10 @@ int wdt_set_config(wdt_dev_t *wdt_dev, uint32_t timeout)
 /**
  * @brief The function calculates a coefficient to set the required timeout period
  *
- * @param wdt_dev WDT handler contains desirable user's timeout. After calculation
- *                timeout variable sets to real value of WDT timeout in milliseconds
+ * @param wdt_dev - WDT handler contains desirable user's timeout. After calculation
+ *                  timeout variable sets to real value of WDT timeout in milliseconds.
  *
- * @return coefficient that must be written to the TOP and TOP_INT fields of the WDT_TOPR register
+ * @return Coefficient that must be written to the TOP and TOP_INT fields of the WDT_TOPR register
  */
 static uint32_t __wdt_get_timeout_coef(wdt_dev_t *wdt_dev)
 {
@@ -77,29 +63,11 @@ static uint32_t __wdt_get_timeout_coef(wdt_dev_t *wdt_dev)
 	return i;
 }
 
-/**
- * @brief Check if wdt is enabled or not
- *
- * @param wdt_dev pointer to wdt device structure
- *
- * @return 1 - if enabled, 0 - otherwise
- */
 int wdt_is_enabled(wdt_dev_t *wdt_dev)
 {
 	return !!(wdt_dev->regs->WDT_CR & WDT_CR_WDT_EN_MASK);
 }
 
-/**
- * @brief Initializing wdt timer before starting
- *
- * @param wdt_dev pointer to wdt device structure
- *
- * @return  0                   - Success,
- *         -ENULL               - wdt_dev is not provided (NULL pointer)
- *         -EINVALIDPARAM       - rmod field in wdt_dev is bigger than 1 or
- *                                rpl field in wdt_dev is bigger than 7
- *         -EALREADYINITIALIZED - WDT is already enabled
- */
 int wdt_init(wdt_dev_t *wdt_dev)
 {
 	if (!wdt_dev)
@@ -112,7 +80,7 @@ int wdt_init(wdt_dev_t *wdt_dev)
 
 	wdt_dev->regs = (wdt_regs_t *)BASE_ADDR_SERVICE_WDT0;
 
-	/* Set maximum timeout if WDT is already run */
+	// Set maximum timeout if WDT is already run
 	if (wdt_is_enabled(wdt_dev)) {
 		uint32_t wdt_torr_val = wdt_dev->regs->WDT_TORR;
 		wdt_torr_val &= ~WDT_TORR_TOP_MASK;
@@ -129,14 +97,6 @@ int wdt_init(wdt_dev_t *wdt_dev)
 	return 0;
 }
 
-/**
- * @brief Launches WDT. After executing this command, the timer cannot be stopped.
- *
- * @param wdt_dev pointer to wdt device structure
- *
- * @return  0     - Success,
- *         -ENULL - wdt_dev is not provided (NULL pointer)
- */
 int wdt_start(wdt_dev_t *wdt_dev)
 {
 	int err = 0;
@@ -146,7 +106,7 @@ int wdt_start(wdt_dev_t *wdt_dev)
 
 	uint32_t wdt_torr_val = wdt_dev->regs->WDT_TORR;
 
-	/* Fill the WDT_CR register */
+	// Fill the WDT_CR register
 	uint32_t timeout_top, timeout_top_int;
 
 	if (wdt_dev->timeout > WDT_MAX_TIMEOUT)
@@ -174,10 +134,10 @@ int wdt_start(wdt_dev_t *wdt_dev)
 
 	wdt_dev->regs->WDT_TORR = wdt_torr_val;
 
-	/* Update WDT reset timer */
+	// Update WDT reset timer
 	wdt_reset(wdt_dev);
 
-	/* Fill the WDT_CR register var*/
+	// Fill the WDT_CR register var
 	uint32_t wdt_cr_val = wdt_dev->regs->WDT_CR;
 
 	if (wdt_dev->rmod == WDT_IRQ_MODE) {
@@ -218,14 +178,6 @@ int wdt_reset_irq(wdt_dev_t *wdt_dev)
 	return 0;
 }
 
-/**
- * @brief Reset counter to initial value and clear interrupt
- *
- * @param wdt_dev pointer to wdt device structure
- *
- * @return  0     - Success,
- *         -ENULL - wdt_dev is not provided (NULL pointer)
- */
 int wdt_reset(wdt_dev_t *wdt_dev)
 {
 	if (!wdt_dev)
@@ -254,15 +206,6 @@ uint32_t wdt_get_timeleft(wdt_dev_t *wdt_dev)
 	return millis;
 }
 
-/**
- * @brief Set current timeout value
- *
- * @param wdt_dev pointer to wdt device structure
- * @param timeout new timeout value in milliseconds
- *
- * @return  0     - Success,
- *         -ENULL - wdt_dev is not provided (NULL pointer)
- */
 int wdt_set_timeout(wdt_dev_t *wdt_dev, uint32_t timeout)
 {
 	if (!wdt_dev)
@@ -272,37 +215,16 @@ int wdt_set_timeout(wdt_dev_t *wdt_dev, uint32_t timeout)
 	return wdt_start(wdt_dev);
 }
 
-/**
- * @brief Get current timeout value
- *
- * @param wdt_dev pointer to wdt device structure
- *
- * @return current timeout value in milliseconds
- */
 uint32_t wdt_get_timeout(wdt_dev_t *wdt_dev)
 {
 	return wdt_dev->timeout;
 }
 
-/**
- * @brief Get min timeout value depends on freq
- *
- * @param wdt_dev pointer to wdt device structure
- *
- * @return min timeout value in milliseconds
- */
 uint32_t wdt_get_min_timeout(wdt_dev_t *wdt_dev)
 {
 	return BIT(WDT_NUM_TOPS) / (wdt_dev->wdt_freq / 1000UL);
 }
 
-/**
- * @brief Get max timeout value depends on freq
- *
- * @param wdt_dev pointer to wdt device structure
- *
- * @return max timeout value in milliseconds
- */
 uint32_t wdt_get_max_timeout(wdt_dev_t *wdt_dev)
 {
 	return BIT(WDT_NUM_TOPS + WDT_MAX_TIMEOUT_COEF) / (wdt_dev->wdt_freq / 1000UL);

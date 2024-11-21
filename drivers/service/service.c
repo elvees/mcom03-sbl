@@ -130,7 +130,8 @@ int service_set_clock(uint32_t ch_mask, uint32_t sync_mask)
 	if (ret)
 		return ret;
 
-	/* Setup PLL to 594 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
+	/**
+	 * Setup PLL to 594 MHz, assuming that XTI = 27 MHz. Use NR = 0 to
 	 * minimize PLL output jitter.
 	 */
 	pll_cfg_t pll_cfg;
