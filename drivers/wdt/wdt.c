@@ -65,7 +65,7 @@ static uint32_t __wdt_get_timeout_coef(wdt_dev_t *wdt_dev)
 
 int wdt_is_enabled(wdt_dev_t *wdt_dev)
 {
-	return !!(wdt_dev->regs->WDT_CR & WDT_CR_WDT_EN_MASK);
+	return !!(wdt_dev->regs->wdt_cr & WDT_CR_WDT_EN_MASK);
 }
 
 int wdt_init(wdt_dev_t *wdt_dev)
@@ -82,10 +82,10 @@ int wdt_init(wdt_dev_t *wdt_dev)
 
 	// Set maximum timeout if WDT is already run
 	if (wdt_is_enabled(wdt_dev)) {
-		uint32_t wdt_torr_val = wdt_dev->regs->WDT_TORR;
+		uint32_t wdt_torr_val = wdt_dev->regs->wdt_torr;
 		wdt_torr_val &= ~WDT_TORR_TOP_MASK;
 		wdt_torr_val |= WDT_MAX_TIMEOUT_COEF;
-		wdt_dev->regs->WDT_TORR = wdt_torr_val;
+		wdt_dev->regs->wdt_torr = wdt_torr_val;
 
 		wdt_reset(wdt_dev);
 
@@ -104,9 +104,9 @@ int wdt_start(wdt_dev_t *wdt_dev)
 	if (!wdt_dev)
 		return -ENULL;
 
-	uint32_t wdt_torr_val = wdt_dev->regs->WDT_TORR;
+	uint32_t wdt_torr_val = wdt_dev->regs->wdt_torr;
 
-	// Fill the WDT_CR register
+	// Fill the wdt_cr register
 	uint32_t timeout_top, timeout_top_int;
 
 	if (wdt_dev->timeout > WDT_MAX_TIMEOUT)
@@ -132,13 +132,13 @@ int wdt_start(wdt_dev_t *wdt_dev)
 	wdt_torr_val = FIELD_PREP(WDT_TORR_TOP_INT_MASK, timeout_top_int) |
 	               FIELD_PREP(WDT_TORR_TOP_MASK, timeout_top);
 
-	wdt_dev->regs->WDT_TORR = wdt_torr_val;
+	wdt_dev->regs->wdt_torr = wdt_torr_val;
 
 	// Update WDT reset timer
 	wdt_reset(wdt_dev);
 
-	// Fill the WDT_CR register var
-	uint32_t wdt_cr_val = wdt_dev->regs->WDT_CR;
+	// Fill the wdt_cr register var
+	uint32_t wdt_cr_val = wdt_dev->regs->wdt_cr;
 
 	if (wdt_dev->rmod == WDT_IRQ_MODE) {
 		wdt_cr_val |= FIELD_PREP(WDT_CR_RMOD_MASK, WDT_IRQ_MODE);
@@ -156,7 +156,7 @@ int wdt_start(wdt_dev_t *wdt_dev)
 		wdt_cr_val |= FIELD_PREP(WDT_CR_WDT_EN_MASK, WDT_ON);
 	}
 
-	wdt_dev->regs->WDT_CR = wdt_cr_val;
+	wdt_dev->regs->wdt_cr = wdt_cr_val;
 
 	return err;
 }
@@ -172,7 +172,7 @@ int wdt_reset_irq(wdt_dev_t *wdt_dev)
 	if (!wdt_dev)
 		return -ENULL;
 
-	register volatile uint32_t eoi_read = wdt_dev->regs->WDT_EOI;
+	register volatile uint32_t eoi_read = wdt_dev->regs->wdt_eoi;
 	(void)eoi_read;
 
 	return 0;
@@ -183,7 +183,7 @@ int wdt_reset(wdt_dev_t *wdt_dev)
 	if (!wdt_dev)
 		return -ENULL;
 
-	wdt_dev->regs->WDT_CRR = WDT_CRR_RESET_VALUE;
+	wdt_dev->regs->wdt_crr = WDT_CRR_RESET_VALUE;
 	wdt_reset_irq(wdt_dev);
 
 	return 0;
@@ -194,11 +194,11 @@ uint32_t wdt_get_timeleft(wdt_dev_t *wdt_dev)
 	uint32_t millis;
 	uint32_t val;
 
-	val = wdt_dev->regs->WDT_CCVR;
+	val = wdt_dev->regs->wdt_ccvr;
 	millis = val / ((wdt_dev->wdt_freq) / 1000UL);
 
 	if (wdt_dev->rmod == WDT_IRQ_MODE) {
-		val = wdt_dev->regs->WDT_STAT;
+		val = wdt_dev->regs->wdt_stat;
 		if (!val)
 			millis += wdt_dev->pretimeout;
 	}

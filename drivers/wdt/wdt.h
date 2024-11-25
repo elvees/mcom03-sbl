@@ -40,12 +40,12 @@
 #define WDT_CRR_RESET_VALUE 0x76
 
 typedef struct {
-	volatile uint32_t WDT_CR;
-	volatile uint32_t WDT_TORR;
-	volatile uint32_t WDT_CCVR;
-	volatile uint32_t WDT_CRR;
-	volatile uint32_t WDT_STAT;
-	volatile uint32_t WDT_EOI;
+	volatile uint32_t wdt_cr;
+	volatile uint32_t wdt_torr;
+	volatile uint32_t wdt_ccvr;
+	volatile uint32_t wdt_crr;
+	volatile uint32_t wdt_stat;
+	volatile uint32_t wdt_eoi;
 } wdt_regs_t;
 
 typedef struct {

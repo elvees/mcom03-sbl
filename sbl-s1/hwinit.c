@@ -38,7 +38,7 @@ int main(void)
 	serv_urb->top_clkgate = top_clkgate;
 
 #ifdef UART_ENABLE
-	uart_param_t uart = { .uartNum = UART0 };
+	uart_param_t uart = { .uart_num = UART0 };
 
 	console_ops_t uart_console_ops = { .init = uart_drv_config_default,
 		                           .putchar = uart_drv_putchar,

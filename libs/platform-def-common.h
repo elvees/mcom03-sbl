@@ -16,7 +16,7 @@
 #define PLAT_IOMMU_VIRT_SLOT_COUNT 256 // count of 2MiB blocks in the section
 
 // Frequencies
-#define MCOM03_XTI_CLK_HZ (27 * _MHz_)
+#define MCOM03_XTI_CLK_HZ (27 * MEGA_HZ)
 #define HSP_CLK_HZ        MCOM03_XTI_CLK_HZ
 #define QSPI1_CLK_HZ      MCOM03_XTI_CLK_HZ
 #define QSPI1_EXT_CLK_HZ  (MCOM03_XTI_CLK_HZ / 2)

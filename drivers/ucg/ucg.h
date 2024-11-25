@@ -36,9 +36,9 @@ typedef enum {
 } ucg_subsys_id;
 
 typedef struct {
-	volatile uint32_t UCG_CTR_REG[16];
-	volatile uint32_t UCG_BP_CTR_REG;
-	volatile uint32_t UCG_SYNC_CLK_REG;
+	volatile uint32_t ucg_ctr_reg[16];
+	volatile uint32_t ucg_bp_ctr_reg;
+	volatile uint32_t ucg_sync_clk_reg;
 } ucg_regs_t;
 
 #define UCG_CTR_REG_LPI_EN      BIT(0)

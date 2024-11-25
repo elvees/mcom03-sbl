@@ -49,44 +49,44 @@
 #define UART_SCR_RESETVALUE 0
 
 typedef struct {
-	volatile uint32_t RBR_THR_DLL;
-	volatile uint32_t DLH_IER;
+	volatile uint32_t rbr_thr_dll;
+	volatile uint32_t dlh_ier;
 	union {
-		volatile uint32_t IIR;
-		volatile uint32_t FCR;
+		volatile uint32_t iir;
+		volatile uint32_t fcr;
 	};
-	volatile uint32_t LCR;
-	volatile uint32_t MCR;
-	volatile uint32_t LSR;
-	volatile uint32_t MSR;
-	volatile uint32_t SCR;
+	volatile uint32_t lcr;
+	volatile uint32_t mcr;
+	volatile uint32_t lsr;
+	volatile uint32_t msr;
+	volatile uint32_t scr;
 	volatile uint32_t reserved0[4];
-	volatile uint32_t SRBR[16];
-	volatile uint32_t FAR;
-	volatile uint32_t TFR;
-	volatile uint32_t RFW;
-	volatile uint32_t USR;
-	volatile uint32_t TFL;
-	volatile uint32_t RFL;
-	volatile uint32_t SRR;
-	volatile uint32_t SRTS;
-	volatile uint32_t SBCR;
-	volatile uint32_t SDMAM;
-	volatile uint32_t SFE;
-	volatile uint32_t SRT;
-	volatile uint32_t STET;
-	volatile uint32_t HTX;
-	volatile uint32_t DMASA;
-	volatile uint32_t TCR;
-	volatile uint32_t DE_EN;
-	volatile uint32_t RE_EN;
-	volatile uint32_t DET;
-	volatile uint32_t TAT;
-	volatile uint32_t DLF;
+	volatile uint32_t srbr[16];
+	volatile uint32_t far;
+	volatile uint32_t tfr;
+	volatile uint32_t rfw;
+	volatile uint32_t usr;
+	volatile uint32_t tfl;
+	volatile uint32_t rfl;
+	volatile uint32_t srr;
+	volatile uint32_t srts;
+	volatile uint32_t sbcr;
+	volatile uint32_t sdmam;
+	volatile uint32_t sfe;
+	volatile uint32_t srt;
+	volatile uint32_t stet;
+	volatile uint32_t htx;
+	volatile uint32_t dmasa;
+	volatile uint32_t tcr;
+	volatile uint32_t de_en;
+	volatile uint32_t re_en;
+	volatile uint32_t det;
+	volatile uint32_t tat;
+	volatile uint32_t dlf;
 	volatile uint32_t reservrd1[12];
-	volatile uint32_t CPR;
-	volatile uint32_t UCV;
-	volatile uint32_t CTR;
+	volatile uint32_t cpr;
+	volatile uint32_t ucv;
+	volatile uint32_t ctr;
 } uart_reg_t;
 
 typedef enum {
@@ -109,10 +109,10 @@ typedef enum {
 
 typedef struct {
 	uart_reg_t *uart_ptr; // The pointer for UART controller registers
-	uint32_t uartNum; // The number of UART in system
+	uint32_t uart_num; // The number of UART in system
 	uint32_t baudrate; // The transmission speed
 	uart_data_len_t bits; // The data length
-	uart_stop_bit stopBit; // The number stop bits
+	uart_stop_bit stop_bit; // The number stop bits
 	uart_parity_t parity; // The parity control
 	uint32_t mode; // The mode of work functions uart deriver
 	int linesplit; // The mode splite lines text flow
@@ -142,14 +142,14 @@ int uart_hw_enable(void);
 /**
  * @brief The function returns pointer into uart controller
  *
- * @param uartNum  - Number of uart controller
+ * @param uart_num - Number of uart controller
  * @param uart_ptr - The pointer to registers UART controller
  *
  * @return  0             - Success,
  *         -ENULL         - uart_ptr param is not provided (NULL pointer),
- *         -EINVALIDPARAM - uartNum is bigger than the maximum UART number
+ *         -EINVALIDPARAM - uart_num is bigger than the maximum UART number
  */
-int uart_drv_get_handler(uint32_t uartNum, uart_reg_t **uart_ptr);
+int uart_drv_get_handler(uint32_t uart_num, uart_reg_t **uart_ptr);
 
 /**
  * @brief The function sets UART controller configuration

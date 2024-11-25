@@ -83,6 +83,6 @@
 #define LL(_x)  (_x##LL)
 #endif
 
-#define _Hz_  UL(1)
-#define _kHz_ (UL(1000) * _Hz_)
-#define _MHz_ (UL(1000) * _kHz_)
+#define HZ      UL(1)
+#define KILO_HZ (UL(1000) * HZ)
+#define MEGA_HZ (UL(1000) * KILO_HZ)
