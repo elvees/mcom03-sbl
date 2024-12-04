@@ -51,7 +51,7 @@
  * @param s - Address or size to be aligned
  * @param a - Size of alignment, must be a power of 2
  */
-#define ALIGN_DOWN(s, a) ((s) & ~((a)-1))
+#define ALIGN_DOWN(s, a) ((s) & ~((a) - 1))
 
 /**
  * @brief Aligns to the nearest higher address
@@ -59,7 +59,7 @@
  * @param s - Address or size to be aligned
  * @param a - Size of alignment, must be a power of 2
  */
-#define ALIGN_UP(s, a) (((s) + ((a)-1)) & ~((a)-1))
+#define ALIGN_UP(s, a) (((s) + ((a) - 1)) & ~((a) - 1))
 
 /**
  * @brief Checks alignment
