@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-#include <stdint.h>
-#include "platform_helpers.h"
-#include "mc.h"
-#include "mc_asm.h"
-#include "mcom03.h"
-#include "log.h"
+#include <stdio.h>
 
-#define EXC_MASK	0x7C
+#include <drivers/mcom03-regs.h>
+#include <libs/asm.h>
+#include <libs/helpers/helpers.h>
+#include <libs/mc.h>
+
+#define EXC_MASK        0x7C
 #define EXC_MASK_OFFSET 0x2
 
 struct eframe {
@@ -98,14 +98,14 @@ void __dead2 exception_handler(struct eframe *regs)
 	}
 	printf("\r\n**************************************************\r\n");
 	printf("EXCEPTION \"%s\".\r\n", exc_name);
-	if ((exc_code == EXC_ADEL) || (exc_code == EXC_ADES)) {
+	if ((exc_code == EXC_ADEL) || (exc_code == EXC_ADES))
 		printf("BADVADDR : 0x%08x\r\n", mips_read_c0_register(C0_BADVADDR));
-	} else {
+	else
 		printf("BADVADDR : \"Unknown\"\r\n");
-	}
 	printf("EPC : 0x%08x\r\n", mips_read_c0_register(C0_EPC));
 	printf("Registers:\r\n");
 	dump_stack(regs);
 	printf("**************************************************\r\n");
-	infinity_loop();
+	while (1)
+		; // Unreachable
 }

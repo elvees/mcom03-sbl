@@ -63,15 +63,19 @@ if(UART_ENABLE)
     add_compile_definitions(UART_ENABLE)
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/third-party)
 
+add_subdirectory(third-party)
 add_subdirectory(drivers)
 add_subdirectory(libs)
 
 add_library(common STATIC
+            $<TARGET_OBJECTS:third-party>
             $<TARGET_OBJECTS:drivers>
             $<TARGET_OBJECTS:libs>)
 
 add_subdirectory(sbl-s1)
+add_subdirectory(sbl-s3)
 add_subdirectory(sbl-xip)
 add_subdirectory(scripts)

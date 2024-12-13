@@ -13,27 +13,6 @@
 
 #include "iommu.h"
 
-#define IOMMU_TABLE_COUNT       3
-#define IOMMU_TABLE_ENTRY_COUNT 512
-#define IOMMU_TABLE_ENTRY_SIZE  (sizeof(uint64_t))
-
-#define IOMMU_TABLE_SIZE (IOMMU_TABLE_ENTRY_COUNT * IOMMU_TABLE_ENTRY_SIZE)
-#define IOMMU_TOTAL_SIZE (IOMMU_TABLE_SIZE * IOMMU_TABLE_COUNT)
-
-#define IOMMU_1_GIB BIT64(30)
-#define IOMMU_2_MIB BIT64(21)
-
-#define IOMMU_2_MIB_MASK GENMASK64(20, 0)
-
-#define IOMMU_GIB(x) (IOMMU_1_GIB * (x))
-
-#define IOMMU_1_GIB_SLOT_IND (PLAT_IOMMU_VIRT_BASE_START / IOMMU_1_GIB)
-#define IOMMU_2_MIB_SLOT_MIN \
-	((PLAT_IOMMU_VIRT_BASE_START - IOMMU_1_GIB_SLOT_IND * IOMMU_1_GIB) / IOMMU_2_MIB)
-#define IOMMU_2_MIB_SLOT_MAX (IOMMU_2_MIB_SLOT_MIN + PLAT_IOMMU_VIRT_SLOT_COUNT)
-
-#define SHR_12(x) ((x) >> 12)
-
 #define IOMMU_ENABLE_XLAT UL(0xA)
 
 #define IOMMU_TLB_WR_RISC 0
@@ -90,14 +69,36 @@
 #define IOMMU_PTE_PPNS     GENMASK64(63, 10)
 #define IOMMU_PTE_RSVD     GENMASK64(63, 46)
 
+#define IOMMU_TABLE_COUNT       3
+#define IOMMU_TABLE_ENTRY_COUNT 512
+#define IOMMU_TABLE_ENTRY_SIZE  (sizeof(uint64_t))
+
+#define IOMMU_TABLE_SIZE (IOMMU_TABLE_ENTRY_COUNT * IOMMU_TABLE_ENTRY_SIZE)
+#define IOMMU_TOTAL_SIZE (IOMMU_TABLE_SIZE * IOMMU_TABLE_COUNT)
+
+#define IOMMU_4_KIB             BIT64(12)
+#define IOMMU_4_KIB_OFFSET_MASK (IOMMU_4_KIB - 1ULL)
+#define IOMMU_4_KIB_ADDR_MASK   (~IOMMU_4_KIB_OFFSET_MASK)
+
+#define IOMMU_2_MIB             BIT64(21)
+#define IOMMU_2_MIB_OFFSET_MASK (IOMMU_2_MIB - 1ULL)
+#define IOMMU_2_MIB_ADDR_MASK   (~IOMMU_2_MIB_OFFSET_MASK)
+
+#define IOMMU_1_GIB             BIT64(30)
+#define IOMMU_1_GIB_OFFSET_MASK (IOMMU_1_GIB - 1ULL)
+#define IOMMU_1_GIB_ADDR_MASK   (~IOMMU_1_GIB_OFFSET_MASK)
+
+#define IOMMU_GIB(x) (IOMMU_1_GIB * (x))
+#define SHR_12(x)    ((x) >> 12)
+
+#define IOMMU_1_GIB_SLOT_IND (PLAT_IOMMU_VIRT_BASE_START / IOMMU_1_GIB)
+#define IOMMU_2_MIB_SLOT_MIN \
+	((PLAT_IOMMU_VIRT_BASE_START - IOMMU_1_GIB_SLOT_IND * IOMMU_1_GIB) / IOMMU_2_MIB)
+#define IOMMU_2_MIB_SLOT_MAX (IOMMU_2_MIB_SLOT_MIN + PLAT_IOMMU_VIRT_SLOT_COUNT)
+
 iommu_regs_t *iommu_get_registers(void)
 {
 	return (iommu_regs_t *)BASE_ADDR_SERVICE_IOMMU;
-}
-
-static ptrdiff_t iommu_map_get_slot_size()
-{
-	return (ptrdiff_t)IOMMU_2_MIB;
 }
 
 static void iommu_gen_default_tables(iommu_regs_t *dev)
@@ -170,7 +171,7 @@ static int __iommu_unmap_64(iommu_regs_t *dev, uintptr_t base_address32)
 {
 	iommu_pte_t *pte_p;
 
-	if (!base_address32 || (base_address32 & IOMMU_2_MIB_MASK))
+	if (!base_address32 || (base_address32 & IOMMU_2_MIB_OFFSET_MASK))
 		return -EINVALIDPARAM;
 
 	int16_t slot = (base_address32 - PLAT_IOMMU_VIRT_BASE_START) / IOMMU_2_MIB;
@@ -256,54 +257,26 @@ void iommu_reset(iommu_regs_t *dev)
 	iommu_cache_invalidate(dev);
 }
 
-int iommu_map_32to64(iommu_regs_t *dev, uintptr_t addr32_aligned, uint64_t addr64_aligned)
+uintptr_t iommu_map(iommu_regs_t *dev, uint64_t addr64)
 {
-	iommu_pte_t *pte_p;
-	int16_t slot;
+	uintptr_t iobase = (uintptr_t)NULL;
+	uintptr_t offset = (uintptr_t)NULL;
 
-	// Get pte
-	uint32_t table_2mb = dev->ptw_pba_l + 2 * IOMMU_TABLE_SIZE;
-	pte_p = (iommu_pte_t *)convert_pa_to_va(table_2mb);
+	iobase = __iommu_map_64(dev, (addr64 & IOMMU_4_KIB_ADDR_MASK));
+	if (!iobase)
+		panic_handler("iommu failed to register 64bit addr\r\n");
 
-	if (!addr32_aligned || (addr32_aligned & IOMMU_2_MIB_MASK))
-		return -EINVALIDPARAM;
+	offset = addr64 & IOMMU_4_KIB_OFFSET_MASK;
 
-	slot = (addr32_aligned - PLAT_IOMMU_VIRT_BASE_START) / IOMMU_2_MIB;
-	if ((slot < IOMMU_2_MIB_SLOT_MIN) || (slot >= IOMMU_2_MIB_SLOT_MAX))
-		return -EDATASIZE;
-
-	if (FIELD_GET(IOMMU_PTE_USER_DEF, pte_p[slot]))
-		return -EINVALIDSTATE;
-
-	// Setup translation window for addr64_aligned
-	pte_p[slot] = 0;
-	pte_p[slot] = IOMMU_PTE_V | FIELD_PREP(IOMMU_PTE_TYPE, IOMMU_PTE_TYPE_RWX) |
-	              FIELD_PREP(IOMMU_PTE_PPNS, SHR_12(addr64_aligned));
-	pte_p[slot] |= FIELD_PREP(IOMMU_PTE_USER_DEF, 1);
-
-	// Invalidate cache
-	iommu_cache_invalidate(dev);
-
-	return 0;
+	return (uintptr_t)(iobase + offset);
 }
 
-int iommu_map_32to64_range(iommu_regs_t *dev, uintptr_t addr32_aligned,
-                           ptrdiff_t addr32_aligned_size, uint64_t addr64_aligned)
+void iommu_unmap(iommu_regs_t *dev, uintptr_t addr32)
 {
-	uintptr_t p32;
-	uint64_t p64;
-	int ret;
+	uintptr_t iobase = (uintptr_t)(addr32 & IOMMU_2_MIB_ADDR_MASK);
 
-	ptrdiff_t size = iommu_map_get_slot_size();
-
-	for (p32 = addr32_aligned, p64 = addr64_aligned;
-	     p32 < (addr32_aligned + addr32_aligned_size); p32 += size, p64 += size) {
-		ret = iommu_map_32to64(dev, p32, p64);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
+	if (__iommu_unmap_64(dev, iobase))
+		panic_handler("iommu failed to unregister 64bit addr\r\n");
 }
 
 void iommu_cache_invalidate(iommu_regs_t *dev)

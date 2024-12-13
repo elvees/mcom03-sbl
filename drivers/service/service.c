@@ -118,6 +118,31 @@ int service_get_apb_clock(uint32_t *apb_freq)
 	return 0;
 }
 
+int service_get_core_clock(uint32_t *core_freq)
+{
+	int ret;
+	uint32_t freq_div = 0;
+
+	ucg_regs_t *ucg = ucg_get_registers(UCG_SUBSYS_SERV, 0);
+	service_urb_regs_t *serv_urb = service_get_urb_registers();
+
+	pll_cfg_t pll_cfg;
+	pll_cfg.inp_freq = MCOM03_XTI_CLK_HZ;
+	pll_cfg.out_freq = 0;
+
+	ret = pll_get_freq((pll_cfg_reg_t *)&serv_urb->service_subs_pllcnfg, &pll_cfg);
+	if (ret)
+		return ret;
+
+	ret = ucg_get_divider(ucg, SERVICE_UCG1_CHANNEL_CLK_CORE, &freq_div);
+	if (ret)
+		return ret;
+
+	*core_freq = pll_cfg.out_freq / freq_div;
+
+	return 0;
+}
+
 int service_set_clock(uint32_t ch_mask, uint32_t sync_mask)
 {
 	int ret;

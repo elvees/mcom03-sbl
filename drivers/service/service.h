@@ -117,6 +117,16 @@ service_urb_regs_t *service_get_urb_registers(void);
 int service_get_apb_clock(uint32_t *apb_freq);
 
 /**
+ * @brief The function gets frequency of UCG1 service subsystem CORE channel
+ *
+ * @param core_freq - The pointer to CORE channel frequency value
+ *
+ * @return  0     - Success,
+ *         -ENULL - core_freq param is not provided (NULL pointer)
+ */
+int service_get_core_clock(uint32_t *core_freq);
+
+/**
  * @brief The function sets clock for service subsystem
  *
  * @param ch_mask   - Service subsystem UCG channel mask

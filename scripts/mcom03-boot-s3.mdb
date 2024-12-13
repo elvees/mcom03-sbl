@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright 2023-2024 RnD Center "ELVEES", JSC
 
-# MDB script to start sbl-s1, ddrinit, tl-common,
+# MDB script to start sbl-s1, ddrinit, sbl-s3,
 # TF-A and U-Boot on MCom-03 SoC. Script uses DDR0.
 
 pb python
@@ -46,8 +46,8 @@ loadbin buildroot/output/images/bl31.bin 0xc0300000
 # Load U-Boot to 0x8_9048_0000 which is mapped to 0xc0080000
 loadbin buildroot/output/images/u-boot.bin 0xc0080000
 
-# Load and run tl-core to launch TF-A and provide mailbox services
-loadbin buildroot/output/images/tl-core.bin 0x40003000
+# Load and run sbl-s3 to launch TF-A and provide mailbox services
+loadbin buildroot/output/images/sbl/sbl-s3.bin 0x40003000
 set RISC.PC 0x40003000
 
 quit

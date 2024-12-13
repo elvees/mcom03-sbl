@@ -21,12 +21,23 @@
 #define GENMASK64(h, l) (((0xFFFFFFFFFFFFFFFF) << (l)) & (0xFFFFFFFFFFFFFFFF >> (64 - 1 - (h))))
 #else
 #include <stdint.h>
+
+#include "log.h"
+
 #define GENMASK(h, l)   (((~UINT32_C(0)) << (l)) & (~UINT32_C(0) >> (32 - 1 - (h))))
 #define GENMASK64(h, l) (((~UINT64_C(0)) << (l)) & (~UINT64_C(0) >> (64 - 1 - (h))))
 #endif
 
 #define FIELD_PREP(_mask, _val) ({ ((__typeof__(_mask))(_val) << __bf_shf(_mask)) & (_mask); })
 #define FIELD_GET(_mask, _reg)  ({ (__typeof__(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask)); })
+
+#define panic_handler(fmt, ...)                                           \
+	({                                                                \
+		ERROR("%s: %d: " fmt, __FILE__, __LINE__, ##__VA_ARGS__); \
+		while (1) {                                               \
+			/* ... */                                         \
+		}                                                         \
+	})
 
 #define COMPARE_TYPE(x, y) (void)(&(x) == &(y));
 
@@ -96,3 +107,7 @@
 #define HZ      UL(1)
 #define KILO_HZ (UL(1000) * HZ)
 #define MEGA_HZ (UL(1000) * KILO_HZ)
+
+#define USEC_IN_SEC  ULL(1000000)
+#define MSEC_IN_SEC  ULL(1000)
+#define USEC_IN_MSEC ULL(1000)

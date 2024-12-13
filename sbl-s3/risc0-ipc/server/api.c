@@ -70,13 +70,14 @@ static void risc0_ipc_irq_handler(unsigned int fifo_num)
 static void risc0_ipc_resp(risc0_ipc_req_t *req, risc0_ipc_resp_param_t *resp_param)
 {
 	risc0_ipc_resp_t *resp = NULL;
+	iommu_regs_t *iommu_regs = iommu_get_registers();
 
 	// Protect Service subsytem from writing in it's own address space (first 4 GB)
 	if (req->shrmem.data <= UINTPTR_MAX)
 		panic_handler("The address[0x%llu] must be outside 32bit address space\r\n",
 		              req->shrmem.data);
 
-	resp = (risc0_ipc_resp_t *)iommu_map64(req->shrmem.data);
+	resp = (risc0_ipc_resp_t *)iommu_map(iommu_regs, req->shrmem.data);
 	if (!resp)
 		panic_handler("No free memory\r\n");
 	memcpy((void *)&resp->param, (void *)resp_param, sizeof(risc0_ipc_resp_param_t));
@@ -85,7 +86,7 @@ static void risc0_ipc_resp(risc0_ipc_req_t *req, risc0_ipc_resp_param_t *resp_pa
 	resp->state.value = RISC0_IPC_RESP_STATE_COMPLETE;
 	wmem_barrier();
 
-	iommu_unmap64((uintptr_t)resp);
+	iommu_unmap(iommu_regs, (uintptr_t)resp);
 }
 
 static void risc0_ipc_cmd_handler(risc0_ipc_msg_t *msg)

@@ -63,7 +63,6 @@ void iommu_init(iommu_regs_t *dev, const void *ptw_base_addr);
 void iommu_reset(iommu_regs_t *dev);
 
 // Those functions shall be used with critical section
-int iommu_map_32to64(iommu_regs_t *dev, uintptr_t addr32_aligned, uint64_t addr64_aligned);
-int iommu_map_32to64_range(iommu_regs_t *dev, uintptr_t addr32_aligned,
-                           ptrdiff_t addr32_aligned_size, uint64_t addr64_aligned);
+uintptr_t iommu_map(iommu_regs_t *dev, uint64_t addr64);
+void iommu_unmap(iommu_regs_t *dev, uintptr_t addr32);
 void iommu_cache_invalidate(iommu_regs_t *dev);

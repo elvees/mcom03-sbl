@@ -10,8 +10,8 @@
 #include <drivers/mcom03-regs.h>
 #include <drivers/qlic/irq.h>
 #include <drivers/qlic/qlic.h>
+#include <drivers/timer/timer.h>
 #include <libs/errors.h>
-#include <libs/helpers/helpers.h>
 #include <libs/log.h>
 #include <libs/utils-def.h>
 #include <third-party/llist/llist.h>
@@ -170,7 +170,7 @@ unsigned int mbox_write(mbox_fifo_regs_t *mbox, const char *message, unsigned in
 				mbox->message = fifo_word;
 				break;
 			}
-			time_delay(10);
+			timer_delay_ms(10);
 		}
 
 		if (retries == MBOX_MAX_RETRIES) {
@@ -206,7 +206,7 @@ unsigned int mbox_read(mbox_fifo_regs_t *mbox, char *message, unsigned int size)
 				memcpy((void *)message, (void *)&fifo_word, bytes_to_read);
 				break;
 			}
-			time_delay(10);
+			timer_delay_ms(10);
 		}
 
 		if (retries == MBOX_MAX_RETRIES) {
