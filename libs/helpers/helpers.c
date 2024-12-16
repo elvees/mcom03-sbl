@@ -14,6 +14,14 @@
 
 #include "helpers.h"
 
+#define PLAT_4KiB		    (0x1000ULL)
+#define PLAT_4KiB_64BIT_OFFSET_MASK (PLAT_4KiB - 1ULL)
+#define PLAT_4KiB_64BIT_ADDR_MASK   (~PLAT_4KiB_64BIT_OFFSET_MASK)
+
+#define PLAT_2MiB		    (0x200000ULL)
+#define PLAT_2MiB_32BIT_OFFSET_MASK (PLAT_2MiB - 1ULL)
+#define PLAT_2MiB_32BIT_ADDR_MASK   (~PLAT_2MiB_32BIT_OFFSET_MASK)
+
 #define DDRMC_MAX_NUMBER      2
 #define MAX_MEM_REGIONS       4
 #define MEM_REGIONS_VIRT_ADDR 0xC0000000
@@ -40,6 +48,123 @@ struct ddrinfo {
 	} mem_regions[MAX_MEM_REGIONS];
 };
 
+static void cpu_delay_ticks(uint32_t ticks)
+{
+	if (!ticks) {
+		return;
+	}
+	uint32_t start = mips_read_c0_register(C0_COUNT);
+	while (mips_read_c0_register(C0_COUNT) - start < ticks) {
+		__asm__ volatile("nop");
+	}
+}
+
+static void cpu_delay_us(uint32_t us)
+{
+	uint32_t core_frequency = plat_get_cpu_frequency();
+	uint32_t ticks = (uint64_t)us * core_frequency / USEC_IN_SEC;
+	cpu_delay_ticks(ticks);
+}
+
+void plat_irq_handler(void)
+{
+	intmgr_handler();
+}
+
+/**
+ * @brief plat_time_delay
+ *
+ * @param num_msec Delay time in milliseconds.
+ *
+ * This is not an accurate delay, it ensures at least num_msec passed when return.
+ */
+void plat_time_delay(uint32_t num_msec)
+{
+	cpu_delay_us(num_msec * USEC_IN_MSEC);
+}
+
+/**
+ * @brief plat_time_delay_us
+ *
+ * @param num_usec Delay time in microseconds.
+ *
+ * Delay is not exactly accurate
+ */
+void plat_time_delay_us(uint32_t num_usec)
+{
+	cpu_delay_us(num_usec);
+}
+
+/**
+ * @brief Get current CPU frequency
+ *
+ * @return Current CPU frequency
+ */
+uint32_t plat_get_cpu_frequency(void)
+{
+	service_urb_regs_t *ss_urb = getServiceURBRegisters();
+	ucg_regs_t *ss_ucg = ucg_get_service_registers(0);
+	uint32_t freq_mul = 0;
+	uint32_t freq_div = 0;
+
+	pll_get_freq_mult((pll_cfg_reg_t *)&ss_urb->service_subs_pllcnfg, &freq_mul);
+	ucg_get_divider(ss_ucg, SERVICE_UCG1_CHANNEL_CLK_CORE, &freq_div);
+	return XTI_CLK_HZ * freq_mul / freq_div;
+}
+
+void plat_disable_irq_global(void)
+{
+	intmgr_global_disable_irq();
+}
+
+void plat_enable_irq_global(void)
+{
+	intmgr_global_enable_irq();
+}
+
+uintptr_t plat_map64(uint64_t addr64)
+{
+	iommu_t *iommu_reg = NULL;
+	uintptr_t iobase = (uintptr_t)NULL;
+	uintptr_t offset = (uintptr_t)NULL;
+
+	iommu_reg = (iommu_t *)iommu_get_registers();
+	iobase = iommu_register_64bit_address(iommu_reg, (addr64 & PLAT_4KiB_64BIT_ADDR_MASK));
+	if (iobase == (uintptr_t)NULL) {
+		plat_panic_handler("iommu failed to register 64bit addr\r\n");
+	}
+
+	offset = addr64 & PLAT_4KiB_64BIT_OFFSET_MASK;
+
+	return (uintptr_t)(iobase + offset);
+}
+
+void plat_unmap64(uintptr_t addr32)
+{
+	iommu_t *iommu_reg = NULL;
+	uintptr_t iobase = (uintptr_t)(addr32 & PLAT_2MiB_32BIT_ADDR_MASK);
+
+	iommu_reg = (iommu_t *)iommu_get_registers();
+	if (iommu_unregister_64bit_address(iommu_reg, iobase) != 0) {
+		plat_panic_handler("iommu failed to unregister 64bit addr\r\n");
+	}
+}
+
+void *plat_allocate_memory(uint32_t size)
+{
+	return malloc(size);
+}
+
+void *plat_reallocate_memory(void *ptr, uint32_t size)
+{
+	return realloc(ptr, size);
+}
+
+void plat_free_memory(void *ptr)
+{
+	if (ptr) {
+		free(ptr);
+	}
 void set_secure_region(void)
 {
 	/**
