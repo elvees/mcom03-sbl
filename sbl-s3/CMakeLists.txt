@@ -30,7 +30,8 @@ target_link_options(${PROJECT_NAME}.elf PRIVATE
                     -T ${CMAKE_CURRENT_BINARY_DIR}/linkerscript.ld
                     -Wl,-Map=${PROJECT_NAME}.map)
 
-add_custom_command(TARGET ${PROJECT_NAME}.elf PRE_LINK COMMAND ${CMAKE_C_COMPILER}
+add_custom_command(TARGET ${PROJECT_NAME}.elf PRE_LINK
+                   COMMAND ${CMAKE_C_COMPILER}
                    $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS)
                    -E ${CMAKE_CURRENT_SOURCE_DIR}/link.ld.S -P
                    -o ${CMAKE_CURRENT_BINARY_DIR}/linkerscript.ld)
