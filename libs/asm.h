@@ -128,18 +128,18 @@ a:;
 
 	.set CONTEXT_WORDS,                     72
 
-	.set $C0_INDEX,                         $0
-	.set $C0_RANDOM,                        $1
-	.set $C0_ENTRYL0,                       $2
-	.set $C0_ENTRYL1,                       $3
-	.set $C0_CONTEXT,                       $4
-	.set $C0_PAGEMASK,                      $5
-	.set $C0_WIRED,                         $6
-	.set $C0_BADVADDR,                      $8
-	.set $C0_COUNT,                         $9
-	.set $C0_ENTRYHI,                       $10
-	.set $C0_COMPARE,                       $11
-	.set $C0_STATUS,                        $12
+	.set $CP0_INDEX,                        $0
+	.set $CP0_RANDOM,                       $1
+	.set $CP0_ENTRYLO0,                     $2
+	.set $CP0_ENTRYLO1,                     $3
+	.set $CP0_CONTEXT,                      $4
+	.set $CP0_PAGEMASK,                     $5
+	.set $CP0_WIRED,                        $6
+	.set $CP0_BADVADDR,                     $8
+	.set $CP0_COUNT,                        $9
+	.set $CP0_ENTRYHI,                      $10
+	.set $CP0_COMPARE,                      $11
+	.set $CP0_STATUS,                       $12
 	.set EN_IRQ_ONE,                        0x1
 	.set EN_IRQ_ZERO,                       0xFFFFFFFE
 	.set ERRORLVL_MASK,                     0x6
@@ -151,12 +151,12 @@ a:;
 	.set EXC_MASK_OFFSET,                   0x2
 	.set EXC_SYS,                           0x8
 	.set EN_FPU_CP1,                        0x20000000
-	.set $C0_CAUSE,                         $13
+	.set $CP0_CAUSE,                        $13
 	.set IV_ONE,                            0x800000
 	.set IV_ZERO,                           0xFF7FFFFF
-	.set $C0_EPC,                           $14
-	.set $C0_PRID,                          $15
-	.set $C0_CONFIG,                        $16
+	.set $CP0_EPC,                          $14
+	.set $CP0_PRID,                         $15
+	.set $CP0_CONFIG,                       $16
 	.set K0_CACHE_MASK,                     0x00000007
 	.set K0_CACHE_DISABLE,                  0x00000002
 	.set K0_CACHE_ENABLE,                   0x00000003
@@ -166,8 +166,8 @@ a:;
 	.set KU_CACHE_MASK,                     0x0E000000
 	.set KU_CACHE_DISABLE,                  0x04000000
 	.set KU_CACHE_ENABLE,                   0x06000000
-	.set $C0_LLADR,                         $17
-	.set $C0_ERROREPC,                      $30
+	.set $CP0_LLADDR,                       $17
+	.set $CP0_ERROREPC,                     $30
 
 	.set FLUSH_I,                           0x1000
 	.set FLUSH_D,                           0x4000
@@ -219,10 +219,10 @@ a:;
 	mflo	$k0
 	sw	$k0, (CONTEXT_LO * 4) ($sp)
 
-	mfc0	$k0, $C0_EPC
+	mfc0	$k0, $CP0_EPC
 	sw	$k0, (CONTEXT_PC * 4) ($sp)
 
-	mfc0	$k0, $C0_STATUS
+	mfc0	$k0, $CP0_STATUS
 	sw	$k0, (CONTEXT_STATUS * 4) ($sp)
 	.endm
 
@@ -234,7 +234,7 @@ a:;
 	mthi	$k0
 
 	lw	$k0, (CONTEXT_PC * 4) ($sp)	// K1 = EPC
-	mtc0	$k0, $C0_EPC			// put PC in EPC
+	mtc0	$k0, $CP0_EPC			// put PC in EPC
 
 	.set	push
 	.set	noat
@@ -474,7 +474,7 @@ a:;
 	.macro INIT_STACK
 	nop
 	li      $k0, PLAT_RANDOM_CANARY_VALUE
-	mfc0    $k1, $C0_COUNT
+	mfc0    $k1, $CP0_COUNT
 	xor     $k0, $k0, $k1
 
 	// Update the canary with the returned value

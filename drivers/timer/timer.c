@@ -12,8 +12,8 @@ static void __timer_delay_ticks(uint32_t ticks)
 	if (!ticks)
 		return;
 
-	uint32_t start = mips_read_c0_register(C0_COUNT);
-	while (mips_read_c0_register(C0_COUNT) - start < ticks)
+	uint32_t start = mips_read_cp0_register(CP0_COUNT);
+	while (mips_read_cp0_register(CP0_COUNT) - start < ticks)
 		__asm__ volatile("nop");
 }
 

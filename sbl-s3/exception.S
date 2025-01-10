@@ -12,13 +12,13 @@
 	.extern exception_handler
 
 LEAF(_interrupt_entry)
-	mfc0          $k1, $C0_CAUSE
+	mfc0          $k1, $CP0_CAUSE
 	li            $k0, EXC_MASK
 	and           $k0, $k1, $k0
 	bnez          $k0, _exception_entry
 	nop
 
-	mfc0          $k0, $C0_STATUS
+	mfc0          $k0, $CP0_STATUS
 	and           $k1, $k0, $k1
 	li            $k0, IP_MASK
 	and           $k0, $k1, $k0

@@ -21,11 +21,21 @@ static int32_t irq_reset_handlers(void)
 
 int32_t irq_init(void)
 {
-	return qlic_init();
+	int32_t ret;
+
+	ret = qlic_init();
+	if (ret)
+		return ret;
+
+	mips_enable_irq_target(MIPS_CP0_SR_IM2_QLIC0_TARG0);
+
+	return 0;
 }
 
 int32_t irq_deinit(void)
 {
+	mips_disable_irq_target(MIPS_CP0_SR_IM2_QLIC0_TARG0);
+
 	return irq_reset_handlers();
 }
 

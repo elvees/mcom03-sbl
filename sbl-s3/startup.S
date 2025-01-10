@@ -15,7 +15,7 @@
 
 LEAF(_startup)
 	li            $k1, 0x000000           // disable interrupts, IE[0] = 0, ERL[2] = 0,
-	mtc0          $k1, $C0_STATUS         // BEV[22] = 0
+	mtc0          $k1, $CP0_STATUS        // BEV[22] = 0
 
 	INIT_REGS
 
@@ -42,9 +42,9 @@ LEAF(_startup)
 	nop
 
 	li            $k0, IV_ZERO            // IV = 0
-	mfc0          $k1, $C0_CAUSE
+	mfc0          $k1, $CP0_CAUSE
 	and           $k1, $k1, $k0
-	mtc0          $k1, $C0_CAUSE
+	mtc0          $k1, $CP0_CAUSE
 
 	li            $k1, MC_CSR_REG         // interrupt vector to 0xbfa00000 (BEV = 0)
 	lw            $k0, ($k1)
@@ -52,7 +52,7 @@ LEAF(_startup)
 	ori           $k0, TR_CRAM
 	sw            $k0, ($k1)
 
-	mfc0          $k1, $C0_CONFIG         // setup program cache
+	mfc0          $k1, $CP0_CONFIG        // setup program cache
 
 	li            $k0, (~K0_CACHE_MASK)
 	and           $k1, $k1, $k0
@@ -69,7 +69,7 @@ LEAF(_startup)
 	li            $k0, KU_CACHE_ENABLE
 	or            $k1, $k1, $k0
 
-	mtc0          $k1, $C0_CONFIG
+	mtc0          $k1, $CP0_CONFIG
 
 	la            $a0, __heap_start
 	la            $a1, __heap_end

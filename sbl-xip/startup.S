@@ -13,18 +13,18 @@
 LEAF(_startup)
 setup_cpu:
 	li            $k0, 0x000000           // disable interrupts, IE[0] = 0, ERL[2] = 0,
-	mtc0          $k0, $C0_STATUS         // BEV[22] = 0
+	mtc0          $k0, $CP0_STATUS        // BEV[22] = 0
 
 	li            $k0, 0xFF7FFFFF         // IV = 0
-	mfc0          $k1, $C0_CAUSE
+	mfc0          $k1, $CP0_CAUSE
 	and           $k1, $k1, $k0
-	mtc0          $k1, $C0_CAUSE
+	mtc0          $k1, $CP0_CAUSE
 
 	li            $k0, 0xbfd08000         // Switch to fixed mapping
 	li            $v0, 0x1
 	sw            $v0, 0($k0)
 
-	mfc0          $k1, $C0_CONFIG         // setup program cache
+	mfc0          $k1, $CP0_CONFIG        // setup program cache
 
 	li            $k0, (~K0_CACHE_MASK)
 	and           $k1, $k1, $k0
@@ -41,7 +41,7 @@ setup_cpu:
 	li            $k0, KU_CACHE_ENABLE
 	or            $k1, $k1, $k0
 
-	mtc0          $k1, $C0_CONFIG
+	mtc0          $k1, $CP0_CONFIG
 
 	INIT_STACK
 

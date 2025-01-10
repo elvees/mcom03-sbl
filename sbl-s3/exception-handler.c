@@ -53,8 +53,8 @@ void dump_stack(const struct eframe *f)
 void __dead2 exception_handler(struct eframe *regs)
 {
 	const char *exc_name;
-	unsigned int co_cause = mips_read_c0_register(C0_CAUSE); // get C0 cause
-	unsigned int exc_code = (co_cause & EXC_MASK) >> EXC_MASK_OFFSET;
+	unsigned int cp0_cause = mips_read_cp0_register(CP0_CAUSE); // get CP0 cause
+	unsigned int exc_code = (cp0_cause & EXC_MASK) >> EXC_MASK_OFFSET;
 	switch (exc_code) {
 	case EXC_INT:
 		exc_name = "Int";
@@ -99,10 +99,10 @@ void __dead2 exception_handler(struct eframe *regs)
 	printf("\r\n**************************************************\r\n");
 	printf("EXCEPTION \"%s\".\r\n", exc_name);
 	if ((exc_code == EXC_ADEL) || (exc_code == EXC_ADES))
-		printf("BADVADDR : 0x%08x\r\n", mips_read_c0_register(C0_BADVADDR));
+		printf("BADVADDR : 0x%08x\r\n", mips_read_cp0_register(CP0_BADVADDR));
 	else
 		printf("BADVADDR : \"Unknown\"\r\n");
-	printf("EPC : 0x%08x\r\n", mips_read_c0_register(C0_EPC));
+	printf("EPC : 0x%08x\r\n", mips_read_cp0_register(CP0_EPC));
 	printf("Registers:\r\n");
 	dump_stack(regs);
 	printf("**************************************************\r\n");
