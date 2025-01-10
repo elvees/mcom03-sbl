@@ -139,3 +139,26 @@ int service_get_core_clock(uint32_t *core_freq);
  *                          APB ucg channel frequency
  */
 int service_set_clock(uint32_t ch_mask, uint32_t sync_mask);
+
+/**
+ * @brief The function checks if subsystem supports power domain functionality.
+ *
+ * @param id   - Subsystem ID
+ *
+ * @return  0             - Success,
+ *         -ENOTSUPPORTED - Subsystem does not support power domain functionality.
+ */
+int service_subsystem_pm_check_support(uint32_t id);
+
+/**
+ * @brief The function turns on/off subsystem and waits for status register.
+ *
+ * @param id    - Subsystem ID
+ * @param state - Value to PPOLICY register (PP_ON, PP_OFF or PP_WARM_RST)
+ *
+ * @return  0             - Success,
+ *         -ENOTSUPPORTED - Subsystem does not support power domain functionality,
+ *         -EINVALIDPARAM - Wrong state value,
+ *         -ETIMEOUT      - Timeout of waiting PSTATUS register.
+ */
+int service_subsystem_set_power(uint32_t id, uint32_t state);

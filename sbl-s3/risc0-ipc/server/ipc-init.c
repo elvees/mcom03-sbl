@@ -20,6 +20,7 @@ void risc0_ipc_init_handler(uint32_t link_id, const risc0_ipc_cmd_t *cmd,
 		case FIFO4:
 		case FIFO5:
 			resp_param->init.capability.value |= BIT(RISC0_IPC_WDT);
+			resp_param->init.capability.value |= BIT(RISC0_IPC_PM);
 			resp_param->init.capability.value |= BIT(RISC0_IPC_DDR_SUBS);
 			break;
 		default:

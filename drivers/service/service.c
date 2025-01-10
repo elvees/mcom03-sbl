@@ -7,6 +7,7 @@
 
 #include <drivers/mcom03-regs.h>
 #include <drivers/pll/pll.h>
+#include <drivers/timer/timer.h>
 #include <drivers/ucg/ucg.h>
 #include <libs/errors.h>
 #include <libs/helpers/helpers.h>
@@ -16,6 +17,21 @@
 
 #define SERV_UCG_APB_CHANNEL_DIV  6
 #define SERV_UCG_CORE_CHANNEL_DIV 1
+
+// Subsystem IDs must be as in Linux in include/dt-bindings/soc/elvees,mcom03.h
+#define MCOM03_SUBSYSTEM_CPU   0
+#define MCOM03_SUBSYSTEM_SDR   1
+#define MCOM03_SUBSYSTEM_MEDIA 2
+
+#define PPOLICY_OFFSET 0
+#define PSTATUS_OFFSET 1
+
+struct pm_domain_settings {
+	uint32_t bypass0_mask;
+	uint32_t bypass1_mask;
+	uint32_t clkgate_mask;
+	int reg_offset;
+};
 
 // Service Subsystem PLL output frequency is 594 MHz, assuming that XTI = 27 MHz
 struct ucg_channel serv_ucg_channels[] = {
@@ -33,6 +49,23 @@ struct ucg_channel serv_ucg_channels[] = {
 	{ 1, SERVICE_UCG1_CHANNEL_CLK_SPIOTP, SERV_UCG_APB_CHANNEL_DIV }, // 99 MHz
 	{ 1, SERVICE_UCG1_CHANNEL_CLK_I2C4_EXT, 12 }, // 49.5 MHz
 	{ 1, SERVICE_UCG1_CHANNEL_CLK_QSPI0_EXT, 22 }, // 27 MHz
+};
+
+static const struct pm_domain_settings pm_domain_settings[] = {
+	[MCOM03_SUBSYSTEM_SDR] = {
+		.bypass0_mask = 0,
+		.bypass1_mask = TOP_UCG1_CHANNEL_AXI_SLOW_COMM | TOP_UCG1_CHANNEL_AXI_FAST_COMM |
+				TOP_UCG1_CHANNEL_DDR_SDR_DSP | TOP_UCG1_CHANNEL_DDR_SDR_PICE,
+		.clkgate_mask = SERVICE_TOP_CLK_GATE_SDR,
+		.reg_offset = 0x8,
+	},
+	[MCOM03_SUBSYSTEM_MEDIA] = {
+		.bypass0_mask = TOP_UCG0_CHANNEL_DDR_DP | TOP_UCG0_CHANNEL_DDR_VPU |
+				TOP_UCG0_CHANNEL_DDR_GPU | TOP_UCG0_CHANNEL_DDR_ISP,
+		.bypass1_mask = TOP_UCG1_CHANNEL_AXI_SLOW_COMM,
+		.clkgate_mask = SERVICE_TOP_CLK_GATE_MEDIA,
+		.reg_offset = 0x10,
+	},
 };
 
 void service_disable_risc0_cpu(void)
@@ -191,6 +224,47 @@ int service_set_clock(uint32_t ch_mask, uint32_t sync_mask)
 	ret = ucg_sync_and_disable_bp(serv_ucg, ch_mask, sync_mask);
 	if (ret)
 		return ret;
+
+	return 0;
+}
+
+int service_subsystem_pm_check_support(uint32_t id)
+{
+	if (id != MCOM03_SUBSYSTEM_SDR && id != MCOM03_SUBSYSTEM_MEDIA)
+		return -ENOTSUPPORTED;
+
+	return 0;
+}
+
+int service_subsystem_set_power(uint32_t id, uint32_t state)
+{
+	service_urb_regs_t *urb = service_get_urb_registers();
+	uintptr_t ppolicy_reg;
+	uint32_t top_clkgate;
+	int ret;
+
+	ret = service_subsystem_pm_check_support(id);
+	if (ret)
+		return ret;
+
+	ppolicy_reg = ((uintptr_t)urb) + pm_domain_settings[id].reg_offset;
+	if (state == PP_ON) {
+		ret = set_ppolicy(ppolicy_reg, state, pm_domain_settings[id].bypass0_mask,
+		                  pm_domain_settings[id].bypass1_mask, 700000);
+		if (ret)
+			return ret;
+	} else if (state == PP_OFF || state == PP_WARM_RST) {
+		(void)set_ppolicy(ppolicy_reg, state, 0, 0, 700000);
+	} else
+		return -EINVALIDPARAM;
+
+	top_clkgate = urb->top_clkgate;
+	if (state == PP_ON)
+		top_clkgate |= pm_domain_settings[id].clkgate_mask;
+	else
+		top_clkgate &= ~pm_domain_settings[id].clkgate_mask;
+
+	urb->top_clkgate = top_clkgate;
 
 	return 0;
 }
