@@ -7,6 +7,9 @@
 #include <libs/mc.h>
 #include <libs/utils-def.h>
 
+unsigned long timebase_h;
+unsigned long timebase_l;
+
 static void __timer_delay_ticks(uint32_t ticks)
 {
 	if (!ticks)
@@ -37,4 +40,29 @@ void timer_delay_ms(uint32_t num_msec)
 void timer_delay_us(uint32_t num_usec)
 {
 	__timer_delay_us(num_usec);
+}
+
+static uint64_t get_ticks(void)
+{
+	unsigned long now = mips_read_cp0_register(CP0_COUNT);
+
+	if (now < timebase_l)
+		timebase_h++;
+
+	timebase_l = now;
+
+	return ((uint64_t)timebase_h << 32) | timebase_l;
+}
+
+unsigned long timer_get_us(void)
+{
+	uint64_t tick = get_ticks();
+	uint32_t core_frequency;
+	int ret;
+
+	ret = service_get_core_clock(&core_frequency);
+	if (ret)
+		return 0;
+
+	return tick / (core_frequency / USEC_IN_SEC);
 }

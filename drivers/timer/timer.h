@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define time_after(a, b)  ((long)((b) - (a)) < 0)
+#define time_before(a, b) time_after(b, a)
+
 /**
  * @brief Do delay in milliseconds
  *
@@ -20,3 +23,10 @@ void timer_delay_ms(uint32_t num_msec);
  * Delay is not exactly accurate
  */
 void timer_delay_us(uint32_t num_usec);
+
+/**
+ * @brief Get microseconds from boot start
+ *
+ * Is not exactly accurate
+ */
+unsigned long timer_get_us(void);
