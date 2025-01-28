@@ -8,7 +8,9 @@
 #include <drivers/ls-periph1/ls-periph1.h>
 #include <drivers/mcom03-regs.h>
 #include <drivers/service/service.h>
+#include <drivers/timer/timer.h>
 #include <drivers/ucg/ucg.h>
+#include <libs/errors.h>
 #include <libs/mmio.h>
 #include <libs/utils-def.h>
 
@@ -39,6 +41,52 @@ struct ddrinfo {
 		uint64_t size;
 	} mem_regions[MAX_MEM_REGIONS];
 };
+
+static int _set_ppolicy(uintptr_t reg, uint32_t new_policy, uint32_t timeout_us)
+{
+	uint32_t val;
+
+	mmio_write_32(reg, new_policy);
+
+	return read_poll_timeout(mmio_read_32, val, (val & PP_MASK) == new_policy, 1000, timeout_us,
+	                         reg + 0x4);
+}
+
+int set_ppolicy(uintptr_t reg, uint32_t new_policy, uint32_t bp0_mask, uint32_t bp1_mask,
+                uint32_t timeout_us)
+{
+	ucg_regs_t *interconnect_ucg0 = ucg_get_registers(UCG_SUBSYS_TOP, 0);
+	ucg_regs_t *interconnect_ucg1 = ucg_get_registers(UCG_SUBSYS_TOP, 1);
+	int ret;
+
+	if ((mmio_read_32(reg) & PP_MASK) == new_policy)
+		return 0;
+
+	if (bp0_mask)
+		ucg_enable_bp(interconnect_ucg0, bp0_mask);
+
+	if (bp1_mask)
+		ucg_enable_bp(interconnect_ucg1, bp1_mask);
+
+	ret = _set_ppolicy(reg, new_policy, timeout_us);
+	if (ret && new_policy == PP_ON)
+		_set_ppolicy(reg, PP_OFF, timeout_us);
+
+	/* For subsusytem with power management OFFREQN and OFFACKN pads usually connected to
+	 * ENABLE and POWER_GOOD of external power regulator respectively.
+	 * SoC will set high level to ENABLE of regulator when PP_ON is written to PPOLICY register.
+	 * When power regulator set POWER_GOOD then PP_ON will be read from PSTATUS register.
+	 * Add delay for case when power regulator set POWER_GOOD too early.
+	 */
+	timer_delay_us(20000);
+	if (bp0_mask)
+		ucg_sync_and_disable_bp(interconnect_ucg0, bp0_mask, bp0_mask);
+
+	if (bp1_mask)
+		ucg_sync_and_disable_bp(interconnect_ucg1, bp1_mask, bp1_mask);
+
+	return ret;
+}
 
 void set_secure_region(void)
 {

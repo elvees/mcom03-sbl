@@ -38,51 +38,57 @@ struct ucg_channel serv_ucg_channels[] = {
 void service_disable_risc0_cpu(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
-	SET_PPOLICY(&urb->risc0_ppolicy, PP_OFF);
+
+	set_ppolicy((uintptr_t)&urb->risc0_ppolicy, PP_OFF, 0, 0, 0);
 }
 
 void service_enable_arm_cpu(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
-	SET_PPOLICY(&urb->cpu_ppolicy, PP_ON);
+	uint32_t bp0_mask = TOP_UCG0_CHANNEL_DDR_CPU | TOP_UCG0_CHANNEL_CPU_ACP |
+	                    TOP_UCG0_CHANNEL_AXI_COH_COMM;
+	uint32_t bp1_mask = TOP_UCG1_CHANNEL_AXI_FAST_COMM | TOP_UCG1_CHANNEL_AXI_SLOW_COMM;
+
+	set_ppolicy((uintptr_t)&urb->cpu_ppolicy, PP_ON, bp0_mask, bp1_mask, 0);
 	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_CPU;
 }
 
 void service_disable_arm_cpu(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
+
 	urb->top_clkgate &= ~SERVICE_TOP_CLK_GATE_CPU;
-	SET_PPOLICY(&urb->cpu_ppolicy, PP_OFF);
+	set_ppolicy((uintptr_t)&urb->cpu_ppolicy, PP_OFF, 0, 0, 0);
 }
 
 void service_enable_lsp1(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
-	SET_PPOLICY(&urb->lsperiph1_subs_ppolicy, PP_ON);
+	uint32_t bp1_mask = TOP_UCG1_CHANNEL_DDR_LSP1 | TOP_UCG1_CHANNEL_AXI_SLOW_COMM;
+
+	set_ppolicy((uintptr_t)&urb->lsperiph1_subs_ppolicy, PP_ON, 0, bp1_mask, 0);
 	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_LSP1;
 }
 
 void service_enable_lsp0(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
-	SET_PPOLICY(&urb->lsperiph0_subs_ppolicy, PP_ON);
+	uint32_t bp0_mask = TOP_UCG0_CHANNEL_DDR_LSP0;
+	uint32_t bp1_mask = TOP_UCG1_CHANNEL_AXI_SLOW_COMM;
+
+	set_ppolicy((uintptr_t)&urb->lsperiph0_subs_ppolicy, PP_ON, bp0_mask, bp1_mask, 0);
 	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_LSP0;
 }
 
 void service_enable_sdr(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
+	uint32_t bp1_mask = BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM) |
+	                    BIT(TOP_UCG1_CHANNEL_AXI_FAST_COMM) |
+	                    BIT(TOP_UCG1_CHANNEL_DDR_SDR_DSP) | BIT(TOP_UCG1_CHANNEL_DDR_SDR_PICE);
+
+	set_ppolicy((uintptr_t)&urb->sdr_ppolicy, PP_ON, 0, bp1_mask, 0);
 	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_SDR;
-	uint32_t bp_mask =
-		(BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM) | BIT(TOP_UCG1_CHANNEL_AXI_FAST_COMM) |
-	         BIT(TOP_UCG1_CHANNEL_DDR_SDR_DSP) | BIT(TOP_UCG1_CHANNEL_DDR_SDR_PICE));
-
-	ucg_regs_t *interconnect_ucg1 = ucg_get_registers(UCG_SUBSYS_TOP, 1);
-	ucg_enable_bp(interconnect_ucg1, bp_mask);
-
-	SET_PPOLICY(&urb->sdr_ppolicy, PP_ON);
-
-	ucg_sync_and_disable_bp(interconnect_ucg1, bp_mask, bp_mask);
 }
 
 service_urb_regs_t *service_get_urb_registers(void)

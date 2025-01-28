@@ -12,6 +12,7 @@
 #define PP_OFF      0x01
 #define PP_WARM_RST 0x08
 #define PP_ON       0x10
+#define PP_MASK     0x1F
 
 #define SET_PPOLICY(addr, value)                                                             \
 	({                                                                                   \
@@ -74,5 +75,7 @@ static inline void *convert_pa_to_va(uintptr_t pa)
 	return (void *)(addr);
 }
 
+int set_ppolicy(uintptr_t reg, uint32_t new_policy, uint32_t bp0_mask, uint32_t bp1_mask,
+                uint32_t timeout_us);
 void set_secure_region(void);
 int soc_debug_if_disable(void);
