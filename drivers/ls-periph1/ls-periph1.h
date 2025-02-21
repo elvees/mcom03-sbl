@@ -1,7 +1,14 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #pragma once
+
+#include <libs/utils-def.h>
+
+#define LSP1_PADCTR_SUS_MASK BIT(0)
+#define LSP1_PADCTR_SL_MASK  GENMASK(4, 3)
+#define LSP1_PADCTR_CTL_MASK GENMASK(10, 5)
+#define LSP1_PADCTR_E_MASK   BIT(12)
 
 typedef struct {
 	volatile unsigned int pll_cfg;
@@ -30,3 +37,4 @@ enum pad_driver_strength {
 lsp1_urb_regs_t *lsp1_get_urb_registers(void);
 
 void lsp1_i2s_ucg1_rstn(void);
+int lsp1_pad_cfg(unsigned int port, unsigned int pin, unsigned int value);
