@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -107,8 +107,9 @@ loop:
 					(void)putchar('-');
 					unum = (unsigned long long int)-num;
 					padn--;
-				} else
+				} else {
 					unum = (unsigned long long int)num;
+				}
 
 				count += unsigned_num_print(unum, 10, padc, padn, 0);
 				break;

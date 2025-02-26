@@ -1,4 +1,4 @@
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
 
 #include <stdbool.h>
@@ -255,8 +255,9 @@ int service_subsystem_set_power(uint32_t id, uint32_t state)
 			return ret;
 	} else if (state == PP_OFF || state == PP_WARM_RST) {
 		(void)set_ppolicy(ppolicy_reg, state, 0, 0, 700000);
-	} else
+	} else {
 		return -EINVALIDPARAM;
+	}
 
 	top_clkgate = urb->top_clkgate;
 	if (state == PP_ON)
