@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2024 RnD Center "ELVEES", JSC
+// Copyright 2024-2025 RnD Center "ELVEES", JSC
+
+#pragma once
 
 #include <stdint.h>
 
