@@ -1,9 +1,35 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #pragma once
 
 #include <libs/utils-def.h>
+
+#define BASE_ADDR_TOP_URB_BASE  0xa1800000
+#define BASE_ADDR_TOP_UCG0_BASE 0xa1801000
+#define BASE_ADDR_TOP_UCG1_BASE 0xa1802000
+
+// TOP UCG Channels
+#define TOP_UCG0_ALL_CH_MASK          GENMASK(7, 0)
+#define TOP_UCG0_SYNC_MASK            TOP_UCG0_ALL_CH_MASK
+#define TOP_UCG0_CHANNEL_DDR_DP       0
+#define TOP_UCG0_CHANNEL_DDR_VPU      1
+#define TOP_UCG0_CHANNEL_DDR_GPU      2
+#define TOP_UCG0_CHANNEL_DDR_ISP      3
+#define TOP_UCG0_CHANNEL_DDR_CPU      4
+#define TOP_UCG0_CHANNEL_CPU_ACP      5
+#define TOP_UCG0_CHANNEL_DDR_LSP0     6
+#define TOP_UCG0_CHANNEL_AXI_COH_COMM 7
+
+#define TOP_UCG1_ALL_CH_MASK           (GENMASK(8, 4) | BIT(2) | BIT(0))
+#define TOP_UCG1_SYNC_MASK             TOP_UCG1_ALL_CH_MASK
+#define TOP_UCG1_CHANNEL_AXI_SLOW_COMM 0
+#define TOP_UCG1_CHANNEL_AXI_FAST_COMM 2
+#define TOP_UCG1_CHANNEL_DDR_SDR_DSP   4
+#define TOP_UCG1_CHANNEL_DDR_SDR_PICE  5
+#define TOP_UCG1_CHANNEL_DDR_LSP1      6
+#define TOP_UCG1_CHANNEL_DDR_SERVICE   7
+#define TOP_UCG1_CHANNEL_DDR_HSP       8
 
 // Bit position in NONESECURETOSECURE Register
 #define TOP_HSP_SUBS_SYS_SECURE_POS      BIT(0)

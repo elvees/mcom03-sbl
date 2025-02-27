@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #include <assert.h>
 #include <malloc.h>
@@ -7,9 +7,9 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <drivers/mcom03-regs.h>
 #include <drivers/qlic/irq.h>
 #include <drivers/qlic/qlic.h>
+#include <drivers/service/service.h>
 #include <drivers/timer/timer.h>
 #include <libs/errors.h>
 #include <libs/log.h>

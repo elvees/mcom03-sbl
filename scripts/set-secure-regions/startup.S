@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 	.text
 	.set noreorder
 	.set mips32
 	.set noat
 
-#include <drivers/mcom03-regs.h>
+#include <drivers/mips-cp0/mips-cp0.h>
 #include <libs/asm.h>
 
 	.global main

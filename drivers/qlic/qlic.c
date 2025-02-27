@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #include <assert.h>
 #include <stddef.h>
 
-#include <drivers/mcom03-regs.h>
+#include <drivers/service/service.h>
 #include <libs/errors.h>
-#include <libs/mc.h>
 #include <libs/utils-def.h>
 
 #include "qlic.h"

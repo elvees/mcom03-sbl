@@ -1,11 +1,16 @@
-// Copyright 2020-2024 RnD Center "ELVEES", JSC
+// Copyright 2020-2025 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
-#include <drivers/mcom03-regs.h>
+#include <drivers/cpu/cpu.h>
+#include <drivers/hs-periph/hs-periph.h>
+#include <drivers/ls-periph0/ls-periph0.h>
+#include <drivers/ls-periph1/ls-periph1.h>
+#include <drivers/service/service.h>
+#include <drivers/top/top.h>
 #include <libs/errors.h>
 #include <libs/utils-def.h>
 

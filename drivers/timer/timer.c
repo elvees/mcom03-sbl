@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2024 RnD Center "ELVEES", JSC
+// Copyright 2024-2025 RnD Center "ELVEES", JSC
 
 #include <stdint.h>
 
+#include <drivers/mips-cp0/mips-cp0.h>
 #include <drivers/service/service.h>
-#include <libs/mc.h>
-#include <libs/utils-def.h>
+
+#include "timer.h"
 
 unsigned long timebase_h;
 unsigned long timebase_l;

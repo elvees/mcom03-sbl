@@ -1,7 +1,21 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #pragma once
+
+#include <libs/utils-def.h>
+
+#define BASE_ADDR_CPU_URB            0xa1000000
+#define BASE_ADDR_CPU_UCG            0xa1080000
+#define BASE_ADDR_CPU_GIC500         0xa1100000
+#define BASE_ADDR_CPU_GIC500_REDISTR 0xa1180000
+
+// CPU Subs UCG Channels
+#define CPU_UCG_ALL_CH_MASK      GENMASK(2, 0)
+#define CPU_UCG_SYNC_MASK        CPU_UCG_ALL_CH_MASK
+#define CPU_UCG_CHANNEL_CLK_CORE 1
+#define CPU_UCG_CHANNEL_CLK_DBUS 2
+#define CPU_UCG_CHANNEL_CLK_SYS  0
 
 #define CPU_CORE_MAX_NUMBER 0x04
 

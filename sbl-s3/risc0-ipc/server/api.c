@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #include <malloc.h>
 #include <string.h>
@@ -7,10 +7,10 @@
 
 #include <drivers/iommu/iommu.h>
 #include <drivers/mailbox/mailbox.h>
+#include <drivers/mips-cp0/mips-cp0.h>
 #include <drivers/qlic/irq.h>
 #include <libs/helpers/helpers.h>
 #include <libs/log.h>
-#include <libs/mc.h>
 #include <libs/queue/queue.h>
 #include <libs/utils-def.h>
 

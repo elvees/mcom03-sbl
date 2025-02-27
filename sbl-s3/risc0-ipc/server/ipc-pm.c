@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2024 RnD Center "ELVEES", JSC
+// Copyright 2025 RnD Center "ELVEES", JSC
 
 #include <stdint.h>
 
 #include <drivers/mailbox/mailbox.h>
-#include <drivers/mcom03-regs.h>
 #include <drivers/service/service.h>
 #include <libs/errors.h>
 #include <libs/helpers/helpers.h>

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #pragma once
 
@@ -22,25 +22,12 @@
 #else
 #include <stdint.h>
 
-#include <drivers/timer/timer.h>
-
-#include "errors.h"
-#include "log.h"
-
 #define GENMASK(h, l)   (((~UINT32_C(0)) << (l)) & (~UINT32_C(0) >> (32 - 1 - (h))))
 #define GENMASK64(h, l) (((~UINT64_C(0)) << (l)) & (~UINT64_C(0) >> (64 - 1 - (h))))
 #endif
 
 #define FIELD_PREP(_mask, _val) ({ ((__typeof__(_mask))(_val) << __bf_shf(_mask)) & (_mask); })
 #define FIELD_GET(_mask, _reg)  ({ (__typeof__(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask)); })
-
-#define panic_handler(fmt, ...)                                           \
-	({                                                                \
-		ERROR("%s: %d: " fmt, __FILE__, __LINE__, ##__VA_ARGS__); \
-		while (1) {                                               \
-			/* ... */                                         \
-		}                                                         \
-	})
 
 #define COMPARE_TYPE(x, y) (void)(&(x) == &(y));
 
@@ -106,28 +93,3 @@
 #define L(_x)   (_x##L)
 #define LL(_x)  (_x##LL)
 #endif
-
-#define HZ      UL(1)
-#define KILO_HZ (UL(1000) * HZ)
-#define MEGA_HZ (UL(1000) * KILO_HZ)
-
-#define USEC_IN_SEC  ULL(1000000)
-#define MSEC_IN_SEC  ULL(1000)
-#define USEC_IN_MSEC ULL(1000)
-
-#define read_poll_timeout(op, val, cond, sleep_us, timeout_us, args...)          \
-	({                                                                       \
-		unsigned long timeout = timer_get_us() + timeout_us;             \
-		for (;;) {                                                       \
-			(val) = op(args);                                        \
-			if (cond)                                                \
-				break;                                           \
-			if (timeout_us && time_after(timer_get_us(), timeout)) { \
-				(val) = op(args);                                \
-				break;                                           \
-			}                                                        \
-			if (sleep_us)                                            \
-				timer_delay_us(sleep_us);                        \
-		}                                                                \
-		(cond) ? 0 : -ETIMEOUT;                                          \
-	})

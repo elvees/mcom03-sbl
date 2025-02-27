@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 #include <drivers/gpio/gpio.h>
-#include <drivers/mcom03-regs.h>
 #include <libs/errors.h>
 #include <libs/helpers/helpers.h>
 #include <libs/mmio.h>

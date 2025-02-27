@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #include <drivers/cpu/cpu.h>
 #include <drivers/iommu/iommu.h>
 #include <drivers/mailbox/mailbox.h>
-#include <drivers/mcom03-regs.h>
+#include <drivers/mips-cp0/mips-cp0.h>
 #include <drivers/pll/pll.h>
 #include <drivers/qlic/irq.h>
 #include <drivers/service/service.h>
 #include <drivers/ucg/ucg.h>
 #include <libs/console/console.h>
 #include <libs/errors.h>
-#include <libs/mc.h>
-#include <libs/utils-def.h>
+#include <libs/log.h>
 
 #include "risc0-ipc/server/api.h"
 

@@ -5,8 +5,32 @@
 
 #include <stdint.h>
 
+#include <libs/errors.h>
+#include <libs/utils-def.h>
+
+#define USEC_IN_SEC  ULL(1000000)
+#define MSEC_IN_SEC  ULL(1000)
+#define USEC_IN_MSEC ULL(1000)
+
 #define time_after(a, b)  ((long)((b) - (a)) < 0)
 #define time_before(a, b) time_after(b, a)
+
+#define read_poll_timeout(op, val, cond, sleep_us, timeout_us, args...)          \
+	({                                                                       \
+		unsigned long timeout = timer_get_us() + timeout_us;             \
+		for (;;) {                                                       \
+			(val) = op(args);                                        \
+			if (cond)                                                \
+				break;                                           \
+			if (timeout_us && time_after(timer_get_us(), timeout)) { \
+				(val) = op(args);                                \
+				break;                                           \
+			}                                                        \
+			if (sleep_us)                                            \
+				timer_delay_us(sleep_us);                        \
+		}                                                                \
+		(cond) ? 0 : -ETIMEOUT;                                          \
+	})
 
 /**
  * @brief Do delay in milliseconds

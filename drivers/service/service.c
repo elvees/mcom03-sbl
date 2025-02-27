@@ -5,9 +5,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <drivers/mcom03-regs.h>
 #include <drivers/pll/pll.h>
 #include <drivers/timer/timer.h>
+#include <drivers/top/top.h>
 #include <drivers/ucg/ucg.h>
 #include <libs/errors.h>
 #include <libs/helpers/helpers.h>

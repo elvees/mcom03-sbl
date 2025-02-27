@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2020-2024 RnD Center "ELVEES", JSC
+// Copyright 2020-2025 RnD Center "ELVEES", JSC
 
 #pragma once
 
@@ -8,7 +8,12 @@
 
 #include <libs/utils-def.h>
 
-#define UCG_CTR_REG_CH_ID_MAX 15
+#define UCG_CTR_REG_CH_ID_MAX   15
+#define UCG_CTR_REG_LPI_EN      BIT(0)
+#define UCG_CTR_REG_CLK_EN      BIT(1)
+#define UCG_CTR_REG_Q_FSM_STATE GENMASK(9, 7)
+#define UCG_CTR_REG_DIV_COEFF   GENMASK(29, 10)
+#define UCG_CTR_REG_DIV_LOCK    BIT(30)
 
 #define UCG_Q_FSM_STATE_STOPPED  0
 #define UCG_Q_FSM_STATE_CLK_EN   1
@@ -40,12 +45,6 @@ typedef struct {
 	volatile uint32_t ucg_bp_ctr_reg;
 	volatile uint32_t ucg_sync_clk_reg;
 } ucg_regs_t;
-
-#define UCG_CTR_REG_LPI_EN      BIT(0)
-#define UCG_CTR_REG_CLK_EN      BIT(1)
-#define UCG_CTR_REG_Q_FSM_STATE GENMASK(9, 7)
-#define UCG_CTR_REG_DIV_COEFF   GENMASK(29, 10)
-#define UCG_CTR_REG_DIV_LOCK    BIT(30)
 
 struct ucg_channel {
 	int ucg_id;

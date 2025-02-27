@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
-#include <drivers/mcom03-regs.h>
+#include <drivers/service/service.h>
 #include <libs/errors.h>
 #include <libs/helpers/helpers.h>
+#include <libs/log.h>
 #include <libs/platform-def-common.h>
 #include <libs/utils-def.h>
 

@@ -1,12 +1,25 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #include <stdio.h>
 
-#include <drivers/mcom03-regs.h>
+#include <drivers/mips-cp0/mips-cp0.h>
 #include <libs/asm.h>
 #include <libs/helpers/helpers.h>
-#include <libs/mc.h>
+
+// EXCEPTION TABLE
+#define EXC_INT  0 // Int  Interruption
+#define EXC_MOD  1 // Mod  TLB-exception of modification
+#define EXC_TLBL 2 // TLBL TLB-exception (loading or command call)
+#define EXC_TLBS 3 // TLBS TLB-exception (saving)
+#define EXC_ADEL 4 // AdEL Interruption due to an addressing error (loading or command call)
+#define EXC_ADES 5 // AdES Interruption due to an addressing error (saving)
+#define EXC_SYS  8 // Sys  System exception
+#define EXC_BP   9 // Bp   Breakpoint exception
+#define EXC_RI   10 // RI  Reserved command exception
+#define EXC_CPU  11 // CpU Coprocessort unavailability exception
+#define EXC_OV   12 // Ov  Integer overflow exception
+#define EXC_TR   13 // Tr  Trap exception
 
 #define EXC_MASK        0x7C
 #define EXC_MASK_OFFSET 0x2

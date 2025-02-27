@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #pragma once
 
@@ -79,3 +79,11 @@
 #else
 #define VERBOSE(fmt, ...) no_printf(LOG_MARKER_VERBOSE fmt, ##__VA_ARGS__)
 #endif
+
+#define panic_handler(fmt, ...)                                           \
+	({                                                                \
+		ERROR("%s: %d: " fmt, __FILE__, __LINE__, ##__VA_ARGS__); \
+		while (1) {                                               \
+			/* ... */                                         \
+		}                                                         \
+	})

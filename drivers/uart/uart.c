@@ -6,8 +6,8 @@
 #include <stdint.h>
 
 #include <drivers/gpio/gpio.h>
+#include <drivers/ls-periph0/ls-periph0.h>
 #include <drivers/ls-periph1/ls-periph1.h>
-#include <drivers/mcom03-regs.h>
 #include <drivers/ucg/ucg.h>
 #include <libs/errors.h>
 #include <libs/helpers/helpers.h>

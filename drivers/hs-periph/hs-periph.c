@@ -1,7 +1,5 @@
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
-
-#include <drivers/mcom03-regs.h>
 
 #include "hs-periph.h"
 

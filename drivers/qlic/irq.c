@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 
-#include <libs/mc.h>
+#include <drivers/mips-cp0/mips-cp0.h>
 
 #include "irq.h"
 #include "qlic.h"

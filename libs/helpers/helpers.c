@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <drivers/ddr/ddr.h>
 #include <drivers/hs-periph/hs-periph.h>
 #include <drivers/ls-periph1/ls-periph1.h>
-#include <drivers/mcom03-regs.h>
 #include <drivers/service/service.h>
 #include <drivers/timer/timer.h>
 #include <drivers/ucg/ucg.h>
@@ -16,31 +16,11 @@
 
 #include "helpers.h"
 
-#define DDRMC_MAX_NUMBER      2
-#define MAX_MEM_REGIONS       4
-#define MEM_REGIONS_VIRT_ADDR 0xC0000000
-
 #define SECURE_REGIONS_PHYS_ADDR_START 0x880000000ULL
 #define SECURE_REGIONS_PHYS_ADDR_SIZE  0x10000000ULL
 #define SECURE_REGIONS_PHYS_ADDR_MASK  (~(SECURE_REGIONS_PHYS_ADDR_SIZE - 1))
 #define SECURE_REGIONS_PHYS_ADDR_END \
 	(SECURE_REGIONS_PHYS_ADDR_START + SECURE_REGIONS_PHYS_ADDR_SIZE)
-
-struct ddrinfo {
-	uint64_t dram_size[DDRMC_MAX_NUMBER];
-	uint64_t total_dram_size;
-	struct {
-		bool enable;
-		int channels;
-		int size;
-	} interleaving;
-	int speed[DDRMC_MAX_NUMBER];
-	// RAM configuration
-	struct {
-		uint64_t start;
-		uint64_t size;
-	} mem_regions[MAX_MEM_REGIONS];
-};
 
 static int _set_ppolicy(uintptr_t reg, uint32_t new_policy, uint32_t timeout_us)
 {
@@ -108,8 +88,8 @@ void set_secure_region(void)
 	 * DDR High. The region size must be a power of 2. It is required to modify of
 	 * ddrinfo struct to add several regions dynamically.
 	 */
-	struct ddrinfo *info = (struct ddrinfo *)MEM_REGIONS_VIRT_ADDR;
-	for (int i = 0; i < MAX_MEM_REGIONS; ++i) {
+	struct ddrinfo *info = (struct ddrinfo *)DDR_MEM_REGIONS_VIRT_ADDR;
+	for (int i = 0; i < DDR_MAX_MEM_REGIONS; ++i) {
 		uint64_t start = info->mem_regions[i].start;
 		uint64_t end = info->mem_regions[i].start + info->mem_regions[i].size;
 		if ((SECURE_REGIONS_PHYS_ADDR_START >= start) &&
