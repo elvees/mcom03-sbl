@@ -6,7 +6,7 @@
 	.set mips32
 	.set noat
 
-#include <drivers/mips-cp0/mips-cp0.h>
+#include <drivers/mips-cp0/asm/mips-cp0.h>
 #include <libs/asm.h>
 
 #include "platform-def.h"

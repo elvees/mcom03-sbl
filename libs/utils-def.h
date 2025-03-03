@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 #define __bf_shf(x) (__builtin_ffsll(x) - 1)
 
 // Compute the number of elements in the given array
@@ -16,15 +18,8 @@
  * position @h. For example
  * GENMASK(19, 9) gives us the 32bit vector 0x000ffe00.
  */
-#if defined(__LINKER__) || defined(__ASSEMBLER__)
-#define GENMASK(h, l)   (((0xFFFFFFFF) << (l)) & (0xFFFFFFFF >> (32 - 1 - (h))))
-#define GENMASK64(h, l) (((0xFFFFFFFFFFFFFFFF) << (l)) & (0xFFFFFFFFFFFFFFFF >> (64 - 1 - (h))))
-#else
-#include <stdint.h>
-
 #define GENMASK(h, l)   (((~UINT32_C(0)) << (l)) & (~UINT32_C(0) >> (32 - 1 - (h))))
 #define GENMASK64(h, l) (((~UINT64_C(0)) << (l)) & (~UINT64_C(0) >> (64 - 1 - (h))))
-#endif
 
 #define FIELD_PREP(_mask, _val) ({ ((__typeof__(_mask))(_val) << __bf_shf(_mask)) & (_mask); })
 #define FIELD_GET(_mask, _reg)  ({ (__typeof__(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask)); })
@@ -80,16 +75,8 @@
  */
 #define IS_ALIGNED(s, a) (ALIGN_UP((s), (a)) == (s))
 
-#if defined(__ASSEMBLER__)
-#define U(_x)   (_x)
-#define UL(_x)  (_x)
-#define ULL(_x) (_x)
-#define L(_x)   (_x)
-#define LL(_x)  (_x)
-#else
 #define U(_x)   (_x##U)
 #define UL(_x)  (_x##UL)
 #define ULL(_x) (_x##ULL)
 #define L(_x)   (_x##L)
 #define LL(_x)  (_x##LL)
-#endif

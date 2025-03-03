@@ -5,12 +5,6 @@
 
 #include <libs/utils-def.h>
 
-#define MC_CSR_REG       0xbfd08000
-#define MC_CSR_TR_CRAM   0x00000002
-#define MC_CSR_TST_CACHE 0x00000800
-#define MC_CSR_FLUSH_I   0x00001000
-#define MC_CSR_FLUSH_D   0x00004000
-
 // Read CP0 coprocessor register.
 #define mips_read_cp0_register(reg)                                            \
 	({                                                                     \
@@ -56,7 +50,6 @@
 #define MIPS_CP0_SR_IM5_QLIC0_TARG3   BIT(13)
 #define MIPS_CP0_SR_IM6_COUNT_COMPARE BIT(14)
 
-#if !defined(__ASSEMBLER__) && !defined(__LINKER__)
 /**
  * @brief Enables all MIPS global interrupts
  */
@@ -88,4 +81,3 @@ int mips_is_irq_target_enabled(unsigned int target);
  * @return Current IRQ target
  */
 int mips_get_irq_target(void);
-#endif

@@ -3,9 +3,7 @@
 
 #pragma once
 
-#include "utils-def.h"
-
-#define PLAT_RANDOM_CANARY_VALUE UL(0xBAADF00D)
+#define PLAT_RANDOM_CANARY_VALUE 0xBAADF00D
 
 #define PLAT_HEAP_POINTER_ALIGN 16
 
