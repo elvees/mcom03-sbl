@@ -48,15 +48,15 @@
 #define SERVICE_UCG1_CHANNEL_RISC0_TCK_UCG 15
 
 // Service Subs TOP Clk Gate
-#define SERVICE_TOP_CLK_GATE_SERVICE          BIT(0)
-#define SERVICE_TOP_CLK_GATE_MEDIA            BIT(1)
-#define SERVICE_TOP_CLK_GATE_CPU              BIT(2)
-#define SERVICE_TOP_CLK_GATE_SDR              BIT(3)
-#define SERVICE_TOP_CLK_GATE_HSP              BIT(4)
-#define SERVICE_TOP_CLK_GATE_LSP0             BIT(5)
-#define SERVICE_TOP_CLK_GATE_LSP1             BIT(6)
-#define SERVICE_TOP_CLK_GATE_DDR              BIT(7)
-#define SERVICE_TOP_CLK_GATE_TOP_INTERCONNECT BIT(8)
+#define SERVICE_TOP_CLK_GATE_SERVICE          0
+#define SERVICE_TOP_CLK_GATE_MEDIA            1
+#define SERVICE_TOP_CLK_GATE_CPU              2
+#define SERVICE_TOP_CLK_GATE_SDR              3
+#define SERVICE_TOP_CLK_GATE_HSP              4
+#define SERVICE_TOP_CLK_GATE_LSP0             5
+#define SERVICE_TOP_CLK_GATE_LSP1             6
+#define SERVICE_TOP_CLK_GATE_DDR              7
+#define SERVICE_TOP_CLK_GATE_TOP_INTERCONNECT 8
 #define SERVICE_TOP_CLK_GATE_ALL_CH_MASK      GENMASK(8, 0)
 
 // Service Subs Debug Status

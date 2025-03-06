@@ -30,9 +30,10 @@ int main(void)
 	int ret;
 
 	// Initialize and configure the TOP clock gate
-	uint32_t top_clkgate = (SERVICE_TOP_CLK_GATE_SERVICE) | (SERVICE_TOP_CLK_GATE_LSP0) |
-	                       (SERVICE_TOP_CLK_GATE_LSP1) | (SERVICE_TOP_CLK_GATE_HSP) |
-	                       (SERVICE_TOP_CLK_GATE_DDR) | (SERVICE_TOP_CLK_GATE_TOP_INTERCONNECT);
+	uint32_t top_clkgate = BIT(SERVICE_TOP_CLK_GATE_SERVICE) | BIT(SERVICE_TOP_CLK_GATE_LSP0) |
+	                       BIT(SERVICE_TOP_CLK_GATE_LSP1) | BIT(SERVICE_TOP_CLK_GATE_HSP) |
+	                       BIT(SERVICE_TOP_CLK_GATE_DDR) |
+	                       BIT(SERVICE_TOP_CLK_GATE_TOP_INTERCONNECT);
 
 	service_urb_regs_t *serv_urb = service_get_urb_registers();
 	serv_urb->top_clkgate = top_clkgate;
