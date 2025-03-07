@@ -12,6 +12,7 @@
 #include <libs/errors.h>
 #include <libs/helpers/helpers.h>
 #include <libs/platform-def-common.h>
+#include <libs/utils-def.h>
 
 #include "service.h"
 
@@ -54,15 +55,17 @@ struct ucg_channel serv_ucg_channels[] = {
 static const struct pm_domain_settings pm_domain_settings[] = {
 	[MCOM03_SUBSYSTEM_SDR] = {
 		.bypass0_mask = 0,
-		.bypass1_mask = TOP_UCG1_CHANNEL_AXI_SLOW_COMM | TOP_UCG1_CHANNEL_AXI_FAST_COMM |
-				TOP_UCG1_CHANNEL_DDR_SDR_DSP | TOP_UCG1_CHANNEL_DDR_SDR_PICE,
+		.bypass1_mask = BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM) |
+				BIT(TOP_UCG1_CHANNEL_AXI_FAST_COMM) |
+				BIT(TOP_UCG1_CHANNEL_DDR_SDR_DSP) |
+				BIT(TOP_UCG1_CHANNEL_DDR_SDR_PICE),
 		.clkgate_mask = SERVICE_TOP_CLK_GATE_SDR,
 		.reg_offset = 0x8,
 	},
 	[MCOM03_SUBSYSTEM_MEDIA] = {
-		.bypass0_mask = TOP_UCG0_CHANNEL_DDR_DP | TOP_UCG0_CHANNEL_DDR_VPU |
-				TOP_UCG0_CHANNEL_DDR_GPU | TOP_UCG0_CHANNEL_DDR_ISP,
-		.bypass1_mask = TOP_UCG1_CHANNEL_AXI_SLOW_COMM,
+		.bypass0_mask = BIT(TOP_UCG0_CHANNEL_DDR_DP) | BIT(TOP_UCG0_CHANNEL_DDR_VPU) |
+				BIT(TOP_UCG0_CHANNEL_DDR_GPU) | BIT(TOP_UCG0_CHANNEL_DDR_ISP),
+		.bypass1_mask = BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM),
 		.clkgate_mask = SERVICE_TOP_CLK_GATE_MEDIA,
 		.reg_offset = 0x10,
 	},
@@ -78,9 +81,10 @@ void service_disable_risc0_cpu(void)
 void service_enable_arm_cpu(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
-	uint32_t bp0_mask = TOP_UCG0_CHANNEL_DDR_CPU | TOP_UCG0_CHANNEL_CPU_ACP |
-	                    TOP_UCG0_CHANNEL_AXI_COH_COMM;
-	uint32_t bp1_mask = TOP_UCG1_CHANNEL_AXI_FAST_COMM | TOP_UCG1_CHANNEL_AXI_SLOW_COMM;
+	uint32_t bp0_mask = BIT(TOP_UCG0_CHANNEL_DDR_CPU) | BIT(TOP_UCG0_CHANNEL_CPU_ACP) |
+	                    BIT(TOP_UCG0_CHANNEL_AXI_COH_COMM);
+	uint32_t bp1_mask = BIT(TOP_UCG1_CHANNEL_AXI_FAST_COMM) |
+	                    BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM);
 
 	set_ppolicy((uintptr_t)&urb->cpu_ppolicy, PP_ON, bp0_mask, bp1_mask, 0);
 	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_CPU;
@@ -97,7 +101,7 @@ void service_disable_arm_cpu(void)
 void service_enable_lsp1(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
-	uint32_t bp1_mask = TOP_UCG1_CHANNEL_DDR_LSP1 | TOP_UCG1_CHANNEL_AXI_SLOW_COMM;
+	uint32_t bp1_mask = BIT(TOP_UCG1_CHANNEL_DDR_LSP1) | BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM);
 
 	set_ppolicy((uintptr_t)&urb->lsperiph1_subs_ppolicy, PP_ON, 0, bp1_mask, 0);
 	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_LSP1;
@@ -106,8 +110,8 @@ void service_enable_lsp1(void)
 void service_enable_lsp0(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
-	uint32_t bp0_mask = TOP_UCG0_CHANNEL_DDR_LSP0;
-	uint32_t bp1_mask = TOP_UCG1_CHANNEL_AXI_SLOW_COMM;
+	uint32_t bp0_mask = BIT(TOP_UCG0_CHANNEL_DDR_LSP0);
+	uint32_t bp1_mask = BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM);
 
 	set_ppolicy((uintptr_t)&urb->lsperiph0_subs_ppolicy, PP_ON, bp0_mask, bp1_mask, 0);
 	urb->top_clkgate |= SERVICE_TOP_CLK_GATE_LSP0;
