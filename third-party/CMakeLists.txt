@@ -1,6 +1,16 @@
 # SPDX-License-Identifier: MIT
 
 add_library(third-party OBJECT
+            ${CMAKE_CURRENT_SOURCE_DIR}/crc/crc8.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crc/crc16.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crc/crc32.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crc/crc64.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crc/crcccitt.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crc/crcdnp.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crc/crckrmit.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crc/crcsick.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crc/nmea-chk.c
+
             ${CMAKE_CURRENT_SOURCE_DIR}/libfdt/fdt.c
             ${CMAKE_CURRENT_SOURCE_DIR}/libfdt/fdt_addresses.c
             ${CMAKE_CURRENT_SOURCE_DIR}/libfdt/fdt_check.c
