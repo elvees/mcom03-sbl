@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: MIT
 
 add_library(third-party OBJECT
+            ${CMAKE_CURRENT_SOURCE_DIR}/aes/aes.c
+
             ${CMAKE_CURRENT_SOURCE_DIR}/crc/crc8.c
             ${CMAKE_CURRENT_SOURCE_DIR}/crc/crc16.c
             ${CMAKE_CURRENT_SOURCE_DIR}/crc/crc32.c
