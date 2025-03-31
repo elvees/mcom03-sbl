@@ -13,6 +13,12 @@ add_library(third-party OBJECT
             ${CMAKE_CURRENT_SOURCE_DIR}/crc/crcsick.c
             ${CMAKE_CURRENT_SOURCE_DIR}/crc/nmea-chk.c
 
+            ${CMAKE_CURRENT_SOURCE_DIR}/crypto/asn1.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crypto/bigint.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crypto/rsa.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crypto/sha256.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/crypto/x509.c
+
             ${CMAKE_CURRENT_SOURCE_DIR}/libfdt/fdt.c
             ${CMAKE_CURRENT_SOURCE_DIR}/libfdt/fdt_addresses.c
             ${CMAKE_CURRENT_SOURCE_DIR}/libfdt/fdt_check.c
