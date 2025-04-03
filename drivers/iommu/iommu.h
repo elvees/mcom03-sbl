@@ -65,4 +65,6 @@ void iommu_reset(iommu_regs_t *dev);
 // Those functions shall be used with critical section
 uintptr_t iommu_map(iommu_regs_t *dev, uint64_t addr64);
 void iommu_unmap(iommu_regs_t *dev, uintptr_t addr32);
+int iommu_map_range(iommu_regs_t *dev, uintptr_t base32_start, ptrdiff_t base32_size,
+                    uint64_t base64_start);
 void iommu_cache_invalidate(iommu_regs_t *dev);

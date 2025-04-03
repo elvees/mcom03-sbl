@@ -194,6 +194,34 @@ static int __iommu_unmap_64(iommu_regs_t *dev, uintptr_t base_address32)
 	return 0;
 }
 
+static int __iommu_map_slot(iommu_regs_t *dev, uintptr_t base_address32, uint64_t base_address64)
+{
+	iommu_pte_t *pte_p;
+	if (!base_address32 || (base_address32 & IOMMU_2_MIB_OFFSET_MASK))
+		return -EINVALIDPARAM;
+
+	int16_t slot = (base_address32 - PLAT_IOMMU_VIRT_BASE_START) / IOMMU_2_MIB;
+	if ((slot < IOMMU_2_MIB_SLOT_MIN) || (slot >= IOMMU_2_MIB_SLOT_MAX))
+		return -EDATASIZE;
+
+	uint32_t table_2mb = dev->ptw_pba_l + 2 * IOMMU_TABLE_SIZE;
+	pte_p = (iommu_pte_t *)convert_pa_to_va(table_2mb);
+
+	if (FIELD_GET(IOMMU_PTE_USER_DEF, pte_p[slot]))
+		return -EBUSY;
+
+	// Setup translation window for base_address64
+	pte_p[slot] = 0;
+	pte_p[slot] = IOMMU_PTE_V | FIELD_PREP(IOMMU_PTE_TYPE, IOMMU_PTE_TYPE_RWX) |
+	              FIELD_PREP(IOMMU_PTE_PPNS, SHR_12(base_address64));
+	pte_p[slot] |= FIELD_PREP(IOMMU_PTE_USER_DEF, 1);
+
+	// Invalidate cache
+	iommu_cache_invalidate(dev);
+
+	return 0;
+}
+
 void iommu_init(iommu_regs_t *dev, const void *ptw_base_addr)
 {
 	unsigned int reg_val = 0;
@@ -278,6 +306,23 @@ void iommu_unmap(iommu_regs_t *dev, uintptr_t addr32)
 
 	if (__iommu_unmap_64(dev, iobase))
 		panic_handler("iommu failed to unregister 64bit addr\r\n");
+}
+
+int iommu_map_range(iommu_regs_t *dev, uintptr_t base32_start, ptrdiff_t base32_size,
+                    uint64_t base64_start)
+{
+	uintptr_t p32 = base32_start & IOMMU_2_MIB_ADDR_MASK;
+	uint64_t p64 = base64_start & IOMMU_4_KIB_ADDR_MASK;
+	int ret;
+
+	for (; p32 < (base32_start + base32_size);
+	     p32 += (ptrdiff_t)IOMMU_2_MIB, p64 += (ptrdiff_t)IOMMU_2_MIB) {
+		ret = __iommu_map_slot(dev, p32, p64);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
 }
 
 void iommu_cache_invalidate(iommu_regs_t *dev)

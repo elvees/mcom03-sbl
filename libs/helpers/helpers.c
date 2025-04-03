@@ -6,6 +6,7 @@
 
 #include <drivers/ddr/ddr.h>
 #include <drivers/hs-periph/hs-periph.h>
+#include <drivers/iommu/iommu.h>
 #include <drivers/ls-periph1/ls-periph1.h>
 #include <drivers/service/service.h>
 #include <drivers/timer/timer.h>
@@ -68,8 +69,24 @@ int set_ppolicy(uintptr_t reg, uint32_t new_policy, uint32_t bp0_mask, uint32_t 
 	return ret;
 }
 
-void set_secure_region(void)
+int setup_ddr_regions(void)
 {
+	int ret;
+
+	/**
+	 * Note that ddrinit also maps the following memory range:
+	 * +----------------------------+-------------------------+
+	 * | 64Bit phys addrs           |   32bit virt addrs      |
+	 * +----------------------------+-------------------------+
+	 * | 0x890400000 - 0x8905FFFFF  | 0xC0000000 - 0xC01FFFFF |
+	 * +----------------------------+-------------------------+
+	 */
+	iommu_regs_t *iommu_regs = iommu_get_registers();
+	ret = iommu_map_range(iommu_regs, DDR_MAP_TO_DDRHIGH_VIRT, DDR_MAP_TO_DDRHIGH_SIZE,
+	                      DDR_MAP_TO_DDRHIGH_PHYS);
+	if (ret)
+		return ret;
+
 	/**
 	 * Mark the first 256 MB of DDR High as Secure.
 	 * This code is provided as example and doesn't affect on security levels at VS_EN = 1
@@ -98,6 +115,8 @@ void set_secure_region(void)
 			info->mem_regions[i].size = end - SECURE_REGIONS_PHYS_ADDR_END;
 		}
 	}
+
+	return 0;
 }
 
 int soc_debug_if_disable(void)

@@ -77,5 +77,5 @@ static inline void *convert_pa_to_va(uintptr_t pa)
 
 int set_ppolicy(uintptr_t reg, uint32_t new_policy, uint32_t bp0_mask, uint32_t bp1_mask,
                 uint32_t timeout_us);
-void set_secure_region(void);
+int setup_ddr_regions(void);
 int soc_debug_if_disable(void);

@@ -120,25 +120,13 @@ int main(void)
 	uint32_t size = (unsigned long)end - (unsigned long)start;
 	memcpy((void *)DDRINIT_START_ADDR_VIRT, (void *)start, size);
 
-	/**
-	 * Note that ddrinit does memory mapping:
-	 * +----------------------------+-------------------------+
-	 * | 64Bit phys addrs           |   32bit virt addrs      |
-	 * +----------------------------+-------------------------+
-	 * | 0x890400000 - 0x8905FFFFF  | 0xC0000000 - 0xC01FFFFF |
-	 * +----------------------------+-------------------------+
-	 * | 0x880200000 - 0x88FFFFFFF  | 0xC0200000 - 0xCFFFFFFF |
-	 * +----------------------------+-------------------------+
-	 */
 	void (*start_ddrinit)(void) = (void *)DDRINIT_START_ADDR_VIRT;
 	start_ddrinit();
 
-	/**
-	 * Mark the first 256 MB of DDR High as Secure.
-	 * This code is provided as example and doesn't affect on security levels at VS_EN = 1
-	 * but can be useful for test purpose in case of boot with VS_EN = 0.
-	 */
-	set_secure_region();
+	// Setup DDR mapping and secure regions
+	ret = setup_ddr_regions();
+	if (ret)
+		return ret;
 
 	// Relocate DTB
 	start = (unsigned long *)&__dtb_start;

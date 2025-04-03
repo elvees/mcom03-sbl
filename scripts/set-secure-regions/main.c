@@ -5,7 +5,5 @@
 
 int main(void)
 {
-	set_secure_region();
-
-	return 0;
+	return setup_ddr_regions();
 }
