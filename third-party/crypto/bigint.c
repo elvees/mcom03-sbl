@@ -77,7 +77,7 @@ static bigint *bi_int_multiply(BI_CTX *ctx, bigint *bi, comp i);
 static bigint *bi_int_divide(BI_CTX *ctx, bigint *biR, comp denom);
 static bigint *alloc(BI_CTX *ctx, int size);
 static bigint *trim(bigint *bi);
-static void more_comps(bigint *bi, int n);
+static int more_comps(bigint *bi, int n);
 #if defined(CONFIG_BIGINT_KARATSUBA) || defined(CONFIG_BIGINT_BARRETT) || \
     defined(CONFIG_BIGINT_MONTGOMERY)
 static bigint *comp_right_shift(bigint *biR, int num_shifts);
@@ -99,9 +99,13 @@ BI_CTX *bi_initialize(void)
 {
     /* calloc() sets everything to zero */
     BI_CTX *ctx = (BI_CTX *)calloc(1, sizeof(BI_CTX));
+    if (ctx == NULL)
+        return NULL;
    
     /* the radix */
     ctx->bi_radix = alloc(ctx, 2); 
+    if (ctx->bi_radix == NULL)
+        return NULL;
     ctx->bi_radix->comps[0] = 0;
     ctx->bi_radix->comps[1] = 1;
     bi_permanent(ctx->bi_radix);
@@ -249,6 +253,8 @@ void bi_free(BI_CTX *ctx, bigint *bi)
 bigint *int_to_bi(BI_CTX *ctx, comp i)
 {
     bigint *biR = alloc(ctx, 1);
+    if (biR == NULL)
+        return NULL;
     biR->comps[0] = i;
     return biR;
 }
@@ -261,6 +267,8 @@ bigint *int_to_bi(BI_CTX *ctx, comp i)
 bigint *bi_clone(BI_CTX *ctx, const bigint *bi)
 {
     bigint *biR = alloc(ctx, bi->size);
+    if (biR == NULL)
+        return NULL;
     check(bi);
     memcpy(biR->comps, bi->comps, bi->size*COMP_BYTE_SIZE);
     return biR;
@@ -283,8 +291,10 @@ bigint *bi_add(BI_CTX *ctx, bigint *bia, bigint *bib)
     check(bib);
 
     n = max(bia->size, bib->size);
-    more_comps(bia, n+1);
-    more_comps(bib, n);
+    if (more_comps(bia, n + 1) != 0)
+        return NULL;
+    if (more_comps(bib, n) != 0)
+        return NULL;
     pa = bia->comps;
     pb = bib->comps;
 
@@ -321,7 +331,8 @@ bigint *bi_subtract(BI_CTX *ctx,
     check(bia);
     check(bib);
 
-    more_comps(bib, n);
+    if (more_comps(bib, n) != 0)
+        return NULL;
     pa = bia->comps;
     pb = bib->comps;
 
@@ -351,6 +362,8 @@ static bigint *bi_int_multiply(BI_CTX *ctx, bigint *bia, comp b)
 {
     int j = 0, n = bia->size;
     bigint *biR = alloc(ctx, n + 1);
+    if (biR == NULL)
+        return NULL;
     comp carry = 0;
     comp *r = biR->comps;
     comp *a = bia->comps;
@@ -403,7 +416,11 @@ bigint *bi_divide(BI_CTX *ctx, bigint *u, bigint *v, int is_mod)
     }
 
     quotient = alloc(ctx, m+1);
+    if (quotient == NULL)
+        return NULL;
     tmp_u = alloc(ctx, n+1);
+    if (tmp_u == NULL)
+        return NULL;
     v = trim(v);        /* make sure we have no leading 0's */
     d = (comp)((long_comp)COMP_RADIX/(V1+1));
 
@@ -414,6 +431,8 @@ bigint *bi_divide(BI_CTX *ctx, bigint *u, bigint *v, int is_mod)
     if (d > 1)
     {
         u = bi_int_multiply(ctx, u, d);
+        if (u == NULL)
+            return NULL;
 
         if (is_mod)
         {
@@ -422,12 +441,15 @@ bigint *bi_divide(BI_CTX *ctx, bigint *u, bigint *v, int is_mod)
         else
         {
             v = bi_int_multiply(ctx, v, d);
+            if (v == NULL)
+                return NULL;
         }
     }
 
     if (orig_u_size == u->size)  /* new digit position u0 */
     {
-        more_comps(u, orig_u_size + 1);
+        if (more_comps(u, orig_u_size + 1) != 0)
+            return NULL;
     }
 
     do
@@ -462,9 +484,15 @@ bigint *bi_divide(BI_CTX *ctx, bigint *u, bigint *v, int is_mod)
         if (q_dash)
         {
             int is_negative;
+            bigint *q_dash_mul = bi_int_multiply(ctx, bi_copy(v), q_dash);
+            if (q_dash_mul == NULL)
+                return NULL;
             tmp_u = bi_subtract(ctx, tmp_u, 
-                    bi_int_multiply(ctx, bi_copy(v), q_dash), &is_negative);
-            more_comps(tmp_u, n+1);
+                    q_dash_mul, &is_negative);
+            if (tmp_u == NULL)
+                return NULL;
+            if (more_comps(tmp_u, n+1) != 0)
+                return NULL;
 
             Q(j) = q_dash; 
 
@@ -473,6 +501,8 @@ bigint *bi_divide(BI_CTX *ctx, bigint *u, bigint *v, int is_mod)
             {
                 Q(j)--;
                 tmp_u = bi_add(ctx, tmp_u, bi_copy(v));
+                if (tmp_u == NULL)
+                    return NULL;
 
                 /* lop off the carry */
                 tmp_u->size--;
@@ -597,7 +627,8 @@ static bigint *comp_left_shift(bigint *biR, int num_shifts)
         return biR;
     }
 
-    more_comps(biR, biR->size + num_shifts);
+    if (more_comps(biR, biR->size + num_shifts) != 0)
+        return NULL;
 
     x = &biR->comps[i+num_shifts];
     y = &biR->comps[i];
@@ -622,6 +653,8 @@ static bigint *comp_left_shift(bigint *biR, int num_shifts)
 bigint *bi_import(BI_CTX *ctx, const uint8_t *data, int size)
 {
     bigint *biR = alloc(ctx, (size+COMP_BYTE_SIZE-1)/COMP_BYTE_SIZE);
+    if (biR == NULL)
+        return NULL;
     int i, j = 0, offset = 0;
 
     memset(biR->comps, 0, biR->size*COMP_BYTE_SIZE);
@@ -653,6 +686,9 @@ bigint *bi_str_import(BI_CTX *ctx, const char *data)
 {
     int size = strlen(data);
     bigint *biR = alloc(ctx, (size+COMP_NUM_NIBBLES-1)/COMP_NUM_NIBBLES);
+    if (biR == NULL)
+        return NULL;
+
     int i, j = 0, offset = 0;
     memset(biR->comps, 0, biR->size*COMP_BYTE_SIZE);
 
@@ -745,7 +781,7 @@ buf_done:
  * modulus we are referring to.
  * @see bi_free_mod(), bi_mod_power().
  */
-void bi_set_mod(BI_CTX *ctx, bigint *bim, int mod_offset)
+int bi_set_mod(BI_CTX *ctx, bigint *bim, int mod_offset)
 {
     int k = bim->size;
     comp d = (comp)((long_comp)COMP_RADIX/(bim->comps[k-1]+1));
@@ -756,14 +792,37 @@ void bi_set_mod(BI_CTX *ctx, bigint *bim, int mod_offset)
     ctx->bi_mod[mod_offset] = bim;
     bi_permanent(ctx->bi_mod[mod_offset]);
     ctx->bi_normalised_mod[mod_offset] = bi_int_multiply(ctx, bim, d);
+    if (ctx->bi_normalised_mod[mod_offset] == NULL)
+        return -1;
+
     bi_permanent(ctx->bi_normalised_mod[mod_offset]);
 
 #if defined(CONFIG_BIGINT_MONTGOMERY)
     /* set montgomery variables */
-    R = comp_left_shift(bi_clone(ctx, ctx->bi_radix), k-1);     /* R */
-    R2 = comp_left_shift(bi_clone(ctx, ctx->bi_radix), k*2-1);  /* R^2 */
-    ctx->bi_RR_mod_m[mod_offset] = bi_mod(ctx, R2);             /* R^2 mod m */
-    ctx->bi_R_mod_m[mod_offset] = bi_mod(ctx, R);               /* R mod m */
+    bigint *bi_radix_clone1 = bi_clone(ctx, ctx->bi_radix);
+    if (bi_radix_clone1 == NULL)
+        return -1;
+
+    R = comp_left_shift(bi_radix_clone1, k-1);     /* R */
+    if (R == NULL)
+        return -1;
+
+    bigint *bi_radix_clone2 = bi_clone(ctx, ctx->bi_radix);
+    if (bi_radix_clone2 == NULL)
+        return -1;
+
+    R2 = comp_left_shift(bi_radix_clone2, k*2-1);  /* R^2 */
+    if (R2 == NULL)
+        return -1;
+
+    ctx->bi_RR_mod_m[mod_offset] = bi_mod(ctx, R2); /* R^2 mod m */
+    if (ctx->bi_RR_mod_m[mod_offset] == NULL)
+        return -1;
+
+    ctx->bi_R_mod_m[mod_offset] = bi_mod(ctx, R);  /* R mod m */
+    if (ctx->bi_R_mod_m[mod_offset] == NULL)
+        return -1;
+
 
     bi_permanent(ctx->bi_RR_mod_m[mod_offset]);
     bi_permanent(ctx->bi_R_mod_m[mod_offset]);
@@ -771,11 +830,23 @@ void bi_set_mod(BI_CTX *ctx, bigint *bim, int mod_offset)
     ctx->N0_dash[mod_offset] = modular_inverse(ctx->bi_mod[mod_offset]);
 
 #elif defined (CONFIG_BIGINT_BARRETT)
+    bigint *bi_radix_clone3 = bi_clone(ctx, ctx->bi_radix);
+    if (bi_radix_clone3 == NULL)
+        return -1;
+
+    bigint *left_shift = comp_left_shift(bi_radix_clone3, k * 2 - 1);
+    if (left_shift == NULL)
+        return -1;
+
     ctx->bi_mu[mod_offset] = 
-        bi_divide(ctx, comp_left_shift(
-            bi_clone(ctx, ctx->bi_radix), k*2-1), ctx->bi_mod[mod_offset], 0);
+        bi_divide(ctx, left_shift, ctx->bi_mod[mod_offset], 0);
+    if (ctx->bi_mu[mod_offset] == NULL)
+        return -1;
+
     bi_permanent(ctx->bi_mu[mod_offset]);
 #endif
+
+    return 0;
 }
 
 /**
@@ -815,6 +886,9 @@ static bigint *regular_multiply(BI_CTX *ctx, bigint *bia, bigint *bib,
     int n = bia->size;
     int t = bib->size;
     bigint *biR = alloc(ctx, n + t);
+    if (biR == NULL)
+        return NULL;
+
     comp *sr = biR->comps;
     comp *sa = bia->comps;
     comp *sb = bib->comps;
@@ -880,8 +954,14 @@ static bigint *karatsuba(BI_CTX *ctx, bigint *bia, bigint *bib, int is_square)
     }
 
     x0 = bi_clone(ctx, bia);
+    if (x0 == NULL)
+        return NULL;
+
     x0->size = m;
     x1 = bi_clone(ctx, bia);
+    if (x1 == NULL)
+        return NULL;
+
     comp_right_shift(x1, m);
     bi_free(ctx, bia);
 
@@ -889,29 +969,77 @@ static bigint *karatsuba(BI_CTX *ctx, bigint *bia, bigint *bib, int is_square)
     if (is_square)
     {
         p0 = bi_square(ctx, bi_copy(x0));
+        if (p0 == NULL)
+            return NULL;
+
         p2 = bi_square(ctx, bi_copy(x1));
-        p1 = bi_square(ctx, bi_add(ctx, x0, x1));
+        if (p2 == NULL)
+            return NULL;
+
+        bigint *add_x0_x1 = bi_add(ctx, x0, x1);
+        if (add_x0_x1 == NULL)
+            return NULL;
+
+        p1 = bi_square(ctx, add_x0_x1);
+        if (p1 == NULL)
+            return NULL;
+
     }
     else /* normal multiply */
     {
         bigint *y0, *y1;
         y0 = bi_clone(ctx, bib);
+        if (y0 == NULL)
+            return NULL;
+
         y0->size = m;
         y1 = bi_clone(ctx, bib);
+        if (y1 == NULL)
+            return NULL;
+
         comp_right_shift(y1, m);
         bi_free(ctx, bib);
 
         p0 = bi_multiply(ctx, bi_copy(x0), bi_copy(y0));
+        if (p0 == NULL)
+            return NULL;
+
         p2 = bi_multiply(ctx, bi_copy(x1), bi_copy(y1));
-        p1 = bi_multiply(ctx, bi_add(ctx, x0, x1), bi_add(ctx, y0, y1));
+        if (p2 == NULL)
+            return NULL;
+
+        bigint *add_x0_x1 = bi_add(ctx, x0, x1);
+        if (add_x0_x1 == NULL)
+            return NULL;
+
+        bigint *add_y0_y1 = bi_add(ctx, y0, y1);
+        if (add_y0_y1 == NULL)
+            return NULL;
+
+        p1 = bi_multiply(ctx, add_x0_x1, add_y0_y1);
+        if (p1 == NULL)
+            return NULL;
     }
 
-    p1 = bi_subtract(ctx, 
-            bi_subtract(ctx, p1, bi_copy(p2), NULL), bi_copy(p0), NULL);
+    bigint *sub_p1_p2copy = bi_subtract(ctx, p1, bi_copy(p2), NULL);
+    if (sub_p1_p2copy == NULL)
+        return NULL;
 
-    comp_left_shift(p1, m);
-    comp_left_shift(p2, 2*m);
-    return bi_add(ctx, p1, bi_add(ctx, p0, p2));
+    p1 = bi_subtract(ctx, sub_p1_p2copy, bi_copy(p0), NULL);
+    if (p1 == NULL)
+        return NULL;
+
+    if (comp_left_shift(p1, m) == NULL)
+        return NULL;
+
+    if (comp_left_shift(p2, 2 * m) == NULL)
+        return NULL;
+
+    bigint *add_p0_p2 = bi_add(ctx, p0, p2);
+    if (add_p0_p2 == NULL)
+        return NULL;
+
+    return bi_add(ctx, p1, add_p0_p2);
 }
 #endif
 
@@ -948,6 +1076,9 @@ static bigint *regular_square(BI_CTX *ctx, bigint *bi)
     int t = bi->size;
     int i = 0, j;
     bigint *biR = alloc(ctx, t*2+1);
+    if (biR == NULL)
+        return NULL;
+
     comp *w = biR->comps;
     comp *x = bi->comps;
     long_comp carry;
@@ -1064,12 +1195,15 @@ int bi_compare(bigint *bia, bigint *bib)
 /*
  * Allocate and zero more components.  Does not consume bi. 
  */
-static void more_comps(bigint *bi, int n)
+static int more_comps(bigint *bi, int n)
 {
     if (n > bi->max_comps)
     {
         bi->max_comps = max(bi->max_comps * 2, n);
         bi->comps = (comp*)realloc(bi->comps, bi->max_comps * COMP_BYTE_SIZE);
+        if (bi->comps == NULL)
+            return -1;
+
     }
 
     if (n > bi->size)
@@ -1078,6 +1212,7 @@ static void more_comps(bigint *bi, int n)
     }
 
     bi->size = n;
+    return 0;
 }
 
 /*
@@ -1103,14 +1238,21 @@ static bigint *alloc(BI_CTX *ctx, int size)
             abort();    /* create a stack trace from a core dump */
         }
 
-        more_comps(biR, size);
+        if (more_comps(biR, size) != 0)
+            return NULL;
     }
     else
     {
         /* No free bigints available - create a new one. */
         biR = (bigint *)malloc(sizeof(bigint));
-        biR->comps = (comp*)malloc(size * COMP_BYTE_SIZE);
-        biR->max_comps = size;  /* give some space to spare */
+        if (biR == NULL)
+            return NULL;
+
+        biR->comps = (comp *)malloc(size * COMP_BYTE_SIZE);
+        if (biR->comps == NULL)
+            return NULL;
+
+        biR->max_comps = size; /* give some space to spare */
     }
 
     biR->size = size;
@@ -1227,8 +1369,18 @@ bigint *bi_mont(BI_CTX *ctx, bigint *bixy)
 
     do
     {
-        bixy = bi_add(ctx, bixy, comp_left_shift(
-                    bi_int_multiply(ctx, bim, bixy->comps[i]*mod_inv), i));
+        bigint *mod_inv_mul = bi_int_multiply(ctx, bim, bixy->comps[i] * mod_inv);
+        if (mod_inv_mul == NULL)
+            return NULL;
+
+        bigint *left_mul_i = comp_left_shift(mod_inv_mul, i);
+        if (left_mul_i == NULL)
+            return NULL;
+
+        bixy = bi_add(ctx, bixy, left_mul_i);
+        if (bixy == NULL)
+            return NULL;
+
     } while (++i < n);
 
     comp_right_shift(bixy, n);
@@ -1236,6 +1388,9 @@ bigint *bi_mont(BI_CTX *ctx, bigint *bixy)
     if (bi_compare(bixy, bim) >= 0)
     {
         bixy = bi_subtract(ctx, bixy, bim, NULL);
+        if (bixy == NULL)
+            return NULL;
+
     }
 
     return bixy;
@@ -1280,21 +1435,39 @@ bigint *bi_barrett(BI_CTX *ctx, bigint *bi)
         return bi_mod(ctx, bi);
     }
 
-    q1 = comp_right_shift(bi_clone(ctx, bi), k-1);
+    bigint *bi_arg_clone = bi_clone(ctx, bi);
+    if (bi_arg_clone == NULL)
+        return NULL;
+
+    q1 = comp_right_shift(bi_arg_clone, k-1);
 
     /* do outer partial multiply */
     q2 = regular_multiply(ctx, q1, ctx->bi_mu[mod_offset], 0, k-1); 
+    if (q2 == NULL)
+        return NULL;
+
     q3 = comp_right_shift(q2, k+1);
     r1 = comp_mod(bi, k+1);
 
     /* do inner partial multiply */
-    r2 = comp_mod(regular_multiply(ctx, q3, bim, k+1, 0), k+1);
+    bigint *mul_res = regular_multiply(ctx, q3, bim, k + 1, 0);
+    if (mul_res == NULL)
+        return NULL;
+
+    r2 = comp_mod(mul_res, k + 1);
+    if (r2 == NULL)
+        return NULL;
+
     r = bi_subtract(ctx, r1, r2, NULL);
+    if (r == NULL)
+        return NULL;
 
     /* if (r >= m) r = r - m; */
     if (bi_compare(r, bim) >= 0)
     {
         r = bi_subtract(ctx, r, bim, NULL);
+        if (r == NULL)
+            return NULL;
     }
 
     return r;
@@ -1305,7 +1478,7 @@ bigint *bi_barrett(BI_CTX *ctx, bigint *bi)
 /*
  * Work out g1, g3, g5, g7... etc for the sliding-window algorithm 
  */
-static void precompute_slide_window(BI_CTX *ctx, int window, bigint *g1)
+static int precompute_slide_window(BI_CTX *ctx, int window, bigint *g1)
 {
     int k = 1, i;
     bigint *g2;
@@ -1316,18 +1489,38 @@ static void precompute_slide_window(BI_CTX *ctx, int window, bigint *g1)
     }
 
     ctx->g = (bigint **)malloc(k*sizeof(bigint *));
+    if (ctx->g == NULL)
+        return -1;
+
     ctx->g[0] = bi_clone(ctx, g1);
+    if (ctx->g[0] == NULL)
+        return -1;
+
     bi_permanent(ctx->g[0]);
-    g2 = bi_residue(ctx, bi_square(ctx, ctx->g[0]));   /* g^2 */
+    bigint *g_squ = bi_square(ctx, ctx->g[0]);
+    if (g_squ == NULL)
+        return -1;
+
+    g2 = bi_residue(ctx, g_squ);   /* g^2 */
+    if (g2 == NULL)
+        return -1;
 
     for (i = 1; i < k; i++)
     {
-        ctx->g[i] = bi_residue(ctx, bi_multiply(ctx, ctx->g[i-1], bi_copy(g2)));
+        bigint *g_mul = bi_multiply(ctx, ctx->g[i-1], bi_copy(g2));
+        if (g_mul == NULL)
+            return -1;
+
+        ctx->g[i] = bi_residue(ctx, g_mul);
+        if (ctx->g[i] == NULL)
+            return -1;
+
         bi_permanent(ctx->g[i]);
     }
 
     bi_free(ctx, g2);
     ctx->window = k;
+    return 0;
 }
 #endif
 
@@ -1346,14 +1539,22 @@ bigint *bi_mod_power(BI_CTX *ctx, bigint *bi, bigint *biexp)
 {
     int i = find_max_exp_index(biexp), j, window_size = 1;
     bigint *biR = int_to_bi(ctx, 1);
+    if (biR == NULL)
+        return NULL;
 
 #if defined(CONFIG_BIGINT_MONTGOMERY)
     uint8_t mod_offset = ctx->mod_offset;
     if (!ctx->use_classical)
     {
         /* preconvert */
-        bi = bi_mont(ctx, 
-                bi_multiply(ctx, bi, ctx->bi_RR_mod_m[mod_offset]));    /* x' */
+        bigint *mod_mul = bi_multiply(ctx, bi, ctx->bi_RR_mod_m[mod_offset]);
+        if (mod_mul == NULL)
+            return NULL;
+
+        bi = bi_mont(ctx, mod_mul);    /* x' */
+        if (bi == NULL)
+            return NULL;
+
         bi_free(ctx, biR);
         biR = ctx->bi_R_mod_m[mod_offset];                              /* A */
     }
@@ -1367,10 +1568,18 @@ bigint *bi_mod_power(BI_CTX *ctx, bigint *bi, bigint *biexp)
         window_size++;
 
     /* work out the slide constants */
-    precompute_slide_window(ctx, window_size, bi);
+    if (precompute_slide_window(ctx, window_size, bi) != 0)
+        return NULL;
+
 #else   /* just one constant */
     ctx->g = (bigint **)malloc(sizeof(bigint *));
+    if (ctx->g == NULL)
+        return NULL;
+
     ctx->g[0] = bi_clone(ctx, bi);
+    if (ctx->g[0] == NULL)
+        return NULL;
+
     ctx->window = 1;
     bi_permanent(ctx->g[0]);
 #endif
@@ -1395,7 +1604,14 @@ bigint *bi_mod_power(BI_CTX *ctx, bigint *bi, bigint *biexp)
             /* build up the section of the exponent */
             for (j = i; j >= l; j--)
             {
-                biR = bi_residue(ctx, bi_square(ctx, biR));
+                bigint *bir_squ = bi_square(ctx, biR);
+                if (bir_squ == NULL)
+                    return NULL;
+
+                biR = bi_residue(ctx, bir_squ);
+                if (biR == NULL)
+                    return NULL;
+
                 if (exp_bit_is_one(biexp, j))
                     part_exp++;
 
@@ -1404,12 +1620,26 @@ bigint *bi_mod_power(BI_CTX *ctx, bigint *bi, bigint *biexp)
             }
 
             part_exp = (part_exp-1)/2;  /* adjust for array */
-            biR = bi_residue(ctx, bi_multiply(ctx, biR, ctx->g[part_exp]));
+            bigint *g_mul = bi_multiply(ctx, biR, ctx->g[part_exp]);
+            if (g_mul == NULL)
+                return NULL;
+
+            biR = bi_residue(ctx, g_mul);
+            if (biR == NULL)
+                return NULL;
+
             i = l-1;
         }
         else    /* square it */
         {
-            biR = bi_residue(ctx, bi_square(ctx, biR));
+            bigint *bir_squ = bi_square(ctx, biR);
+            if (bir_squ == NULL)
+                return NULL;
+
+            biR = bi_residue(ctx, bir_squ);
+            if (biR == NULL)
+                return NULL;
+
             i--;
         }
     } while (i >= 0);
@@ -1453,11 +1683,32 @@ bigint *bi_mod_power2(BI_CTX *ctx, bigint *bi, bigint *bim, bigint *biexp)
      * which is already in this context. This operation is only called when
      * doing peer verification, and so is not expensive :-) */
     BI_CTX *tmp_ctx = bi_initialize();
-    bi_set_mod(tmp_ctx, bi_clone(tmp_ctx, bim), BIGINT_M_OFFSET);
-    tmp_biR = bi_mod_power(tmp_ctx, 
-                bi_clone(tmp_ctx, bi), 
-                bi_clone(tmp_ctx, biexp));
+    if (tmp_ctx == NULL)
+        return NULL;
+
+    bigint *bim_clone = bi_clone(tmp_ctx, bim);
+    if (bim_clone == NULL)
+        return NULL;
+
+    if (bi_set_mod(tmp_ctx, bim_clone, BIGINT_M_OFFSET) != 0)
+        return NULL;
+
+    bigint *bi_arg_clone = bi_clone(tmp_ctx, bi);
+    if (bi_arg_clone == NULL)
+        return NULL;
+
+    bigint *biexp_arg_clone = bi_clone(tmp_ctx, biexp);
+    if (biexp_arg_clone == NULL)
+        return NULL;
+
+    tmp_biR = bi_mod_power(tmp_ctx, bi_arg_clone, biexp_arg_clone);
+    if (tmp_biR == NULL)
+        return NULL;
+
     biR = bi_clone(ctx, tmp_biR);
+    if (biR == NULL)
+        return NULL;
+
     bi_free(tmp_ctx, tmp_biR);
     bi_free_mod(tmp_ctx, BIGINT_M_OFFSET);
     bi_terminate(tmp_ctx);
@@ -1495,18 +1746,39 @@ bigint *bi_crt(BI_CTX *ctx, bigint *bi,
 #endif
     ctx->mod_offset = BIGINT_P_OFFSET;
     m1 = bi_mod_power(ctx, bi_copy(bi), dP);
+    if (m1 == NULL)
+        return NULL;
 
     ctx->mod_offset = BIGINT_Q_OFFSET;
     m2 = bi_mod_power(ctx, bi, dQ);
+    if (m2 == NULL)
+        return NULL;
 
-    h = bi_subtract(ctx, bi_add(ctx, m1, p), bi_copy(m2), NULL);
+    bigint *add_m1_p = bi_add(ctx, m1, p);
+    if (add_m1_p == NULL)
+        return NULL;
+
+    h = bi_subtract(ctx, add_m1_p, bi_copy(m2), NULL);
+    if (h == NULL)
+        return NULL;
+
     h = bi_multiply(ctx, h, qInv);
+    if (h == NULL)
+        return NULL;
+
     ctx->mod_offset = BIGINT_P_OFFSET;
     h = bi_residue(ctx, h);
+    if (h == NULL)
+        return NULL;
+
 #if defined(CONFIG_BIGINT_MONTGOMERY)
     ctx->use_classical = 0;         /* reset for any further operation */
 #endif
-    return bi_add(ctx, m2, bi_multiply(ctx, q, h));
+    bigint *qh_mul = bi_multiply(ctx, q, h);
+    if (qh_mul == NULL)
+        return NULL;
+
+    return bi_add(ctx, m2, qh_mul);
 }
 #endif
 /** @} */

@@ -58,6 +58,7 @@ extern "C" {
 #define X509_INVALID_PRIV_KEY               -9
 #define X509_MAX_CERTS                      -10
 #define X509_VFY_ERROR_BASIC_CONSTRAINT     -11
+#define X509_MALLOC_ERROR                   -12
 
 /*
  * The Distinguished Name

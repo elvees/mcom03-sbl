@@ -40,7 +40,7 @@
 #include "os_port.h"
 #include "crypto.h"
 
-void RSA_priv_key_new(RSA_CTX **ctx, 
+int RSA_priv_key_new(RSA_CTX **ctx, 
         const uint8_t *modulus, int mod_len,
         const uint8_t *pub_exp, int pub_len,
         const uint8_t *priv_exp, int priv_len
@@ -55,27 +55,51 @@ void RSA_priv_key_new(RSA_CTX **ctx,
 {
     RSA_CTX *rsa_ctx;
     BI_CTX *bi_ctx;
-    RSA_pub_key_new(ctx, modulus, mod_len, pub_exp, pub_len);
+    if (RSA_pub_key_new(ctx, modulus, mod_len, pub_exp, pub_len) != 0)
+        return -1;
+
     rsa_ctx = *ctx;
     bi_ctx = rsa_ctx->bi_ctx;
     rsa_ctx->d = bi_import(bi_ctx, priv_exp, priv_len);
+    if (rsa_ctx->d == NULL)
+        return -1;
+
     bi_permanent(rsa_ctx->d);
 
 #ifdef CONFIG_BIGINT_CRT
     rsa_ctx->p = bi_import(bi_ctx, p, p_len);
+    if (rsa_ctx->p == NULL)
+        return -1;
+
     rsa_ctx->q = bi_import(bi_ctx, q, q_len);
+    if (rsa_ctx->q == NULL)
+        return -1;
+
     rsa_ctx->dP = bi_import(bi_ctx, dP, dP_len);
+    if (rsa_ctx->dP == NULL)
+        return -1;
+
     rsa_ctx->dQ = bi_import(bi_ctx, dQ, dQ_len);
+    if (rsa_ctx->dQ == NULL)
+        return -1;
+
     rsa_ctx->qInv = bi_import(bi_ctx, qInv, qInv_len);
+    if (rsa_ctx->qInv == NULL)
+        return -1;
+
     bi_permanent(rsa_ctx->dP);
     bi_permanent(rsa_ctx->dQ);
     bi_permanent(rsa_ctx->qInv);
-    bi_set_mod(bi_ctx, rsa_ctx->p, BIGINT_P_OFFSET);
-    bi_set_mod(bi_ctx, rsa_ctx->q, BIGINT_Q_OFFSET);
+    if (bi_set_mod(bi_ctx, rsa_ctx->p, BIGINT_P_OFFSET) != 0)
+        return -1;
+
+    if (bi_set_mod(bi_ctx, rsa_ctx->q, BIGINT_Q_OFFSET) != 0)
+        return -1;
 #endif
+    return 0;
 }
 
-void RSA_pub_key_new(RSA_CTX **ctx, 
+int RSA_pub_key_new(RSA_CTX **ctx, 
         const uint8_t *modulus, int mod_len,
         const uint8_t *pub_exp, int pub_len)
 {
@@ -86,14 +110,29 @@ void RSA_pub_key_new(RSA_CTX **ctx,
         RSA_free(*ctx);
 
     bi_ctx = bi_initialize();
+    if (bi_ctx == NULL)
+        return -1;
+
     *ctx = (RSA_CTX *)calloc(1, sizeof(RSA_CTX));
+    if (*ctx == NULL)
+        return -1;
+
     rsa_ctx = *ctx;
     rsa_ctx->bi_ctx = bi_ctx;
     rsa_ctx->num_octets = mod_len;
     rsa_ctx->m = bi_import(bi_ctx, modulus, mod_len);
-    bi_set_mod(bi_ctx, rsa_ctx->m, BIGINT_M_OFFSET);
+    if (rsa_ctx->m == NULL)
+        return -1;
+
+    if (bi_set_mod(bi_ctx, rsa_ctx->m, BIGINT_M_OFFSET) != 0)
+       return -1;
+
     rsa_ctx->e = bi_import(bi_ctx, pub_exp, pub_len);
+    if (rsa_ctx->e == NULL)
+       return -1;
+
     bi_permanent(rsa_ctx->e);
+    return 0;
 }
 
 /**

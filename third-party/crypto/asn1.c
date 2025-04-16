@@ -166,6 +166,9 @@ int asn1_get_big_int(const uint8_t *buf, int *offset, uint8_t **object)
     }
 
     *object = (uint8_t *)malloc(len);
+    if (*object == NULL)
+        return X509_MALLOC_ERROR;
+
     memcpy(*object, &buf[*offset], len);
     *offset += len;
 
@@ -259,6 +262,7 @@ end_bit_string_as_int:
  */
 int asn1_get_private_key(const uint8_t *buf, int len, RSA_CTX **rsa_ctx)
 {
+    int ret;
     int offset = 7;
     uint8_t *modulus = NULL, *priv_exp = NULL, *pub_exp = NULL;
     int mod_len, priv_len, pub_len;
@@ -306,8 +310,10 @@ int asn1_get_private_key(const uint8_t *buf, int len, RSA_CTX **rsa_ctx)
     free(dQ);
     free(qInv);
 #else
-    RSA_priv_key_new(rsa_ctx, 
+    ret = RSA_priv_key_new(rsa_ctx, 
             modulus, mod_len, pub_exp, pub_len, priv_exp, priv_len);
+    if (ret)
+        return ret;
 #endif
 
     free(modulus);
@@ -452,6 +458,8 @@ static int asn1_get_printable_str(const uint8_t *buf, int *offset, char **str)
     {
         int i;
         *str = (char *)malloc(len/2+1);     /* allow for null */
+        if (*str == NULL)
+            return X509_MALLOC_ERROR;
 
         for (i = 0; i < len; i += 2)
             (*str)[i/2] = buf[*offset + i + 1];
@@ -461,6 +469,8 @@ static int asn1_get_printable_str(const uint8_t *buf, int *offset, char **str)
     else
     {
         *str = (char *)malloc(len+1);       /* allow for null */
+        if (*str == NULL)
+            return X509_MALLOC_ERROR;
         memcpy(*str, &buf[*offset], len);
         (*str)[len] = 0;                    /* null terminate */
     }
@@ -493,8 +503,11 @@ int asn1_name(const uint8_t *cert, int *offset, char *dn[])
 
         tmp = NULL;
 
-        if (asn1_get_printable_str(cert, offset, &tmp) < 0)
+        int p_str_res = asn1_get_printable_str(cert, offset, &tmp);
+        if (p_str_res < 0)
         {
+            if (p_str_res == X509_MALLOC_ERROR)
+                ret = X509_MALLOC_ERROR;
             free(tmp);
             goto end_name;
         }
@@ -543,9 +556,14 @@ int asn1_public_key(const uint8_t *cert, int *offset, X509_CTX *x509_ctx)
         goto end_pub_key;
 
     mod_len = asn1_get_big_int(cert, offset, &modulus);
+    if (mod_len < 0)
+        return mod_len;
     pub_len = asn1_get_big_int(cert, offset, &pub_exp);
+    if (pub_len < 0)
+        return pub_len;
 
-    RSA_pub_key_new(&x509_ctx->rsa_ctx, modulus, mod_len, pub_exp, pub_len);
+    if (RSA_pub_key_new(&x509_ctx->rsa_ctx, modulus, mod_len, pub_exp, pub_len) != 0)
+        return X509_MALLOC_ERROR;
 
     free(modulus);
     free(pub_exp);
@@ -569,6 +587,8 @@ int asn1_signature(const uint8_t *cert, int *offset, X509_CTX *x509_ctx)
     x509_ctx->sig_len = get_asn1_length(cert, offset)-1;
     (*offset)++;            /* ignore bit string padding bits */
     x509_ctx->signature = (uint8_t *)malloc(x509_ctx->sig_len);
+    if (x509_ctx->signature == NULL)
+        return X509_MALLOC_ERROR;
     memcpy(x509_ctx->signature, &cert[*offset], x509_ctx->sig_len);
     *offset += x509_ctx->sig_len;
     ret = X509_OK;

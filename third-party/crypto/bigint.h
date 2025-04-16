@@ -54,7 +54,7 @@ bigint *bi_multiply(BI_CTX *ctx, bigint *bia, bigint *bib);
 bigint *bi_mod_power(BI_CTX *ctx, bigint *bi, bigint *biexp);
 bigint *bi_mod_power2(BI_CTX *ctx, bigint *bi, bigint *bim, bigint *biexp);
 int bi_compare(bigint *bia, bigint *bib);
-void bi_set_mod(BI_CTX *ctx, bigint *bim, int mod_offset);
+int bi_set_mod(BI_CTX *ctx, bigint *bim, int mod_offset);
 void bi_free_mod(BI_CTX *ctx, int mod_offset);
 
 #ifdef CONFIG_SSL_FULL_MODE

@@ -87,6 +87,9 @@ int x509_new(const uint8_t *cert, int *len, X509_CTX **ctx)
 #endif
 
     *ctx = (X509_CTX *)calloc(1, sizeof(X509_CTX));
+    if (*ctx == NULL)
+        return X509_MALLOC_ERROR;
+
     x509_ctx = *ctx;
 
     /* get the certificate size */
@@ -118,11 +121,26 @@ int x509_new(const uint8_t *cert, int *len, X509_CTX **ctx)
         goto end_cert;
     }
 
-    if (asn1_name(cert, &offset, x509_ctx->ca_cert_dn) || 
-            asn1_validity(cert, &offset, x509_ctx) ||
-            asn1_name(cert, &offset, x509_ctx->cert_dn) ||
-            asn1_public_key(cert, &offset, x509_ctx))
+    int asn1_name_ret = asn1_name(cert, &offset, x509_ctx->ca_cert_dn);
+    if (asn1_name_ret != X509_OK)
     {
+        ret = asn1_name_ret;
+        goto end_cert;
+    }
+
+    if (asn1_validity(cert, &offset, x509_ctx))
+        goto end_cert;
+
+    asn1_name_ret = asn1_name(cert, &offset, x509_ctx->cert_dn);
+    if (asn1_name_ret != X509_OK)
+    {
+        ret = asn1_name_ret;
+        goto end_cert;
+    }
+
+    int asn1_p_k_ret = asn1_public_key(cert, &offset, x509_ctx);
+    if (asn1_p_k_ret != X509_OK) {
+        ret = asn1_p_k_ret;
         goto end_cert;
     }
 
@@ -139,21 +157,34 @@ int x509_new(const uint8_t *cert, int *len, X509_CTX **ctx)
             SHA256_Update(&sha256_ctx, &cert[begin_tbs], end_tbs-begin_tbs);
             SHA256_Final(x509_ctx->sha256_digest, &sha256_ctx);
             x509_ctx->digest = bi_import(bi_ctx, x509_ctx->sha256_digest, SHA256_SIZE);
+            if (x509_ctx->digest == NULL) {
+                ret = X509_MALLOC_ERROR;
+                goto end_cert;
+            }
         }
             break;
     }
 
     if (version == 2 && asn1_next_obj(cert, &offset, ASN1_V3_DATA) > 0)
     {
-        x509_v3_subject_alt_name(cert, offset, x509_ctx);
+        int alt_name_ret = x509_v3_subject_alt_name(cert, offset, x509_ctx);
+        if (alt_name_ret != X509_OK) {
+            ret = alt_name_ret;
+            goto end_cert;
+        }
         x509_v3_basic_constraints(cert, offset, x509_ctx);
         x509_v3_key_usage(cert, offset, x509_ctx);
     }
 
     offset = end_tbs;   /* skip the rest of v3 data */
-    if (asn1_skip_obj(cert, &offset, ASN1_SEQUENCE) || 
-            asn1_signature(cert, &offset, x509_ctx))
+    if (asn1_skip_obj(cert, &offset, ASN1_SEQUENCE))
         goto end_cert;
+    int asn1_sig_ret = asn1_signature(cert, &offset, x509_ctx);
+    if (asn1_sig_ret) {
+        ret = asn1_sig_ret;
+        goto end_cert;
+    }
+
 #endif
     ret = X509_OK;
 end_cert:
@@ -204,8 +235,14 @@ static int x509_v3_subject_alt_name(const uint8_t *cert, int offset,
                         x509_ctx->subject_alt_dnsnames = (char**)
                                 realloc(x509_ctx->subject_alt_dnsnames, 
                                    (totalnames + 2) * sizeof(char*));
+                        if (x509_ctx->subject_alt_dnsnames == NULL)
+                            return X509_MALLOC_ERROR;
+
                         x509_ctx->subject_alt_dnsnames[totalnames] = 
                                 (char*)malloc(dnslen + 1);
+                        if (x509_ctx->subject_alt_dnsnames[totalnames] == NULL)
+                            return X509_MALLOC_ERROR;
+
                         x509_ctx->subject_alt_dnsnames[totalnames+1] = NULL;
                         memcpy(x509_ctx->subject_alt_dnsnames[totalnames], 
                                 cert + offset, dnslen);
@@ -332,8 +369,10 @@ void x509_free(X509_CTX *x509_ctx)
 
     RSA_free(x509_ctx->rsa_ctx);
     next = x509_ctx->next;
-    free(x509_ctx);
-    x509_free(next);        /* clear the chain */
+    if (next != NULL) {
+        free(x509_ctx);
+        x509_free(next);        /* clear the chain */
+    }
 }
 
 #ifdef CONFIG_SSL_CERT_VERIFICATION
@@ -525,8 +564,17 @@ int x509_verify(const CA_CERT_CTX *ca_cert_ctx, const X509_CTX *cert,
     }
 
     /* check the signature */
+    bigint *mod_clone = bi_clone(ctx, mod);
+    if (mod_clone == NULL) {
+        return X509_MALLOC_ERROR;
+    }
+    bigint *expn_clone = bi_clone(ctx, expn);
+    if (expn_clone == NULL) {
+        return X509_MALLOC_ERROR;
+    }
+
     cert_sig = sig_verify(ctx, cert->signature, cert->sig_len, 
-                        bi_clone(ctx, mod), bi_clone(ctx, expn));
+                        mod_clone, expn_clone);
 
     if (cert_sig && cert->digest)
     {
