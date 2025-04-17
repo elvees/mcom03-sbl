@@ -43,7 +43,7 @@ repos:
       - id: debug-statements
       - id: check-yaml
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v19.1.4
+    rev: v20.1.0
     hooks:
       - id: clang-format
         args:
@@ -53,7 +53,7 @@ repos:
             libs/asm.h
           )$
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.35.1
+    rev: v1.37.0
     hooks:
       - id: yamllint
   - repo: https://github.com/PyCQA/doc8
@@ -97,13 +97,13 @@ repos:
         types_or: []
         files: ^.*\.mdb$
   - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1
+    rev: 7.2.0
     hooks:
       - id: flake8
         additional_dependencies:
           - flake8-black
   - repo: https://github.com/python/black
-    rev: 24.10.0
+    rev: 25.1.0
     hooks:
       - id: black
         language_version: python3
