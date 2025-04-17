@@ -177,9 +177,6 @@ int main(void)
 	 */
 	hsp_refclk_setup();
 
-	// I2S RSTN must be enabled before LSP1 UCGs setup
-	lsp1_i2s_ucg1_rstn();
-
 	// Initialize and configure the CPU clocking system and run it
 	INFO("Done.\n");
 	INFO("Run TF-A ... \n");

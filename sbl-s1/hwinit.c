@@ -125,9 +125,6 @@ int main(void)
 	 */
 	hsp_refclk_setup();
 
-	// I2S RSTN must be enabled before LSP1 UCGs setup
-	lsp1_i2s_ucg1_rstn();
-
 	// TODO: May be necessary to block writing to the flash memory
 
 #ifdef WDT_ENABLE
