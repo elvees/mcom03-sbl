@@ -91,8 +91,6 @@ struct _x509_ctx
     char *ca_cert_dn[X509_NUM_DN_TYPES];
     char *cert_dn[X509_NUM_DN_TYPES];
     char **subject_alt_dnsnames;
-    time_t not_before;
-    time_t not_after;
     uint8_t *signature;
     RSA_CTX *rsa_ctx;
     bigint *digest;
@@ -173,7 +171,7 @@ int asn1_get_int(const uint8_t *buf, int *offset, int32_t *val);
 int asn1_get_bool(const uint8_t *buf, int *offset, bool *val);
 int asn1_get_bit_string_as_int(const uint8_t *buf, int *offset, uint32_t *val);
 int asn1_version(const uint8_t *cert, int *offset, int *val);
-int asn1_validity(const uint8_t *cert, int *offset, X509_CTX *x509_ctx);
+int asn1_validity(const uint8_t *cert, int *offset);
 int asn1_name(const uint8_t *cert, int *offset, char *dn[]);
 int asn1_public_key(const uint8_t *cert, int *offset, X509_CTX *x509_ctx);
 #ifdef CONFIG_SSL_CERT_VERIFICATION

@@ -128,7 +128,7 @@ int x509_new(const uint8_t *cert, int *len, X509_CTX **ctx)
         goto end_cert;
     }
 
-    if (asn1_validity(cert, &offset, x509_ctx))
+    if (asn1_validity(cert, &offset))
         goto end_cert;
 
     asn1_name_ret = asn1_name(cert, &offset, x509_ctx->cert_dn);
@@ -439,7 +439,6 @@ int x509_verify(const CA_CERT_CTX *ca_cert_ctx, const X509_CTX *cert,
     BI_CTX *ctx = NULL;
     bigint *mod = NULL, *expn = NULL;
     int match_ca_cert = 0;
-    struct timeval tv;
     uint8_t is_self_signed = 0;
 
     if (cert == NULL)
@@ -456,22 +455,6 @@ int x509_verify(const CA_CERT_CTX *ca_cert_ctx, const X509_CTX *cert,
         ctx = cert->rsa_ctx->bi_ctx;
         mod = cert->rsa_ctx->m;
         expn = cert->rsa_ctx->e;
-    }
-
-    gettimeofday(&tv, NULL);
-
-    /* check the not before date */
-    if (tv.tv_sec < cert->not_before)
-    {
-        ret = X509_VFY_ERROR_NOT_YET_VALID;
-        goto end_verify;
-    }
-
-    /* check the not after date */
-    if (tv.tv_sec > cert->not_after)
-    {
-        ret = X509_VFY_ERROR_EXPIRED;
-        goto end_verify;
     }
 
     if (cert->basic_constraint_present)
