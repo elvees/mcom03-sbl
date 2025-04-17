@@ -132,28 +132,6 @@ int x509_new(const uint8_t *cert, int *len, X509_CTX **ctx)
     /* use the appropriate signature algorithm */
     switch (x509_ctx->sig_type)
     {
-        case SIG_TYPE_MD5:
-        {
-            MD5_CTX md5_ctx;
-            uint8_t md5_dgst[MD5_SIZE];
-            MD5_Init(&md5_ctx);
-            MD5_Update(&md5_ctx, &cert[begin_tbs], end_tbs-begin_tbs);
-            MD5_Final(md5_dgst, &md5_ctx);
-            x509_ctx->digest = bi_import(bi_ctx, md5_dgst, MD5_SIZE);
-        }
-            break;
-
-        case SIG_TYPE_SHA1:
-        {
-            SHA1_CTX sha_ctx;
-            uint8_t sha_dgst[SHA1_SIZE];
-            SHA1_Init(&sha_ctx);
-            SHA1_Update(&sha_ctx, &cert[begin_tbs], end_tbs-begin_tbs);
-            SHA1_Final(sha_dgst, &sha_ctx);
-            x509_ctx->digest = bi_import(bi_ctx, sha_dgst, SHA1_SIZE);
-        }
-            break;
-
         case SIG_TYPE_SHA256:
         {
             SHA256_CTX sha256_ctx;
@@ -162,28 +140,6 @@ int x509_new(const uint8_t *cert, int *len, X509_CTX **ctx)
             SHA256_Update(&sha256_ctx, &cert[begin_tbs], end_tbs-begin_tbs);
             SHA256_Final(sha256_dgst, &sha256_ctx);
             x509_ctx->digest = bi_import(bi_ctx, sha256_dgst, SHA256_SIZE);
-        }
-            break;
-
-        case SIG_TYPE_SHA384:
-        {
-            SHA384_CTX sha384_ctx;
-            uint8_t sha384_dgst[SHA384_SIZE];
-            SHA384_Init(&sha384_ctx);
-            SHA384_Update(&sha384_ctx, &cert[begin_tbs], end_tbs-begin_tbs);
-            SHA384_Final(sha384_dgst, &sha384_ctx);
-            x509_ctx->digest = bi_import(bi_ctx, sha384_dgst, SHA384_SIZE);
-        }
-            break;
-
-        case SIG_TYPE_SHA512:
-        {
-            SHA512_CTX sha512_ctx;
-            uint8_t sha512_dgst[SHA512_SIZE];
-            SHA512_Init(&sha512_ctx);
-            SHA512_Update(&sha512_ctx, &cert[begin_tbs], end_tbs-begin_tbs);
-            SHA512_Final(sha512_dgst, &sha512_ctx);
-            x509_ctx->digest = bi_import(bi_ctx, sha512_dgst, SHA512_SIZE);
         }
             break;
     }
