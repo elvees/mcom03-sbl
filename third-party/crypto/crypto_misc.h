@@ -107,6 +107,8 @@ struct _x509_ctx
     int basic_constraint_pathLenConstraint;
     uint32_t key_usage;
     struct _x509_ctx *next;
+
+    uint8_t sha256_digest[SHA256_SIZE];
 };
 
 typedef struct _x509_ctx X509_CTX;

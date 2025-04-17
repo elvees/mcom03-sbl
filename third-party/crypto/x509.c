@@ -135,11 +135,10 @@ int x509_new(const uint8_t *cert, int *len, X509_CTX **ctx)
         case SIG_TYPE_SHA256:
         {
             SHA256_CTX sha256_ctx;
-            uint8_t sha256_dgst[SHA256_SIZE];
             SHA256_Init(&sha256_ctx);
             SHA256_Update(&sha256_ctx, &cert[begin_tbs], end_tbs-begin_tbs);
-            SHA256_Final(sha256_dgst, &sha256_ctx);
-            x509_ctx->digest = bi_import(bi_ctx, sha256_dgst, SHA256_SIZE);
+            SHA256_Final(x509_ctx->sha256_digest, &sha256_ctx);
+            x509_ctx->digest = bi_import(bi_ctx, x509_ctx->sha256_digest, SHA256_SIZE);
         }
             break;
     }
