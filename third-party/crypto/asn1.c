@@ -280,9 +280,6 @@ int asn1_get_private_key(const uint8_t *buf, int len, RSA_CTX **rsa_ctx)
         return X509_INVALID_PRIV_KEY;
     }
 
-    /* Use the private key to mix up the RNG if possible. */
-    RNG_custom_init(buf, len);
-
     mod_len = asn1_get_big_int(buf, &offset, &modulus);
     pub_len = asn1_get_big_int(buf, &offset, &pub_exp);
     priv_len = asn1_get_big_int(buf, &offset, &priv_exp);
