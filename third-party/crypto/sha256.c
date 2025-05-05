@@ -28,8 +28,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdint.h>
 #include <string.h>
-#include "os_port.h"
 #include "crypto.h"
 
 #define GET_UINT32(n,b,i)                       \

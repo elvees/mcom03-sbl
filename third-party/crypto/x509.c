@@ -38,7 +38,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "os_port.h"
 #include "crypto_misc.h"
 #include "config.h"
 

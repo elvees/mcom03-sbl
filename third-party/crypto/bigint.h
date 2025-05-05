@@ -31,6 +31,8 @@
 #ifndef BIGINT_HEADER
 #define BIGINT_HEADER
 
+#include <stdint.h>
+
 #include "crypto.h"
 #include "config.h"
 

@@ -39,6 +39,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 #include "bigint_impl.h"
 #include "bigint.h"
 #include "config.h"

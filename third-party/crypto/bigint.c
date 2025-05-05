@@ -65,7 +65,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
-#include "os_port.h"
 #include "bigint.h"
 #include "config.h"
 

@@ -37,7 +37,6 @@
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
-#include "os_port.h"
 #include "crypto.h"
 #include "config.h"
 
