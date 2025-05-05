@@ -266,7 +266,7 @@ static int x509_v3_basic_constraints(const uint8_t *cert, int offset,
         X509_CTX *x509_ctx)
 {
     int ret = X509_OK;
-    int lenSeq, l= 0;
+    int lenSeq = 0;
 
     if ((offset = asn1_is_basic_constraints(cert, offset)) == 0)
         goto end_contraints;
@@ -299,7 +299,7 @@ static int x509_v3_basic_constraints(const uint8_t *cert, int offset,
     /* If the Sequence Length is greater than 3, it has more content than 
     the basic_constraint_cA bool, so grab the pathLenConstraint */
     if ((lenSeq>3) && (asn1_get_int(cert, &offset, 
-            &x509_ctx->basic_constraint_pathLenConstraint) < 0))
+            (int32_t *)&x509_ctx->basic_constraint_pathLenConstraint) < 0))
     {
         ret = X509_NOT_OK;
     }
