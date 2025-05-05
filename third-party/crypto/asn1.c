@@ -39,6 +39,7 @@
 #include "os_port.h"
 #include "crypto.h"
 #include "crypto_misc.h"
+#include "config.h"
 
 /* 1.2.840.113549.1.1 OID prefix - handle the following */
 /* md5WithRSAEncryption(4) */

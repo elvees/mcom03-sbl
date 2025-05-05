@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include "os_port.h"
 #include "crypto.h"
+#include "config.h"
 
 int RSA_priv_key_new(RSA_CTX **ctx, 
         const uint8_t *modulus, int mod_len,

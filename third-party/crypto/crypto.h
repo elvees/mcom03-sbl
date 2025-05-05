@@ -41,6 +41,7 @@ extern "C" {
 
 #include "bigint_impl.h"
 #include "bigint.h"
+#include "config.h"
 
 #ifndef STDCALL
 #define STDCALL

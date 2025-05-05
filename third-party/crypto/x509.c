@@ -40,6 +40,7 @@
 #include <time.h>
 #include "os_port.h"
 #include "crypto_misc.h"
+#include "config.h"
 
 #ifdef CONFIG_SSL_CERT_VERIFICATION
 static int x509_v3_subject_alt_name(const uint8_t *cert, int offset, 

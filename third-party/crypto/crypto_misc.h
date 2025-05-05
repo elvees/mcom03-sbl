@@ -42,6 +42,7 @@ extern "C" {
 #include <stdbool.h>
 #include "crypto.h"
 #include "bigint.h"
+#include "config.h"
 
 /**************************************************************************
  * X509 declarations 
