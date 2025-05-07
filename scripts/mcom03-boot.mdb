@@ -18,7 +18,7 @@ pb board = helpers.parse_ddrinit_dtb_map(f'{SCRIPTS_PATH}/ddrinit-dtb-map.txt', 
 pb end
 
 # Load and run sbl-s1 to setup required clocks
-loadelf buildroot/output/images/sbl/sbl-s1.elf
+py helpers.loadelf(f'{IMAGES_PATH}/sbl/sbl-s1.elf')
 hbp set jtag
 run
 hbp unset jtag
@@ -41,7 +41,7 @@ hbp unset jtag
 
 # Load and run set-secure-regions.elf to setup Secure Regions and
 # to take them into account in the DDR memory map
-loadelf buildroot/output/images/sbl/scripts/set-secure-regions.elf
+py helpers.loadelf(f'{IMAGES_PATH}/sbl/scripts/set-secure-regions.elf')
 hbp set jtag
 run
 hbp unset jtag
@@ -50,10 +50,10 @@ hbp unset jtag
 py helpers.loadbin(f'{IMAGES_PATH}/uboot-dtb/{dtb}', 0xC0002000)
 
 # Load TF-A to 0x8_8030_0000 which is mapped to 0xc0300000
-loadbin buildroot/output/images/bl31.bin 0xc0300000
+py helpers.loadbin(f'{IMAGES_PATH}/bl31.bin', 0xc0300000)
 
 # Load U-Boot to 0x8_9048_0000 which is mapped to 0xc0080000
-loadbin buildroot/output/images/u-boot.bin 0xc0080000
+py helpers.loadbin(f'{IMAGES_PATH}/u-boot.bin', 0xc0080000)
 
 # Enable CPU_SUBS
 set 0xbf000000 0x10
