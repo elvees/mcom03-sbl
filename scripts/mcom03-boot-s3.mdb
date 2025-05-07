@@ -25,10 +25,10 @@ run
 hbp unset jtag
 
 # Load and run ddrinit to setup DDR memory
-py helpers.loadbin(f'{IMAGES_PATH}/ddrinit-{board}/ddrinit.bin', 0xa0000000)
-hbp set 0xa0000100
-run 0xa0000000
-hbp unset 0xa0000100
+py helpers.loadelf(f'{IMAGES_PATH}/ddrinit-{board}/ddrinit.elf')
+hbp set jtag
+run
+hbp unset jtag
 
 # Load and run set-secure-regions.elf to setup Secure Regions and
 # to take them into account in the DDR memory map
@@ -47,7 +47,8 @@ loadbin buildroot/output/images/bl31.bin 0xc0300000
 loadbin buildroot/output/images/u-boot.bin 0xc0080000
 
 # Load and run sbl-s3 to launch TF-A and provide mailbox services
-loadbin buildroot/output/images/sbl/sbl-s3.bin 0x40003000
-set RISC.PC 0x40003000
+py helpers.loadelf(f'{IMAGES_PATH}/sbl/sbl-s3.elf')
+set RISC.PC _startup
 
+detach -r
 quit

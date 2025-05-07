@@ -25,6 +25,10 @@ def loadbin(file, addr):
     mdb.execute(f"loadbin {file} 0x{addr:x}")
 
 
+def loadelf(file):
+    mdb.execute(f"loadelf {file}")
+
+
 # Declare setters and getters
 def set_32bit(addr, val):
     mdb.execute(f"set 0x{addr:x} 0x{val & 0xFFFFFFFF:x}")

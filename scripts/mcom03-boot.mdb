@@ -34,10 +34,10 @@ pb helpers.set_32bit(0xbf001008, top)
 pb end
 
 # Load and run ddrinit to setup DDR memory
-py helpers.loadbin(f'{IMAGES_PATH}/ddrinit-{board}/ddrinit.bin', 0xa0000000)
-hbp set 0xa0000100
-run 0xa0000000
-hbp unset 0xa0000100
+py helpers.loadelf(f'{IMAGES_PATH}/ddrinit-{board}/ddrinit.elf')
+hbp set jtag
+run
+hbp unset jtag
 
 # Load and run set-secure-regions.elf to setup Secure Regions and
 # to take them into account in the DDR memory map
