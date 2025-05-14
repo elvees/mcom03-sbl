@@ -8,6 +8,7 @@ add_library(libs OBJECT
             ${CMAKE_CURRENT_SOURCE_DIR}/env/env-io-spi.c
             ${CMAKE_CURRENT_SOURCE_DIR}/fdt-helpers/fdt-helpers.c
             ${CMAKE_CURRENT_SOURCE_DIR}/helpers/helpers.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/platform/abort.c
             ${CMAKE_CURRENT_SOURCE_DIR}/platform/assert.c
             ${CMAKE_CURRENT_SOURCE_DIR}/platform/format-parser.c
             ${CMAKE_CURRENT_SOURCE_DIR}/platform/printf.c
