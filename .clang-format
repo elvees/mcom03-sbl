@@ -672,7 +672,7 @@ PenaltyExcessCharacter: 100
 PenaltyReturnTypeOnItsOwnLine: 60
 
 PointerAlignment: Right
-ReflowComments: false
+ReflowComments: Always
 RemoveBracesLLVM: true
 SortIncludes: true
 SortUsingDeclarations: false

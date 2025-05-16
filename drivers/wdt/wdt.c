@@ -49,10 +49,10 @@ int wdt_set_config(wdt_dev_t *wdt_dev, uint32_t timeout)
 static uint32_t __wdt_get_timeout_coef(wdt_dev_t *wdt_dev)
 {
 	int i = 0;
-	uint32_t clk_number_to_zero; // number of pulses signal clock before counter zeroing
-	uint32_t clk_number =
-		wdt_dev->timeout *
-		((wdt_dev->wdt_freq) / 1000UL); // number of claps to obtain the required delay
+	// number of ticks before counter zeroing
+	uint32_t clk_number_to_zero;
+	// number of ticks to obtain the required delay
+	uint32_t clk_number = wdt_dev->timeout * ((wdt_dev->wdt_freq) / 1000UL);
 	for (i = WDT_MIN_TIMEOUT_COEF; i < WDT_MAX_TIMEOUT_COEF; i++) {
 		clk_number_to_zero = BIT(WDT_NUM_TOPS + i);
 		if (clk_number <= clk_number_to_zero)
