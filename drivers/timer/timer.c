@@ -43,7 +43,7 @@ void timer_delay_us(uint32_t num_usec)
 	__timer_delay_us(num_usec);
 }
 
-static uint64_t get_ticks(void)
+uint64_t timer_get_ticks(void)
 {
 	unsigned long now = mips_read_cp0_register(CP0_COUNT);
 
@@ -57,7 +57,7 @@ static uint64_t get_ticks(void)
 
 unsigned long timer_get_us(void)
 {
-	uint64_t tick = get_ticks();
+	uint64_t tick = timer_get_ticks();
 	uint32_t core_frequency;
 	int ret;
 

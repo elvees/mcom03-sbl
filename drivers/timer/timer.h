@@ -33,6 +33,19 @@
 	})
 
 /**
+ * @brief Milliseconds to CPU ticks conversion function
+ *
+ * @param ms   - Milliseconds
+ * @param freq - CPU frequency
+ *
+ * @return Ticks
+ */
+static inline uint64_t ms_to_tick(uint64_t ms, uint64_t freq)
+{
+	return ms * freq / MSEC_IN_SEC;
+}
+
+/**
  * @brief Do delay in milliseconds
  *
  * @param num_msec - Delay time in milliseconds
@@ -49,6 +62,13 @@ void timer_delay_ms(uint32_t num_msec);
  * Delay is not exactly accurate
  */
 void timer_delay_us(uint32_t num_usec);
+
+/**
+ * @brief Get current CPU ticks
+ *
+ * @return Current CPU ticks
+ */
+uint64_t timer_get_ticks(void);
 
 /**
  * @brief Get microseconds from boot start
