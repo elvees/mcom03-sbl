@@ -1,84 +1,91 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
+#include <stddef.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <drivers/nvm/nvm.h>
-#include <lib/utils_def.h>
-#include "env_io.h"
 
-static int32_t env_io_read_after_write(env_io_config_t *cfg, const uint8_t *data, size_t size,
-				       size_t offset)
-{
-	uint8_t scratch[16];
+#include <libs/errors.h>
 
-	if (cfg == NULL)
-		return MCOM03_ERROR_NULL;
+#include "env-io.h"
 
-	while (size) {
-		uint32_t portion_size = MIN((size_t)16, size);
-		int32_t rc = nvm_read(&nvm_device, &scratch[0], offset, portion_size);
-		if (rc != MCOM03_SUCCESS)
-			return rc;
+#if ENABLE_ENV_RAM
+#include "env-io-ram.h"
+#endif
 
-		if (memcmp(&scratch[0], data, portion_size))
-			return MCOM03_ERROR_INVALID_DATA;
-
-		size -= portion_size;
-		data += portion_size;
-		offset += portion_size;
-	}
-	return 0;
-}
+#if ENABLE_ENV_SPI
+#include "env-io-spi.h"
+#endif
 
 int32_t env_io_write(env_io_config_t *cfg, const void *data, size_t size, size_t offset)
 {
-	if (cfg == NULL)
-		return MCOM03_ERROR_NULL;
+	int32_t ret = 0;
 
-	offset += cfg->offset;
-	int32_t rc = nvm_write(&nvm_device, data, offset, size);
-	if (rc != MCOM03_SUCCESS)
-		return rc;
+	if (cfg && cfg->ops)
+		ret = cfg->ops->write(cfg, data, size, offset);
 
-	return env_io_read_after_write(cfg, (const uint8_t *)data, size, offset);
+	return ret;
 }
 
 int32_t env_io_read(env_io_config_t *cfg, void *data, size_t size, size_t offset)
 {
-	if (cfg == NULL)
-		return MCOM03_ERROR_NULL;
+	int32_t ret = 0;
 
-	offset += cfg->offset;
-	return nvm_read(&nvm_device, data, offset, size);
+	if (cfg && cfg->ops)
+		ret = cfg->ops->read(cfg, data, size, offset);
+
+	return ret;
 }
 
-int32_t env_io_erase(env_io_config_t *cfg)
+int32_t env_io_clear(env_io_config_t *cfg)
 {
-	if (cfg == NULL)
-		return MCOM03_ERROR_NULL;
+	int32_t ret = 0;
 
-	uint32_t count = ALIGN_UP(cfg->size, nvm_device.nor_flash->flash_info.sector_size) /
-			 nvm_device.nor_flash->flash_info.sector_size;
+	if (cfg && cfg->ops)
+		ret = cfg->ops->clear(cfg);
 
-	return nvm_erase(&nvm_device, cfg->offset, count);
+	return ret;
 }
 
-int32_t env_io_init(env_io_config_t *cfg, signed long offset, size_t size)
+int32_t env_io_invalidate(env_io_config_t *cfg)
 {
-	if (cfg == NULL)
-		return MCOM03_ERROR_NULL;
+	int32_t ret = 0;
 
-	if (offset < 0)
-		cfg->offset =
-			(uint32_t)((signed long)nvm_device.nor_flash->flash_info.size_in_bytes +
-				   offset);
-	else
-		cfg->offset = (uint32_t)offset;
+	if (cfg && cfg->ops)
+		ret = cfg->ops->invalidate(cfg);
 
-	cfg->size = size;
+	return ret;
+}
 
-	return 0;
+int32_t env_io_init(env_io_config_t *cfg, signed long offset, size_t size,
+                    env_io_location_t location)
+{
+	int32_t ret = 0;
+
+	switch (location) {
+#if ENABLE_ENV_SPI
+	case ENV_IO_SPI:
+		ret = env_io_spi_init(cfg, offset, size);
+		break;
+#endif
+#if ENABLE_ENV_RAM
+	case ENV_IO_RAM:
+		ret = env_io_ram_init(cfg, offset, size);
+		break;
+#endif
+	default:
+		ret = -ENOTSUPPORTED;
+		break;
+	}
+
+	return ret;
+}
+
+int32_t env_io_deinit(env_io_config_t *cfg)
+{
+	int32_t ret = 0;
+
+	if (cfg && cfg->ops)
+		ret = cfg->ops->deinit(cfg);
+
+	return ret;
 }
