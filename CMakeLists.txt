@@ -33,6 +33,7 @@ endif()
 set(WDT_ENABLE TRUE CACHE BOOL "Enable WDT")
 set(UART_ENABLE TRUE CACHE BOOL "Enable UART")
 set(DEBUG_INTERFACE_DISABLE OFF CACHE BOOL "Disable SoC debug interface")
+set(RECOVERY_ENABLE FALSE CACHE BOOL "Enable recovery support")
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_compile_options(-gdwarf-2 -fno-eliminate-unused-debug-types
@@ -61,6 +62,10 @@ add_link_options(-Wl,--gc-sections -Wl,--print-memory-usage -Wl,--wrap=__assert_
 
 if(UART_ENABLE)
     add_compile_definitions(UART_ENABLE)
+endif()
+
+if(RECOVERY_ENABLE)
+    add_compile_definitions(RECOVERY_ENABLE)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}

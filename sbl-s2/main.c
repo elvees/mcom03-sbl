@@ -77,7 +77,10 @@ static const uintptr_t iommu_end = (uintptr_t)&__iommu_end;
 static const uintptr_t ram_start = (uintptr_t)&__ram_start;
 static const uintptr_t ram_end = (uintptr_t)&__ram_end;
 
+#ifdef RECOVERY_ENABLE
 static volatile uint64_t last = 0;
+#endif
+
 static volatile int recovery_mode = 0;
 
 static int check_load_address(uintptr_t lAddr, unsigned int size)
@@ -110,6 +113,7 @@ static int read_image(void *dst, signed long offset, size_t size)
 	return spi_nor_read(dst, (uint32_t)offset, size);
 }
 
+#ifdef RECOVERY_ENABLE
 static int check_recovery_image(const void *data, size_t data_size)
 {
 	factory_reset_info_t factory_reset_info;
@@ -139,22 +143,6 @@ static int check_recovery_image(const void *data, size_t data_size)
 	return 0;
 }
 
-static int prepare_env(env_ctx_t *sbl)
-{
-	env_init(sbl, PLAT_SBL_ENV_OFF, PLAT_ENV_SIZE, ENV_IO_SPI);
-	env_import(sbl);
-
-	char *bootvol = env_get(sbl, "bootvol");
-	char *safe_bootvol = env_get(sbl, "safe_bootvol");
-	if (!bootvol || !safe_bootvol) {
-		env_set(sbl, "bootvol", "a");
-		env_set(sbl, "safe_bootvol", "a");
-		env_export(sbl);
-	}
-
-	return 0;
-}
-
 static int prepare_recovery(void)
 {
 	env_ctx_t uboot;
@@ -167,6 +155,23 @@ static int prepare_recovery(void)
 	env_init(&saved, PLAT_UBOOT_OLD_ENV_OFF, PLAT_ENV_SIZE, ENV_IO_SPI);
 	env_invalidate(&saved);
 	env_deinit(&saved);
+
+	return 0;
+}
+#endif
+
+static int prepare_env(env_ctx_t *sbl)
+{
+	env_init(sbl, PLAT_SBL_ENV_OFF, PLAT_ENV_SIZE, ENV_IO_SPI);
+	env_import(sbl);
+
+	char *bootvol = env_get(sbl, "bootvol");
+	char *safe_bootvol = env_get(sbl, "safe_bootvol");
+	if (!bootvol || !safe_bootvol) {
+		env_set(sbl, "bootvol", "a");
+		env_set(sbl, "safe_bootvol", "a");
+		env_export(sbl);
+	}
 
 	return 0;
 }
@@ -258,8 +263,12 @@ int main(void)
 	int ret;
 	env_ctx_t sbl;
 	int use_slot_b = 0;
+	sb_mem_t sbmem;
+	otp_t otp;
 
+#ifdef RECOVERY_ENABLE
 	last = timer_get_us();
+#endif
 
 #ifdef UART_ENABLE
 	uart_param_t uart = { .uart_num = UART0 };
@@ -313,20 +322,21 @@ int main(void)
 	if (ret)
 		return ret;
 
-	NOTICE("Please wait. FW is checking...\n");
-
-	sb_mem_t sbmem = {
-		.chck_laddr_func = NULL,
-		.chck_eaddr_func = NULL,
-		.chck_img = (chck_img_t)check_recovery_image,
-		.cpy_func = (memcopy_t)memcpy,
-		.read_img_func = (read_img_t)read_image,
-		.image_offset = (uintptr_t)PLAT_OFFSET_FIRMWARE_R,
-	};
-
-	ret = read_image(&sbmem.otp, PLAT_OTP_OFFSET, sizeof(sbmem.otp));
+	ret = read_image(&otp, PLAT_OTP_OFFSET, sizeof(otp));
 	if (ret)
 		return ret;
+
+#ifdef RECOVERY_ENABLE
+	NOTICE("Please wait. FW is checking...\n");
+
+	memset((void *)&sbmem, 0, sizeof(sbmem));
+	sbmem.chck_laddr_func = NULL;
+	sbmem.chck_eaddr_func = NULL;
+	sbmem.chck_img = (chck_img_t)check_recovery_image;
+	sbmem.cpy_func = (memcopy_t)memcpy;
+	sbmem.read_img_func = (read_img_t)read_image;
+	sbmem.image_offset = (uintptr_t)PLAT_OFFSET_FIRMWARE_R;
+	sbmem.otp = otp;
 
 	ret = sblimg_init(&sbmem);
 	while (ret == ESBIMGBOOT_NO_ERR) {
@@ -340,6 +350,7 @@ int main(void)
 
 	if (ret != ESBIMGBOOT_IMAGE_BAD_HEADER_ID && ret != ESBIMGBOOT_IMAGE_BAD_HEADER_HASH)
 		sblimg_print_return_code(ret);
+#endif
 
 	ret = secure_setup();
 	if (ret)
@@ -347,11 +358,13 @@ int main(void)
 
 	prepare_env(&sbl);
 
+	memset((void *)&sbmem, 0, sizeof(sbmem));
 	sbmem.chck_laddr_func = (chck_laddr_t)check_load_address;
 	sbmem.chck_eaddr_func = (chck_eaddr_t)check_exec_address;
 	sbmem.cpy_func = (memcopy_t)memcpy;
 	sbmem.read_img_func = (read_img_t)read_image;
 	sbmem.chck_img = NULL;
+	sbmem.otp = otp;
 
 	if (recovery_mode == 0) {
 		select_slot(&sbl, &use_slot_b);
@@ -361,12 +374,14 @@ int main(void)
 		                    use_slot_b * (PLAT_OFFSET_FIRMWARE_B - PLAT_OFFSET_FIRMWARE_A));
 
 		NOTICE("Please wait. FW is loading...\n");
+#ifdef RECOVERY_ENABLE
 	} else {
 		prepare_recovery();
 
 		sbmem.image_offset = (uintptr_t)(PLAT_OFFSET_FIRMWARE_R);
 
 		NOTICE("Please wait. Recovery FW is loading...\n");
+#endif
 	}
 
 	ret = sblimg_init(&sbmem);
