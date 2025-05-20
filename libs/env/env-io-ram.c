@@ -76,7 +76,7 @@ int32_t env_io_ram_init(env_io_config_t *cfg, signed long offset, size_t size)
 	if (offset < 0)
 		return -EFORBIDDEN;
 	else
-		cfg->offset = (uint32_t)offset;
+		cfg->offset = offset;
 
 	cfg->size = size;
 
