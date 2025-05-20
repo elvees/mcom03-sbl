@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <libs/mmio.h>
@@ -76,6 +77,6 @@ static inline void *convert_pa_to_va(uintptr_t pa)
 }
 
 int set_ppolicy(uintptr_t reg, uint32_t new_policy, uint32_t bp0_mask, uint32_t bp1_mask,
-                uint32_t timeout_us);
+                uint32_t timeout_us, bool is_delay_required);
 int setup_ddr_regions(void);
 int soc_debug_if_disable(void);

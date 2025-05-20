@@ -34,7 +34,7 @@ static int _set_ppolicy(uintptr_t reg, uint32_t new_policy, uint32_t timeout_us)
 }
 
 int set_ppolicy(uintptr_t reg, uint32_t new_policy, uint32_t bp0_mask, uint32_t bp1_mask,
-                uint32_t timeout_us)
+                uint32_t timeout_us, bool is_delay_required)
 {
 	ucg_regs_t *interconnect_ucg0 = ucg_get_registers(UCG_SUBSYS_TOP, 0);
 	ucg_regs_t *interconnect_ucg1 = ucg_get_registers(UCG_SUBSYS_TOP, 1);
@@ -59,7 +59,9 @@ int set_ppolicy(uintptr_t reg, uint32_t new_policy, uint32_t bp0_mask, uint32_t 
 	 * When power regulator set POWER_GOOD then PP_ON will be read from PSTATUS register.
 	 * Add delay for case when power regulator set POWER_GOOD too early.
 	 */
-	timer_delay_us(20000);
+	if (is_delay_required)
+		timer_delay_us(20000);
+
 	if (bp0_mask)
 		ucg_sync_and_disable_bp(interconnect_ucg0, bp0_mask, bp0_mask);
 

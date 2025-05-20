@@ -75,7 +75,7 @@ void service_disable_risc0_cpu(void)
 {
 	service_urb_regs_t *urb = service_get_urb_registers();
 
-	set_ppolicy((uintptr_t)&urb->risc0_ppolicy, PP_OFF, 0, 0, 0);
+	set_ppolicy((uintptr_t)&urb->risc0_ppolicy, PP_OFF, 0, 0, 0, false);
 }
 
 void service_enable_arm_cpu(void)
@@ -86,7 +86,7 @@ void service_enable_arm_cpu(void)
 	uint32_t bp1_mask = BIT(TOP_UCG1_CHANNEL_AXI_FAST_COMM) |
 	                    BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM);
 
-	set_ppolicy((uintptr_t)&urb->cpu_ppolicy, PP_ON, bp0_mask, bp1_mask, 0);
+	set_ppolicy((uintptr_t)&urb->cpu_ppolicy, PP_ON, bp0_mask, bp1_mask, 0, true);
 	urb->top_clkgate |= BIT(SERVICE_TOP_CLK_GATE_CPU);
 }
 
@@ -95,7 +95,7 @@ void service_disable_arm_cpu(void)
 	service_urb_regs_t *urb = service_get_urb_registers();
 
 	urb->top_clkgate &= ~BIT(SERVICE_TOP_CLK_GATE_CPU);
-	set_ppolicy((uintptr_t)&urb->cpu_ppolicy, PP_OFF, 0, 0, 0);
+	set_ppolicy((uintptr_t)&urb->cpu_ppolicy, PP_OFF, 0, 0, 0, true);
 }
 
 void service_enable_lsp1(void)
@@ -103,7 +103,7 @@ void service_enable_lsp1(void)
 	service_urb_regs_t *urb = service_get_urb_registers();
 	uint32_t bp1_mask = BIT(TOP_UCG1_CHANNEL_DDR_LSP1) | BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM);
 
-	set_ppolicy((uintptr_t)&urb->lsperiph1_subs_ppolicy, PP_ON, 0, bp1_mask, 0);
+	set_ppolicy((uintptr_t)&urb->lsperiph1_subs_ppolicy, PP_ON, 0, bp1_mask, 0, false);
 	urb->top_clkgate |= BIT(SERVICE_TOP_CLK_GATE_LSP1);
 }
 
@@ -113,7 +113,7 @@ void service_enable_lsp0(void)
 	uint32_t bp0_mask = BIT(TOP_UCG0_CHANNEL_DDR_LSP0);
 	uint32_t bp1_mask = BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM);
 
-	set_ppolicy((uintptr_t)&urb->lsperiph0_subs_ppolicy, PP_ON, bp0_mask, bp1_mask, 0);
+	set_ppolicy((uintptr_t)&urb->lsperiph0_subs_ppolicy, PP_ON, bp0_mask, bp1_mask, 0, false);
 	urb->top_clkgate |= BIT(SERVICE_TOP_CLK_GATE_LSP0);
 }
 
@@ -124,7 +124,7 @@ void service_enable_sdr(void)
 	                    BIT(TOP_UCG1_CHANNEL_AXI_FAST_COMM) |
 	                    BIT(TOP_UCG1_CHANNEL_DDR_SDR_DSP) | BIT(TOP_UCG1_CHANNEL_DDR_SDR_PICE);
 
-	set_ppolicy((uintptr_t)&urb->sdr_ppolicy, PP_ON, 0, bp1_mask, 0);
+	set_ppolicy((uintptr_t)&urb->sdr_ppolicy, PP_ON, 0, bp1_mask, 0, true);
 	urb->top_clkgate |= BIT(SERVICE_TOP_CLK_GATE_SDR);
 }
 
@@ -254,11 +254,11 @@ int service_subsystem_set_power(uint32_t id, uint32_t state)
 	ppolicy_reg = ((uintptr_t)urb) + pm_domain_settings[id].reg_offset;
 	if (state == PP_ON) {
 		ret = set_ppolicy(ppolicy_reg, state, pm_domain_settings[id].bypass0_mask,
-		                  pm_domain_settings[id].bypass1_mask, 700000);
+		                  pm_domain_settings[id].bypass1_mask, 700000, true);
 		if (ret)
 			return ret;
 	} else if (state == PP_OFF || state == PP_WARM_RST) {
-		(void)set_ppolicy(ppolicy_reg, state, 0, 0, 700000);
+		(void)set_ppolicy(ppolicy_reg, state, 0, 0, 700000, true);
 	} else {
 		return -EINVALIDPARAM;
 	}
