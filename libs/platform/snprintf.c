@@ -14,7 +14,7 @@
  *
  * %d or %i - signed decimal format
  * %s - string format
- * %c - character foramt
+ * %c - character format
  * %p - pointer format
  * %x - hexadecimal format (lower case)
  * %X - hexadecimal format (upper case)

@@ -46,7 +46,7 @@ typedef struct {
 		// Flags Field
 		flags_t flags_bits;
 	};
-	// Key number for decription (lowest 16 bits are used)
+	// Key number for decryption (lowest 16 bits are used)
 	unsigned int aes_key_num;
 	// ID number if it is certificate
 	unsigned int cert_id;

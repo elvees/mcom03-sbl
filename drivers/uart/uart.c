@@ -187,7 +187,7 @@ int uart_drv_deinit(void *ctx)
 	// Disable receiving
 	uart->uart_ptr->mcr = UART_MCR_RESETVALUE;
 
-	// Disable transfering
+	// Disable transferring
 	uart->uart_ptr->fcr = UART_FCR_RESETVALUE;
 
 	uart->uart_ptr = NULL;

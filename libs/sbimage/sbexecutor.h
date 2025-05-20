@@ -20,8 +20,8 @@
 #define MODULE_SIZE  (x509_cert->rsa_ctx->m->size * COMP_BYTE_SIZE)
 #define PUB_EXP_SIZE (x509_cert->rsa_ctx->e->size * COMP_BYTE_SIZE)
 
-#define ALLIGN(var, len)           ((var) + (((len) - ((var) % (len))) % (len)))
-#define COMPLETE_BLOCK_LENGTH(var) ALLIGN((var), AES_BLOCK_LEN)
+#define ALIGN(var, len)            ((var) + (((len) - ((var) % (len))) % (len)))
+#define COMPLETE_BLOCK_LENGTH(var) ALIGN((var), AES_BLOCK_LEN)
 
 #define SBIMAGE_TYPE_PAYLOAD_NO_RETURN    0
 #define SBIMAGE_TYPE_ENCRYPTION_KEY       1

@@ -72,7 +72,7 @@ static void risc0_ipc_resp(risc0_ipc_req_t *req, risc0_ipc_resp_param_t *resp_pa
 	risc0_ipc_resp_t *resp = NULL;
 	iommu_regs_t *iommu_regs = iommu_get_registers();
 
-	// Protect Service subsytem from writing in it's own address space (first 4 GB)
+	// Protect Service subsystem from writing in it's own address space (first 4 GB)
 	if (req->shrmem.data <= UINTPTR_MAX)
 		panic_handler("The address[0x%llu] must be outside 32bit address space\r\n",
 		              req->shrmem.data);

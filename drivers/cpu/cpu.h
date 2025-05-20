@@ -22,7 +22,7 @@
 typedef struct {
 	volatile unsigned int a53cpu_ppolicy;
 	volatile unsigned int a53cpu_pstatus;
-	volatile unsigned int reserv[2];
+	volatile unsigned int reserved0[2];
 } cpu_core_t;
 
 typedef struct {
@@ -34,13 +34,13 @@ typedef struct {
 	cpu_core_t cpu_core[4];
 	volatile unsigned int a53sys_ppolicy;
 	volatile unsigned int a53sys_pstatus;
-	volatile unsigned int reserv4[2];
+	volatile unsigned int reserved1[2];
 	volatile unsigned int pllcnfg;
 	volatile unsigned int plldiag;
-	volatile unsigned int reserv5[2];
+	volatile unsigned int reserved2[2];
 	volatile unsigned int a53cpu_pcnfg;
 	volatile unsigned int a53sys_pcnfg;
-	volatile unsigned int reserv6[38];
+	volatile unsigned int reserved3[38];
 	volatile unsigned int a53_rstcnfg;
 	volatile unsigned int a53_acpcfg;
 	volatile unsigned int gic500_status;

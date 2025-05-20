@@ -114,17 +114,17 @@ typedef struct {
 	uart_data_len_t bits; // The data length
 	uart_stop_bit stop_bit; // The number stop bits
 	uart_parity_t parity; // The parity control
-	uint32_t mode; // The mode of work functions uart deriver
-	int linesplit; // The mode splite lines text flow
+	uint32_t mode; // The mode of work functions uart driver
+	int linesplit; // The mode splits lines text flow
 	uint32_t max_retries; // The max number of tries
-	uint32_t error_receive; // Errors of reciever
+	uint32_t error_receive; // Errors of receiver
 } uart_param_t;
 
 /**
  * @brief The function configures uart
  *
  * @param ctx - The pointer to structure uart_param_t. Structure uart_param_t describes
- *              parametrs of uart controller.
+ *              parameters of uart controller.
  *
  * @return  0     - Success,
  *         -ENULL - ctx param or uart_ptr field in ctx are not provided (NULL pointers)
@@ -155,7 +155,7 @@ int uart_drv_get_handler(uint32_t uart_num, uart_reg_t **uart_ptr);
  * @brief The function sets UART controller configuration
  *
  * @param ctx - The pointer to structure uart_param_t. Structure uart_param_t describes
- *              parametrs of uart controller.
+ *              parameters of uart controller.
  *
  * @return  0     - Success,
  *         -ENULL - ctx param or uart_ptr field in ctx are not provided (NULL pointers)
@@ -163,10 +163,10 @@ int uart_drv_get_handler(uint32_t uart_num, uart_reg_t **uart_ptr);
 int uart_drv_config(void *ctx);
 
 /**
- * @brief The function disables transfering, receiving, interrupts
+ * @brief The function disables transferring, receiving, interrupts
  *
  * @param ctx - The pointer to structure uart_param_t. Structure uart_param_t describes
- *              parametrs of uart controller
+ *              parameters of uart controller
  *
  * @return  0     - Success,
  *         -ENULL - ctx param or uart_ptr field in ctx are not provided (NULL pointers)
@@ -178,7 +178,7 @@ int uart_drv_deinit(void *ctx);
  *        This function receives text strings.
  *
  * @param ctx - The pointer to structure uart_param_t. Structure uart_param_t describes
- *              parametrs of uart controller.
+ *              parameters of uart controller.
  * @param c   - Pointer for reading from rx buffer
  *
  * @return  0     - Success,
@@ -191,7 +191,7 @@ int uart_drv_getchar(void *ctx, int *c);
  * @brief The function puts char direct to transmit register UART controller
  *
  * @param ctx - The pointer to structure uart_param_t. Structure uart_param_t describes
- *              parametrs of uart controller.
+ *              parameters of uart controller.
  * @param c   - char for transmit
  *
  * @return  0     - Success,
@@ -200,10 +200,10 @@ int uart_drv_getchar(void *ctx, int *c);
 int uart_drv_putchar(void *ctx, char c);
 
 /**
- * @brief The function flushs the tx buffer immediately
+ * @brief The function flushes the tx buffer immediately
  *
  * @param ctx - The pointer to structure uart_param_t. Structure uart_param_t describes
- *              parametrs of uart controller.
+ *              parameters of uart controller.
  *
  * @return  0     - Success,
  *         -ENULL - ctx param or uart_ptr field in ctx are not provided (NULL pointers)

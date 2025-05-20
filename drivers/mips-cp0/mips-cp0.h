@@ -38,7 +38,7 @@
 #define CP0_EPC      14 // return address from exception
 #define CP0_PRID     15 // processor id
 #define CP0_CONFIG   16 // processor abilities info
-#define CP0_LLADDR   17 // phisical address of the last LL command
+#define CP0_LLADDR   17 // physical address of the last LL command
 #define CP0_ERROREPC 30 // return address from exception error
 
 #define MIPS_CP0_CR_QLIC0_TARGET_IP GENMASK(14, 10)

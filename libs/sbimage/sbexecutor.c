@@ -581,7 +581,7 @@ int sblimg_check(void)
 		size_t sign_size = (sbimg.flags_bits.signed_obj) ? RSA_MOD_LEN : 0;
 		size_t image_size = HEADER_SIZE + sign_size + data_size;
 		image_size = (sbimg.flags_bits.encrypted) ? COMPLETE_BLOCK_LENGTH(image_size) :
-		                                            ALLIGN(image_size, 4);
+		                                            ALIGN(image_size, 4);
 
 		CHECK_OK(-EINTERNAL,
 		         sb_mem.read_image(sb_mem.buffer, sb_mem.image_offset, image_size));
@@ -760,7 +760,7 @@ int sblimg_update(void)
 
 	size_t image_size = HEADER_SIZE + sign_size + data_size;
 	image_size = (sbimg.flags_bits.encrypted) ? COMPLETE_BLOCK_LENGTH(image_size) :
-	                                            ALLIGN(image_size, 4);
+	                                            ALIGN(image_size, 4);
 
 	CHECK_OK(-EINTERNAL, sb_mem.read_image(sb_mem.buffer, sb_mem.image_offset, image_size));
 
