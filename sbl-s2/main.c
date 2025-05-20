@@ -37,68 +37,69 @@
 
 static uint8_t fw_slot[PLAT_FW_SLOT_SIZE] __attribute__((section(".fw_slot"))) = { 0 };
 
-extern unsigned long __spram0_start;
-extern unsigned long __spram0_end;
-extern unsigned long __spram0_uncached_start;
-extern unsigned long __spram0_uncached_end;
-extern unsigned long __ddr_low_trusted0_start;
-extern unsigned long __ddr_low_trusted0_end;
-extern unsigned long __ddr_low_sdr0_start;
-extern unsigned long __ddr_low_sdr0_end;
-extern unsigned long __ddr_low_trusted1_start;
-extern unsigned long __ddr_low_trusted1_end;
-extern unsigned long __ddr_low_sdr1_start;
-extern unsigned long __ddr_low_sdr1_end;
-extern unsigned long __iommu_start;
-extern unsigned long __iommu_end;
-extern unsigned long __fw_slot_start;
-extern unsigned long __fw_slot_end;
-extern unsigned long __ram_start;
-extern unsigned long __ram_end;
+extern uintptr_t __spram0_start;
+extern uintptr_t __spram0_end;
+extern uintptr_t __spram0_uncached_start;
+extern uintptr_t __spram0_uncached_end;
+extern uintptr_t __cram_start;
+extern uintptr_t __cram_end;
+extern uintptr_t __cram_uncached_start;
+extern uintptr_t __cram_uncached_end;
+extern uintptr_t __ddr_low_trusted0_start;
+extern uintptr_t __ddr_low_trusted0_end;
+extern uintptr_t __ddr_low_sdr0_start;
+extern uintptr_t __ddr_low_sdr0_end;
+extern uintptr_t __ddr_low_trusted1_start;
+extern uintptr_t __ddr_low_trusted1_end;
+extern uintptr_t __ddr_low_sdr1_start;
+extern uintptr_t __ddr_low_sdr1_end;
+extern uintptr_t __iommu_start;
+extern uintptr_t __iommu_end;
+extern uintptr_t __fw_slot_start;
+extern uintptr_t __fw_slot_end;
+extern uintptr_t __ram_start;
+extern uintptr_t __ram_end;
 
-static const unsigned long *spram0_start = (unsigned long *)&__spram0_start;
-static const unsigned long *spram0_end = (unsigned long *)&__spram0_end;
-static const unsigned long *spram0_uncached_start = (unsigned long *)&__spram0_uncached_start;
-static const unsigned long *spram0_uncached_end = (unsigned long *)&__spram0_uncached_end;
-static const unsigned long *ddr_low_trusted0_start = (unsigned long *)&__ddr_low_trusted0_start;
-static const unsigned long *ddr_low_trusted0_end = (unsigned long *)&__ddr_low_trusted0_end;
-static const unsigned long *ddr_low_sdr0_start = (unsigned long *)&__ddr_low_sdr0_start;
-static const unsigned long *ddr_low_sdr0_end = (unsigned long *)&__ddr_low_sdr0_end;
-static const unsigned long *ddr_low_trusted1_start = (unsigned long *)&__ddr_low_trusted1_start;
-static const unsigned long *ddr_low_trusted1_end = (unsigned long *)&__ddr_low_trusted1_end;
-static const unsigned long *ddr_low_sdr1_start = (unsigned long *)&__ddr_low_sdr1_start;
-static const unsigned long *ddr_low_sdr1_end = (unsigned long *)&__ddr_low_sdr1_end;
-static const unsigned long *iommu_start = (unsigned long *)&__iommu_start;
-static const unsigned long *iommu_end = (unsigned long *)&__iommu_end;
-static const unsigned long *fw_slot_start = (unsigned long *)&__fw_slot_start;
-static const unsigned long *fw_slot_end = (unsigned long *)&__fw_slot_end;
-static const unsigned long *ram_start = (unsigned long *)&__ram_start;
-static const unsigned long *ram_end = (unsigned long *)&__ram_end;
+static const uintptr_t spram0_start = (uintptr_t)&__spram0_start;
+static const uintptr_t spram0_end = (uintptr_t)&__spram0_end;
+static const uintptr_t spram0_uncached_start = (uintptr_t)&__spram0_uncached_start;
+static const uintptr_t spram0_uncached_end = (uintptr_t)&__spram0_uncached_end;
+static const uintptr_t cram_start = (uintptr_t)&__cram_start;
+static const uintptr_t cram_end = (uintptr_t)&__cram_end;
+static const uintptr_t cram_uncached_start = (uintptr_t)&__cram_uncached_start;
+static const uintptr_t cram_uncached_end = (uintptr_t)&__cram_uncached_end;
+static const uintptr_t ddr_low_trusted0_start = (uintptr_t)&__ddr_low_trusted0_start;
+static const uintptr_t ddr_low_trusted0_end = (uintptr_t)&__ddr_low_trusted0_end;
+static const uintptr_t ddr_low_sdr0_start = (uintptr_t)&__ddr_low_sdr0_start;
+static const uintptr_t ddr_low_sdr0_end = (uintptr_t)&__ddr_low_sdr0_end;
+static const uintptr_t ddr_low_trusted1_start = (uintptr_t)&__ddr_low_trusted1_start;
+static const uintptr_t ddr_low_trusted1_end = (uintptr_t)&__ddr_low_trusted1_end;
+static const uintptr_t ddr_low_sdr1_start = (uintptr_t)&__ddr_low_sdr1_start;
+static const uintptr_t ddr_low_sdr1_end = (uintptr_t)&__ddr_low_sdr1_end;
+static const uintptr_t iommu_start = (uintptr_t)&__iommu_start;
+static const uintptr_t iommu_end = (uintptr_t)&__iommu_end;
+static const uintptr_t fw_slot_start = (uintptr_t)&__fw_slot_start;
+static const uintptr_t fw_slot_end = (uintptr_t)&__fw_slot_end;
+static const uintptr_t ram_start = (uintptr_t)&__ram_start;
+static const uintptr_t ram_end = (uintptr_t)&__ram_end;
 
-static int check_load_address(unsigned long lAddr, unsigned int size)
+static int check_load_address(uintptr_t lAddr, unsigned int size)
 {
 	// TODO: Add CRAM RISC1 region as allowed
-	return !((((lAddr >= (unsigned long)spram0_start) &&
-	           ((lAddr + size) < (unsigned long)spram0_end)) ||
-	          ((lAddr >= (unsigned long)spram0_uncached_start) &&
-	           ((lAddr + size) < (unsigned long)spram0_uncached_end)) ||
-	          ((lAddr >= (unsigned long)ddr_low_trusted0_start) &&
-	           ((lAddr + size) < (unsigned long)ddr_low_trusted0_end)) ||
-	          ((lAddr >= (unsigned long)ddr_low_sdr0_start) &&
-	           ((lAddr + size) < (unsigned long)ddr_low_sdr0_end)) ||
-	          ((lAddr >= (unsigned long)ddr_low_trusted1_start) &&
-	           ((lAddr + size) < (unsigned long)ddr_low_trusted1_end)) ||
-	          ((lAddr >= (unsigned long)ddr_low_sdr1_start) &&
-	           ((lAddr + size) < (unsigned long)ddr_low_sdr1_end))) &&
-	         !(((lAddr >= (unsigned long)iommu_start) &&
-	            ((lAddr + size) < (unsigned long)iommu_end)) ||
-	           ((lAddr >= (unsigned long)fw_slot_start) &&
-	            ((lAddr + size) < (unsigned long)fw_slot_end)) ||
-	           ((lAddr >= (unsigned long)ram_start) &&
-	            ((lAddr + size) < (unsigned long)ram_end))));
+	return !((((lAddr >= spram0_start) && ((lAddr + size) < spram0_end)) ||
+	          ((lAddr >= spram0_uncached_start) && ((lAddr + size) < spram0_uncached_end)) ||
+	          ((lAddr >= ddr_low_trusted0_start) && ((lAddr + size) < ddr_low_trusted0_end)) ||
+	          ((lAddr >= ddr_low_sdr0_start) && ((lAddr + size) < ddr_low_sdr0_end)) ||
+	          ((lAddr >= ddr_low_trusted1_start) && ((lAddr + size) < ddr_low_trusted1_end)) ||
+	          ((lAddr >= ddr_low_sdr1_start) && ((lAddr + size) < ddr_low_sdr1_end))) &&
+	         !(((lAddr >= cram_start) && ((lAddr + size) < cram_end)) ||
+	           ((lAddr >= cram_uncached_start) && ((lAddr + size) < cram_uncached_end)) ||
+	           ((lAddr >= iommu_start) && ((lAddr + size) < iommu_end)) ||
+	           ((lAddr >= fw_slot_start) && ((lAddr + size) < fw_slot_end)) ||
+	           ((lAddr >= ram_start) && ((lAddr + size) < ram_end))));
 }
 
-static int check_exec_address(unsigned long lAddr, unsigned int size, unsigned long eAddr)
+static int check_exec_address(uintptr_t lAddr, unsigned int size, uintptr_t eAddr)
 {
 	return !((eAddr >= lAddr) && (eAddr < (lAddr + size)));
 }

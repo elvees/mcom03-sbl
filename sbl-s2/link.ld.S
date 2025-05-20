@@ -18,6 +18,8 @@ MEMORY
 
 	spram0 (rwx)            : ORIGIN = 0x80000000,          LENGTH = 64K
 	spram0_uncached (rwx)   : ORIGIN = 0xa0000000,          LENGTH = 64K
+	cram (rwx)              : ORIGIN = 0x9fa00000,          LENGTH = 32K
+	cram_uncached (rwx)     : ORIGIN = 0xbfa00000,          LENGTH = 32K
 	ddr_low_trusted0 (rwx)  : ORIGIN = 0x40000000,          LENGTH = 512M
 	ddr_low_sdr0 (rwx)      : ORIGIN = 0x60000000,          LENGTH = 512M
 	ddr_low_trusted1 (rwx)  : ORIGIN = 0xc0000000,          LENGTH = 512M
@@ -29,21 +31,20 @@ MEMORY
 
 SECTIONS
 {
-	. = PLAT_FW_SLOT_OFFSET;
-	ASSERT(. == ALIGN(4), "fw slot address is not aligned on a word boundary.")
+	. = ORIGIN(fw_slot);
+	ASSERT(. == ALIGN(4), "ORIGIN(fw_slot) address is not aligned on a word boundary.")
 
-	.fw_slot PLAT_FW_SLOT_OFFSET (NOLOAD) : {
+	.fw_slot (NOLOAD) : {
+		__fw_slot_start = ABSOLUTE(.);
 		KEEP(*(.fw_slot));
+		__fw_slot_end = ABSOLUTE(.);
 	} > fw_slot
-
-	end_fw_slot = .;
-
-	ASSERT(end_fw_slot == (PLAT_FW_SLOT_OFFSET + PLAT_FW_SLOT_SIZE), "fw slot has exceeded RAM limit.")
 
 	. = ORIGIN(ram);
 	ASSERT(. == ALIGN(4), "ORIGIN(ram) address is not aligned on a word boundary.")
 
-	.text ORIGIN(ram) : {
+	.text : {
+		__ram_start = ABSOLUTE(.);
 		KEEP(*startup.*(.text .text.*));
 		*(.text .text.*)
 	} > ram
@@ -78,22 +79,18 @@ SECTIONS
 	.heap (NOLOAD) : {
 		. = ALIGN(PLAT_HEAP_POINTER_ALIGN);
 		__heap_start = ABSOLUTE(.);
-		. = . + PLAT_HEAP_SIZE;
-		__heap_end = ABSOLUTE(.);
 	} > ram
-
-	.stack (NOLOAD) : {
-		. = ALIGN(8);
-		KEEP(* (.stack .stack.*));
-		. = . + PLAT_STACK_SIZE;
-		. = ALIGN(8);
-		__stack = . - 0x20;
-	} > ram
+	__ram_end = ORIGIN(ram) + LENGTH(ram);
+	__heap_end = __ram_end;
 
 	__spram0_start = ORIGIN(spram0);
 	__spram0_end = ORIGIN(spram0) + LENGTH(spram0);
 	__spram0_uncached_start = ORIGIN(spram0_uncached);
 	__spram0_uncached_end = ORIGIN(spram0_uncached) + LENGTH(spram0_uncached);
+	__cram_start = ORIGIN(cram);
+	__cram_end = ORIGIN(cram) + LENGTH(cram);
+	__cram_uncached_start = ORIGIN(cram_uncached);
+	__cram_uncached_end = ORIGIN(cram_uncached) + LENGTH(cram_uncached);
 	__ddr_low_trusted0_start = ORIGIN(ddr_low_trusted0);
 	__ddr_low_trusted0_end = ORIGIN(ddr_low_trusted0) + LENGTH(ddr_low_trusted0);
 	__ddr_low_sdr0_start = ORIGIN(ddr_low_sdr0);
@@ -104,10 +101,11 @@ SECTIONS
 	__ddr_low_sdr1_end = ORIGIN(ddr_low_sdr1) + LENGTH(ddr_low_sdr1);
 	__iommu_start = ORIGIN(iommu);
 	__iommu_end = ORIGIN(iommu) + LENGTH(iommu);
-	__fw_slot_start = ORIGIN(fw_slot);
-	__fw_slot_end = ORIGIN(fw_slot) + LENGTH(fw_slot);
-	__ram_start = ORIGIN(ram);
-	__ram_end = ORIGIN(ram) + LENGTH(ram);
+
+	.stack (NOLOAD) : {
+		KEEP(* (.stack .stack.*));
+	} > cram
+	__stack = __cram_end - 0x20;
 
 #ifndef NDEBUG
 	/**

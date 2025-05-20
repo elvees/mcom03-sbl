@@ -14,7 +14,7 @@ target_compile_definitions(${PROJECT_NAME}.elf PRIVATE
 
 target_link_options(${PROJECT_NAME}.elf PRIVATE
                     -T ${CMAKE_CURRENT_BINARY_DIR}/linkerscript.ld
-                    -Wl,-Map=${PROJECT_NAME}.map)
+                    -Wl,-Map=${PROJECT_NAME}.map -Wl,--cref)
 
 add_custom_command(TARGET ${PROJECT_NAME}.elf PRE_LINK
                    COMMAND ${CMAKE_C_COMPILER}

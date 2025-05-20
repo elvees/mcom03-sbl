@@ -73,17 +73,18 @@ SECTIONS
 	.heap (NOLOAD) : {
 		. = ALIGN(PLAT_HEAP_POINTER_ALIGN);
 		__heap_start = ABSOLUTE(.);
-		. = . + PLAT_HEAP_SIZE;
-		__heap_end = ABSOLUTE(.);
 	} > ram
+	__ram_end = ORIGIN(ram) + LENGTH(ram);
+	__heap_end = __ram_end;
+
+	__cram_start = ORIGIN(cram);
+	__cram_end = ORIGIN(cram) + LENGTH(cram);
 
 	.stack (NOLOAD) : {
-		. = ALIGN(8);
+		. = . + __l_vectors_size;
 		KEEP(* (.stack .stack.*));
-		. = . + PLAT_STACK_SIZE;
-		. = ALIGN(8);
-		__stack = . - 0x20;
-	} > ram
+	} > cram
+	__stack = __cram_end - 0x20;
 
 #ifndef NDEBUG
 	/**

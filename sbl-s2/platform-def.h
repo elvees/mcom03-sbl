@@ -5,12 +5,8 @@
 
 #include <libs/platform-def-common.h>
 
-#define PLAT_STACK_SIZE 0x00010000
-
-#define PLAT_HEAP_SIZE 0x80000
-
 #define PLAT_SBL_S2_BASE 0x48000000
-#define PLAT_SBL_S2_SIZE 0x00200000
+#define PLAT_SBL_S2_SIZE 0x02000000
 
 #define PLAT_FW_SLOT_OFFSET 0x47C00000
 #define PLAT_FW_SLOT_SIZE   0x00400000

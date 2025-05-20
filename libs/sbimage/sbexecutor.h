@@ -31,8 +31,8 @@
 #define SBIMAGE_TYPE_PAYLOAD_NO_EXEC      5
 
 typedef void *(*memcopy_t)(void *, uintptr_t, size_t);
-typedef int (*chck_laddr_t)(unsigned long, unsigned int);
-typedef int (*chck_eaddr_t)(unsigned long, unsigned int, unsigned long);
+typedef int (*chck_laddr_t)(uintptr_t, unsigned int);
+typedef int (*chck_eaddr_t)(uintptr_t, unsigned int, uintptr_t);
 typedef int (*read_image_t)(uintptr_t, uintptr_t, size_t);
 
 typedef struct {
