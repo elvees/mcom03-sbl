@@ -128,7 +128,8 @@ static int env_insert_item(kv_t **kvs, int *kv_count, const char *key, const cha
 			ERROR("Can't alloc %ld bytes\n", len);
 			return -ENULL;
 		}
-		memcpy((void *)kv, (void *)(*kvs), (*kv_count) * sizeof(kv_t));
+		if (*kvs)
+			memcpy((void *)kv, (void *)(*kvs), (*kv_count) * sizeof(kv_t));
 
 		len = strlen(key) + 1;
 		kv[*kv_count].key = (char *)malloc(len);
