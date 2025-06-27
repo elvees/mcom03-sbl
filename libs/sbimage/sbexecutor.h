@@ -33,7 +33,8 @@
 typedef void *(*memcopy_t)(void *, uintptr_t, size_t);
 typedef int (*chck_laddr_t)(uintptr_t, unsigned int);
 typedef int (*chck_eaddr_t)(uintptr_t, unsigned int, uintptr_t);
-typedef int (*read_image_t)(uintptr_t, uintptr_t, size_t);
+typedef int (*chck_img_t)(const void *, size_t);
+typedef int (*read_img_t)(void *, signed long, size_t);
 
 typedef struct {
 	uint16_t force_sign : 1;
@@ -61,10 +62,10 @@ typedef struct __packed {
 typedef struct {
 	chck_laddr_t chck_laddr_func;
 	chck_eaddr_t chck_eaddr_func;
+	chck_img_t chck_img;
 	memcopy_t cpy_func;
-	read_image_t read_image;
+	read_img_t read_img_func;
 	uintptr_t image_offset;
-	uintptr_t buffer;
 	otp_t otp;
 } sb_mem_t;
 

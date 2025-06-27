@@ -25,21 +25,11 @@ MEMORY
 	ddr_low_trusted1 (rwx)  : ORIGIN = 0xc0000000,          LENGTH = 512M
 	ddr_low_sdr1 (rwx)      : ORIGIN = 0xe0000000,          LENGTH = 512M
 	iommu (rwx)             : ORIGIN = PLAT_IOMMU_BASE,     LENGTH = PLAT_IOMMU_SIZE
-	fw_slot (rw)            : ORIGIN = PLAT_FW_SLOT_OFFSET, LENGTH = PLAT_FW_SLOT_SIZE
 	ram (rwx)               : ORIGIN = PLAT_SBL_S2_BASE,    LENGTH = PLAT_SBL_S2_SIZE
 }
 
 SECTIONS
 {
-	. = ORIGIN(fw_slot);
-	ASSERT(. == ALIGN(4), "ORIGIN(fw_slot) address is not aligned on a word boundary.")
-
-	.fw_slot (NOLOAD) : {
-		__fw_slot_start = ABSOLUTE(.);
-		KEEP(*(.fw_slot));
-		__fw_slot_end = ABSOLUTE(.);
-	} > fw_slot
-
 	. = ORIGIN(ram);
 	ASSERT(. == ALIGN(4), "ORIGIN(ram) address is not aligned on a word boundary.")
 

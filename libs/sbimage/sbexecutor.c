@@ -445,7 +445,7 @@ end:
 	return status;
 }
 
-static int image_handle(const sbimghdr_t *sbimg, const uint8_t *signature)
+static int image_handle(const sbimghdr_t *sbimg, bool update)
 {
 	CHECK_NULL(sbimg);
 
@@ -464,38 +464,47 @@ static int image_handle(const sbimghdr_t *sbimg, const uint8_t *signature)
 		chain[2] = decipher;
 	}
 
-	size_t data_size = (sbimg->flags_bits.encrypted) ? COMPLETE_BLOCK_LENGTH(sbimg->pl_size) :
-	                                                   sbimg->pl_size;
-	size_t signature_size = (sbimg->flags_bits.signed_obj) ? RSA_MOD_LEN : 0;
-	sb_mem.cpy_func((void *)sbimg->l_addr,
-	                (uintptr_t)sb_mem.buffer + HEADER_SIZE + signature_size, data_size);
+	size_t data_size = sbimg->pl_size;
+	size_t cipher_size = COMPLETE_BLOCK_LENGTH(data_size);
+	size_t pl_size = (sbimg->flags_bits.encrypted) ? cipher_size : data_size;
+	size_t sign_size = (sbimg->flags_bits.signed_obj) ? RSA_MOD_LEN : 0;
+
+	uintptr_t data = (uintptr_t)(sb_mem.image_offset + HEADER_SIZE + sign_size);
+	uint8_t *signature = NULL;
+	uint8_t *l_addr = NULL;
+
+	if (sign_size) {
+		signature = (uint8_t *)malloc(sign_size);
+		CHECK_OK(-ENULL, signature == NULL);
+		CHECK_OK(-EINTERNAL,
+		         sb_mem.read_img_func(signature, sb_mem.image_offset + HEADER_SIZE,
+		                              sign_size));
+	}
+
+	if (!update) {
+		l_addr = (uint8_t *)malloc(pl_size);
+		CHECK_OK(-ENULL, l_addr == NULL);
+	} else
+		l_addr = (uint8_t *)sbimg->l_addr;
+
+	CHECK_OK(-EINTERNAL, sb_mem.read_img_func(l_addr, data, pl_size));
 
 	for (size_t i = 0; i < sizeof(chain) / sizeof(chain[0]); i++) {
 		switch (chain[i]) {
 		case verification:
-			CHECK_OK(-ENULL, signature == NULL);
-
-			size = (sbimg->flags_bits.sign_of_encrypted) ?
-			               COMPLETE_BLOCK_LENGTH(sbimg->pl_size) :
-			               sbimg->pl_size;
-
+			size = (sbimg->flags_bits.sign_of_encrypted) ? cipher_size : data_size;
 			CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_SIGNATURE,
-			         verify((uint8_t *)sbimg->l_addr, (uint8_t *)signature, size,
-			                cert_index));
+			         verify(l_addr, signature, size, cert_index));
 			break;
 
 		case decipher:
-			CHECK_OK(-EINVALIDDATA, decrypt((uint8_t *)sbimg->l_addr,
-			                                COMPLETE_BLOCK_LENGTH(sbimg->pl_size)));
+			CHECK_OK(-EINVALIDDATA, decrypt(l_addr, cipher_size));
 			break;
 
 		case check:
-			size = (sbimg->flags_bits.sign_of_encrypted) ?
-			               COMPLETE_BLOCK_LENGTH(sbimg->pl_size) :
-			               sbimg->pl_size;
+			size = (sbimg->flags_bits.sign_of_encrypted) ? cipher_size : data_size;
 			CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_HASH,
-			         check_digest((uint8_t *)sbimg->l_addr, size,
-			                      (uint8_t *)sbimg->pl_dgst));
+			         check_digest(l_addr, size, (uint8_t *)sbimg->pl_dgst));
 			break;
 
 		default:
@@ -505,7 +514,14 @@ static int image_handle(const sbimghdr_t *sbimg, const uint8_t *signature)
 
 end:
 	if (status)
-		memset_s((uint8_t *)sbimg->l_addr, 0, data_size);
+		memset_s(l_addr, 0, pl_size);
+	else if (sb_mem.chck_img)
+		status = sb_mem.chck_img(l_addr, pl_size);
+
+	if (!update && l_addr)
+		free(l_addr);
+	if (signature)
+		free(signature);
 
 	return status;
 }
@@ -556,10 +572,11 @@ int sblimg_init(sb_mem_t *sb_ctx)
 {
 	sb_mem.chck_laddr_func = sb_ctx->chck_laddr_func;
 	sb_mem.chck_eaddr_func = sb_ctx->chck_eaddr_func;
+	sb_mem.chck_img = sb_ctx->chck_img;
 	sb_mem.cpy_func = sb_ctx->cpy_func;
-	sb_mem.read_image = sb_ctx->read_image;
+	sb_mem.read_img_func = sb_ctx->read_img_func;
 	sb_mem.image_offset = sb_ctx->image_offset;
-	sb_mem.buffer = sb_ctx->buffer;
+
 	sb_mem.cpy_func(&sb_mem.otp, (uintptr_t)&sb_ctx->otp, sizeof(otp_t));
 
 	return ESBIMGBOOT_NO_ERR;
@@ -567,210 +584,43 @@ int sblimg_init(sb_mem_t *sb_ctx)
 
 int sblimg_check(void)
 {
-	int status = 0;
-	sbimghdr_t sbimg;
-
-	while (1) {
-		CHECK_OK(-EINTERNAL,
-		         sb_mem.read_image((uintptr_t)&sbimg, sb_mem.image_offset, HEADER_SIZE));
-		CHECK_OK(-EINVALIDSTATE, sbimg.h_id != SBIMG_HEADER_MAGIC);
-
-		size_t data_size = sbimg.pl_size;
-		size_t cipher_size = COMPLETE_BLOCK_LENGTH(data_size);
-		size_t pl_size = (sbimg.flags_bits.encrypted) ? cipher_size : data_size;
-		size_t sign_size = (sbimg.flags_bits.signed_obj) ? RSA_MOD_LEN : 0;
-		size_t image_size = HEADER_SIZE + sign_size + data_size;
-		image_size = (sbimg.flags_bits.encrypted) ? COMPLETE_BLOCK_LENGTH(image_size) :
-		                                            ALIGN(image_size, 4);
-
-		CHECK_OK(-EINTERNAL,
-		         sb_mem.read_image(sb_mem.buffer, sb_mem.image_offset, image_size));
-
-		const size_t data = sb_mem.buffer + HEADER_SIZE + sign_size;
-		const size_t signature = sb_mem.buffer + HEADER_SIZE;
-
-		// TODO: Check that offset doesn't go beyond sbimg size border
-		sb_mem.image_offset += image_size;
-
-		CHECK_HEADER(&sbimg);
-
-		int path_len = 0;
-		switch (sbimg.flags_bits.obj_type) {
-		case SBIMAGE_TYPE_ROOT_CERTIFICATE:
-			CHECK_OK(ESBIMGBOOT_ROOT_CERT_IS_NOT_FIRST, cert_index != 0);
-
-			CHECK_OK(ESBIMGBOOT_MALLOC_ERR,
-			         x509_new((uint8_t *)data, (int *)&pl_size, &x509_root));
-			CHECK_OK(ESBIMGBOOT_ROOT_CERT_X509_ERR,
-			         sbimg_x509_cert_verify(x509_root, x509_root, &path_len));
-			CHECK_OK(-ENULL, x509_root == NULL);
-
-			CHECK_OK(ESBIMGBOOT_ROOT_CERT_BAD_HASH,
-			         memcmp((const void *)sb_mem.otp.rot,
-			                (const void *)x509_root->sha256_digest, SHA_DIGEST_LEN));
-			break;
-
-		case SBIMAGE_TYPE_NON_ROOT_CERTIFICATE:
-			CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_X509_ERR, end_cert_has_been_handled);
-
-			CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_TOO_MUCH_CERTS,
-			         cert_index >= CONFIG_X509_MAX_CA_CERTS);
-
-			CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_IS_FIRST, x509_root == NULL);
-
-			for (int i = 0; i < cert_index; i++)
-				CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_X509_ERR,
-				         sign_cert_arr[i] == sbimg.cert_id);
-
-			CHECK_OK(ESBIMGBOOT_MALLOC_ERR, x509_new((uint8_t *)data, (int *)&pl_size,
-			                                         &non_root_cert[cert_index]));
-
-			if (!non_root_cert[cert_index]->basic_constraint_cA)
-				end_cert_has_been_handled = 1;
-
-			if (!asn1_compare_dn(x509_root->cert_dn,
-			                     non_root_cert[cert_index]->ca_cert_dn))
-				non_root_cert[cert_index]->next = x509_root;
-
-			if (!non_root_cert[cert_index]->next)
-				for (int i = cert_index - 1; i >= 0; i--)
-					if (!asn1_compare_dn(
-						    non_root_cert[i]->cert_dn,
-						    non_root_cert[cert_index]->ca_cert_dn)) {
-						non_root_cert[cert_index]->next = non_root_cert[i];
-						break;
-					}
-
-			CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_X509_ERR,
-			         non_root_cert[cert_index]->next == NULL);
-
-			CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_X509_ERR,
-			         sbimg_x509_cert_verify(non_root_cert[cert_index]->next,
-			                                non_root_cert[cert_index], &path_len));
-			sign_cert_arr[cert_index] = sbimg.cert_id;
-
-			if (!end_cert_has_been_handled)
-				cert_index++;
-			break;
-
-		case SBIMAGE_TYPE_ENCRYPTION_KEY:
-			CHECK_OK(ESBIMGBOOT_ENC_KEY_BAD_CERT_CHAIN, !end_cert_has_been_handled);
-
-			CHECK_OK(ESBIMGBOOT_ENC_KEY_IS_NOT_SIGNED,
-			         check_signed_load_requirement(&sbimg));
-
-			int num = 0;
-			SET_CERT_NUMBER(sbimg.sign_cert_id, num);
-			CHECK_OK(ESBIMGBOOT_ENC_KEY_BAD_SIGNATURE,
-			         verify((uint8_t *)data, (uint8_t *)signature, data_size, num));
-
-			sb_mem.cpy_func((void *)encrypted_key, (size_t)data, cipher_size);
-			key_number = sbimg.aes_key_num;
-			break;
-
-		case SBIMAGE_TYPE_PAYLOAD_NO_EXEC:
-		case SBIMAGE_TYPE_PAYLOAD_NO_RETURN:
-		case SBIMAGE_TYPE_PAYLOAD_WITH_RETURN:
-			CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_CERT_CHAIN, !end_cert_has_been_handled);
-
-			CHECK_OK(ESBIMGBOOT_PAYLOAD_IS_NOT_SIGNED,
-			         check_signed_load_requirement(&sbimg));
-			CHECK_OK(ESBIMGBOOT_PAYLOAD_IS_NOT_ENCRYPTED,
-			         check_encrypted_load_requirement(&sbimg));
-
-			if (!(sbimg.flags_bits.encrypted && !sbimg.flags_bits.sign_of_encrypted)) {
-				if (sbimg.flags_bits.signed_obj) {
-					CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_SIGNATURE,
-					         verify((uint8_t *)data, (uint8_t *)signature,
-					                data_size, cert_index));
-				} else {
-					CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_HASH,
-					         check_digest((uint8_t *)data, pl_size,
-					                      sbimg.pl_dgst));
-				}
-			} else {
-				uint8_t digest[SHA256_SIZE];
-				SHA256_CTX sha256_ctx;
-
-				uint8_t buf[AES_BLOCKLEN];
-
-				struct AES_ctx aes_ctx;
-
-				uint8_t key[AES_KEY_LEN];
-				CHECK_OK(-EDATASIZE, derrived_key(key, AES_KEY_LEN));
-				AES_init_ctx_iv(&aes_ctx, key, iv);
-				memset_s(key, 0, AES_KEY_LEN);
-
-				SHA256_Init(&sha256_ctx);
-				size_t cipher_text = data;
-				size_t size = data_size - (data_size % AES_BLOCKLEN);
-				while (size > AES_BLOCKLEN) {
-					sb_mem.cpy_func((void *)buf, cipher_text, AES_BLOCKLEN);
-					AES_CBC_decrypt_buffer(&aes_ctx, buf, AES_BLOCKLEN);
-					SHA256_Update(&sha256_ctx, buf, AES_BLOCKLEN);
-					cipher_text += AES_BLOCKLEN;
-					size -= AES_BLOCKLEN;
-				}
-				sb_mem.cpy_func((void *)buf, cipher_text, size);
-				AES_CBC_decrypt_buffer(&aes_ctx, buf, size);
-				memset_s(&aes_ctx, 0, sizeof(struct AES_ctx));
-				SHA256_Update(&sha256_ctx, buf, size);
-
-				memset_s(buf, 0, AES_BLOCKLEN);
-
-				SHA256_Final(digest, &sha256_ctx);
-				CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_SIGNATURE,
-				         signature_verify_hash((uint8_t *)digest,
-				                               (uint8_t *)signature, RSA_MOD_LEN,
-				                               non_root_cert[cert_index]->rsa_ctx));
-			}
-
-			CHECK_OK(0, sbimg.flags_bits.obj_type == SBIMAGE_TYPE_PAYLOAD_NO_RETURN);
-			break;
-
-		default:
-			break;
-		}
-	}
-
-end:
-	crypto_free();
-
-	return status;
-}
-
-int sblimg_update(void)
-{
 	int status = ESBIMGBOOT_NO_ERR;
-
 	sbimghdr_t sbimg;
 
 	uint8_t *data = NULL;
 	uint8_t *signature = NULL;
 
 	CHECK_OK(-EINTERNAL,
-	         sb_mem.read_image((uintptr_t)&sbimg, sb_mem.image_offset, HEADER_SIZE));
+	         sb_mem.read_img_func((void *)&sbimg, sb_mem.image_offset, HEADER_SIZE));
 
 	CHECK_OK(ESBIMGBOOT_IMAGE_BAD_HEADER_ID, sbimg.h_id != SBIMG_HEADER_MAGIC);
 
 	size_t data_size = sbimg.pl_size;
-	size_t cipher_size = COMPLETE_BLOCK_LENGTH(sbimg.pl_size);
+	size_t cipher_size = COMPLETE_BLOCK_LENGTH(data_size);
 	size_t pl_size = (sbimg.flags_bits.encrypted) ? cipher_size : data_size;
 	size_t sign_size = (sbimg.flags_bits.signed_obj) ? RSA_MOD_LEN : 0;
-
 	size_t image_size = HEADER_SIZE + sign_size + data_size;
 	image_size = (sbimg.flags_bits.encrypted) ? COMPLETE_BLOCK_LENGTH(image_size) :
 	                                            ALIGN(image_size, 4);
 
-	CHECK_OK(-EINTERNAL, sb_mem.read_image(sb_mem.buffer, sb_mem.image_offset, image_size));
-
 	if (sbimg.flags_bits.obj_type == SBIMAGE_TYPE_ROOT_CERTIFICATE ||
 	    sbimg.flags_bits.obj_type == SBIMAGE_TYPE_NON_ROOT_CERTIFICATE ||
-	    sbimg.flags_bits.obj_type == SBIMAGE_TYPE_ENCRYPTION_KEY)
-		data = (uint8_t *)(sb_mem.buffer + HEADER_SIZE + sign_size);
+	    sbimg.flags_bits.obj_type == SBIMAGE_TYPE_ENCRYPTION_KEY) {
+		data = (uint8_t *)malloc(data_size);
+		CHECK_OK(-ENULL, data == NULL);
+		CHECK_OK(-EINTERNAL,
+		         sb_mem.read_img_func((void *)data,
+		                              sb_mem.image_offset + HEADER_SIZE + sign_size,
+		                              data_size));
+	}
 
-	if (sign_size)
-		signature = (uint8_t *)(sb_mem.buffer + HEADER_SIZE);
+	if (sbimg.flags_bits.obj_type == SBIMAGE_TYPE_ENCRYPTION_KEY && sign_size) {
+		signature = (uint8_t *)malloc(sign_size);
+		CHECK_OK(-ENULL, signature == NULL);
+		CHECK_OK(-EINTERNAL,
+		         sb_mem.read_img_func((void *)signature, sb_mem.image_offset + HEADER_SIZE,
+		                              sign_size));
+	}
 
 	CHECK_HEADER(&sbimg);
 
@@ -782,7 +632,7 @@ int sblimg_update(void)
 		CHECK_OK(ESBIMGBOOT_MALLOC_ERR, x509_new(data, (int *)&pl_size, &x509_root));
 		CHECK_OK(ESBIMGBOOT_ROOT_CERT_X509_ERR,
 		         sbimg_x509_cert_verify(x509_root, x509_root, &path_len));
-		CHECK_NULL(x509_root);
+		CHECK_OK(-ENULL, x509_root == NULL);
 
 		CHECK_OK(ESBIMGBOOT_ROOT_CERT_BAD_HASH,
 		         memcmp((const void *)sb_mem.otp.rot,
@@ -794,6 +644,7 @@ int sblimg_update(void)
 
 		CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_TOO_MUCH_CERTS,
 		         cert_index >= CONFIG_X509_MAX_CA_CERTS);
+		CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_IS_FIRST, x509_root == NULL);
 
 		for (int i = 0; i < cert_index; i++)
 			CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_X509_ERR,
@@ -835,8 +686,149 @@ int sblimg_update(void)
 
 		int num = 0;
 		SET_CERT_NUMBER(sbimg.sign_cert_id, num);
-		CHECK_OK(ESBIMGBOOT_ENC_KEY_BAD_SIGNATURE,
-		         verify((uint8_t *)data, (uint8_t *)signature, data_size, num));
+		CHECK_OK(ESBIMGBOOT_ENC_KEY_BAD_SIGNATURE, verify(data, signature, data_size, num));
+
+		sb_mem.cpy_func((void *)encrypted_key, (size_t)data, cipher_size);
+		key_number = sbimg.aes_key_num;
+		break;
+
+	case SBIMAGE_TYPE_PAYLOAD_NO_EXEC:
+	case SBIMAGE_TYPE_PAYLOAD_NO_RETURN:
+	case SBIMAGE_TYPE_PAYLOAD_WITH_RETURN:
+		CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_CERT_CHAIN, !end_cert_has_been_handled);
+
+		CHECK_OK(ESBIMGBOOT_PAYLOAD_IS_NOT_SIGNED, check_signed_load_requirement(&sbimg));
+		CHECK_OK(ESBIMGBOOT_PAYLOAD_IS_NOT_ENCRYPTED,
+		         check_encrypted_load_requirement(&sbimg));
+
+		int ret = image_handle(&sbimg, false);
+		CHECK_OK(ret, ret != 0);
+		CHECK_OK(ESBIMGBOOT_LOAD_FINISH,
+		         sbimg.flags_bits.obj_type == SBIMAGE_TYPE_PAYLOAD_NO_RETURN);
+		break;
+
+	default:
+		break;
+	}
+
+	// TODO: Check that offset doesn't go beyond sbimg size border
+	sb_mem.image_offset += image_size;
+
+end:
+	if (data)
+		free(data);
+	if (signature)
+		free(signature);
+
+	return status;
+}
+
+int sblimg_update(void)
+{
+	int status = ESBIMGBOOT_NO_ERR;
+
+	sbimghdr_t sbimg;
+
+	uint8_t *data = NULL;
+	uint8_t *signature = NULL;
+
+	CHECK_OK(-EINTERNAL,
+	         sb_mem.read_img_func((void *)&sbimg, sb_mem.image_offset, HEADER_SIZE));
+
+	CHECK_OK(ESBIMGBOOT_IMAGE_BAD_HEADER_ID, sbimg.h_id != SBIMG_HEADER_MAGIC);
+
+	size_t data_size = sbimg.pl_size;
+	size_t cipher_size = COMPLETE_BLOCK_LENGTH(sbimg.pl_size);
+	size_t pl_size = (sbimg.flags_bits.encrypted) ? cipher_size : data_size;
+	size_t sign_size = (sbimg.flags_bits.signed_obj) ? RSA_MOD_LEN : 0;
+
+	size_t image_size = HEADER_SIZE + sign_size + data_size;
+	image_size = (sbimg.flags_bits.encrypted) ? COMPLETE_BLOCK_LENGTH(image_size) :
+	                                            ALIGN(image_size, 4);
+
+	if (sbimg.flags_bits.obj_type == SBIMAGE_TYPE_ROOT_CERTIFICATE ||
+	    sbimg.flags_bits.obj_type == SBIMAGE_TYPE_NON_ROOT_CERTIFICATE ||
+	    sbimg.flags_bits.obj_type == SBIMAGE_TYPE_ENCRYPTION_KEY) {
+		data = (uint8_t *)malloc(data_size);
+		CHECK_OK(-ENULL, data == NULL);
+		CHECK_OK(-EINTERNAL,
+		         sb_mem.read_img_func(data, sb_mem.image_offset + HEADER_SIZE + sign_size,
+		                              data_size));
+	}
+
+	if (sbimg.flags_bits.obj_type == SBIMAGE_TYPE_ENCRYPTION_KEY && sign_size) {
+		signature = (uint8_t *)malloc(sign_size);
+		CHECK_OK(-ENULL, signature == NULL);
+		CHECK_OK(-EINTERNAL,
+		         sb_mem.read_img_func(signature, sb_mem.image_offset + HEADER_SIZE,
+		                              sign_size));
+	}
+
+	CHECK_HEADER(&sbimg);
+
+	int path_len = 0;
+	switch (sbimg.flags_bits.obj_type) {
+	case SBIMAGE_TYPE_ROOT_CERTIFICATE:
+		CHECK_OK(ESBIMGBOOT_ROOT_CERT_IS_NOT_FIRST, cert_index != 0);
+
+		CHECK_OK(ESBIMGBOOT_MALLOC_ERR, x509_new(data, (int *)&pl_size, &x509_root));
+		CHECK_OK(ESBIMGBOOT_ROOT_CERT_X509_ERR,
+		         sbimg_x509_cert_verify(x509_root, x509_root, &path_len));
+		CHECK_NULL(x509_root);
+
+		CHECK_OK(ESBIMGBOOT_ROOT_CERT_BAD_HASH,
+		         memcmp((const void *)sb_mem.otp.rot,
+		                (const void *)x509_root->sha256_digest, SHA_DIGEST_LEN));
+		break;
+
+	case SBIMAGE_TYPE_NON_ROOT_CERTIFICATE:
+		CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_X509_ERR, end_cert_has_been_handled);
+
+		CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_TOO_MUCH_CERTS,
+		         cert_index >= CONFIG_X509_MAX_CA_CERTS);
+		CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_IS_FIRST, x509_root == NULL);
+
+		for (int i = 0; i < cert_index; i++)
+			CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_X509_ERR,
+			         sign_cert_arr[i] == sbimg.cert_id);
+
+		CHECK_OK(ESBIMGBOOT_MALLOC_ERR,
+		         x509_new(data, (int *)&pl_size, &non_root_cert[cert_index]));
+
+		if (!non_root_cert[cert_index]->basic_constraint_cA)
+			end_cert_has_been_handled = 1;
+
+		if (!asn1_compare_dn(x509_root->cert_dn, non_root_cert[cert_index]->ca_cert_dn))
+			non_root_cert[cert_index]->next = x509_root;
+
+		if (!non_root_cert[cert_index]->next)
+			for (int i = cert_index - 1; i >= 0; i--)
+				if (!asn1_compare_dn(non_root_cert[i]->cert_dn,
+				                     non_root_cert[cert_index]->ca_cert_dn)) {
+					non_root_cert[cert_index]->next = non_root_cert[i];
+					break;
+				}
+
+		CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_X509_ERR,
+		         non_root_cert[cert_index]->next == NULL);
+
+		CHECK_OK(ESBIMGBOOT_NON_ROOT_CERT_X509_ERR,
+		         sbimg_x509_cert_verify(non_root_cert[cert_index]->next,
+		                                non_root_cert[cert_index], &path_len));
+		sign_cert_arr[cert_index] = sbimg.cert_id;
+
+		if (!end_cert_has_been_handled)
+			cert_index++;
+		break;
+
+	case SBIMAGE_TYPE_ENCRYPTION_KEY:
+		CHECK_OK(ESBIMGBOOT_ENC_KEY_BAD_CERT_CHAIN, !end_cert_has_been_handled);
+
+		CHECK_OK(ESBIMGBOOT_ENC_KEY_IS_NOT_SIGNED, check_signed_load_requirement(&sbimg));
+
+		int num = 0;
+		SET_CERT_NUMBER(sbimg.sign_cert_id, num);
+		CHECK_OK(ESBIMGBOOT_ENC_KEY_BAD_SIGNATURE, verify(data, signature, data_size, num));
 
 		sb_mem.cpy_func((void *)encrypted_key, (size_t)data, cipher_size);
 		key_number = sbimg.aes_key_num;
@@ -852,7 +844,9 @@ int sblimg_update(void)
 		         check_encrypted_load_requirement(&sbimg));
 
 		CHECK_OK(-EINVALIDDATA, sb_mem.chck_laddr_func(sbimg.l_addr, sbimg.pl_size));
-		CHECK_OK(-EINVALIDDATA, image_handle(&sbimg, signature));
+
+		int ret = image_handle(&sbimg, true);
+		CHECK_OK(ret, ret != 0);
 		CHECK_OK(ESBIMGBOOT_LOAD_FINISH,
 		         sbimg.flags_bits.obj_type == SBIMAGE_TYPE_PAYLOAD_NO_RETURN);
 
@@ -870,6 +864,11 @@ int sblimg_update(void)
 	sb_mem.image_offset += image_size;
 
 end:
+	if (data)
+		free(data);
+	if (signature)
+		free(signature);
+
 	return status;
 }
 
@@ -886,7 +885,7 @@ void __dead2 sblimg_finish(int status)
 		sbimghdr_t sbimg;
 
 		CHECK_OK(-EINTERNAL,
-		         sb_mem.read_image((uintptr_t)&sbimg, sb_mem.image_offset, HEADER_SIZE));
+		         sb_mem.read_img_func((void *)&sbimg, sb_mem.image_offset, HEADER_SIZE));
 		CHECK_OK(-EINVALIDDATA,
 		         sb_mem.chck_eaddr_func(sbimg.l_addr, sbimg.pl_size, sbimg.e_addr));
 		EXECUTE(sbimg.e_addr);
