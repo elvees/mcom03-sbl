@@ -546,6 +546,17 @@ static void crypto_free(void)
 	memset_s(sign_cert_arr, 0, sizeof(sign_cert_arr));
 }
 
+int static check_end_cert_load_requirement(sbimghdr_t *header)
+{
+	int status = 0;
+
+	if (sb_mem.otp.flags_bits.force_sign)
+		CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_CERT_CHAIN, !end_cert_has_been_handled);
+
+end:
+	return status;
+}
+
 int static check_signed_load_requirement(sbimghdr_t *header)
 {
 	int status = 0;
@@ -680,8 +691,8 @@ int sblimg_check(void)
 		break;
 
 	case SBIMAGE_TYPE_ENCRYPTION_KEY:
-		CHECK_OK(ESBIMGBOOT_ENC_KEY_BAD_CERT_CHAIN, !end_cert_has_been_handled);
-
+		CHECK_OK(ESBIMGBOOT_ENC_KEY_BAD_CERT_CHAIN,
+		         check_end_cert_load_requirement(&sbimg));
 		CHECK_OK(ESBIMGBOOT_ENC_KEY_IS_NOT_SIGNED, check_signed_load_requirement(&sbimg));
 
 		int num = 0;
@@ -695,8 +706,8 @@ int sblimg_check(void)
 	case SBIMAGE_TYPE_PAYLOAD_NO_EXEC:
 	case SBIMAGE_TYPE_PAYLOAD_NO_RETURN:
 	case SBIMAGE_TYPE_PAYLOAD_WITH_RETURN:
-		CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_CERT_CHAIN, !end_cert_has_been_handled);
-
+		CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_CERT_CHAIN,
+		         check_end_cert_load_requirement(&sbimg));
 		CHECK_OK(ESBIMGBOOT_PAYLOAD_IS_NOT_SIGNED, check_signed_load_requirement(&sbimg));
 		CHECK_OK(ESBIMGBOOT_PAYLOAD_IS_NOT_ENCRYPTED,
 		         check_encrypted_load_requirement(&sbimg));
@@ -822,8 +833,8 @@ int sblimg_update(void)
 		break;
 
 	case SBIMAGE_TYPE_ENCRYPTION_KEY:
-		CHECK_OK(ESBIMGBOOT_ENC_KEY_BAD_CERT_CHAIN, !end_cert_has_been_handled);
-
+		CHECK_OK(ESBIMGBOOT_ENC_KEY_BAD_CERT_CHAIN,
+		         check_end_cert_load_requirement(&sbimg));
 		CHECK_OK(ESBIMGBOOT_ENC_KEY_IS_NOT_SIGNED, check_signed_load_requirement(&sbimg));
 
 		int num = 0;
@@ -837,8 +848,8 @@ int sblimg_update(void)
 	case SBIMAGE_TYPE_PAYLOAD_NO_EXEC:
 	case SBIMAGE_TYPE_PAYLOAD_NO_RETURN:
 	case SBIMAGE_TYPE_PAYLOAD_WITH_RETURN:
-		CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_CERT_CHAIN, !end_cert_has_been_handled);
-
+		CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_CERT_CHAIN,
+		         check_end_cert_load_requirement(&sbimg));
 		CHECK_OK(ESBIMGBOOT_PAYLOAD_IS_NOT_SIGNED, check_signed_load_requirement(&sbimg));
 		CHECK_OK(ESBIMGBOOT_PAYLOAD_IS_NOT_ENCRYPTED,
 		         check_encrypted_load_requirement(&sbimg));
