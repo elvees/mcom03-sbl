@@ -117,17 +117,6 @@ void service_enable_lsp0(void)
 	urb->top_clkgate |= BIT(SERVICE_TOP_CLK_GATE_LSP0);
 }
 
-void service_enable_sdr(void)
-{
-	service_urb_regs_t *urb = service_get_urb_registers();
-	uint32_t bp1_mask = BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM) |
-	                    BIT(TOP_UCG1_CHANNEL_AXI_FAST_COMM) |
-	                    BIT(TOP_UCG1_CHANNEL_DDR_SDR_DSP) | BIT(TOP_UCG1_CHANNEL_DDR_SDR_PICE);
-
-	set_ppolicy((uintptr_t)&urb->sdr_ppolicy, PP_ON, 0, bp1_mask, 0, true);
-	urb->top_clkgate |= BIT(SERVICE_TOP_CLK_GATE_SDR);
-}
-
 service_urb_regs_t *service_get_urb_registers(void)
 {
 	return (service_urb_regs_t *)BASE_ADDR_SERVICE_URB;

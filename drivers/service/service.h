@@ -176,12 +176,6 @@ void service_enable_lsp1(void);
 void service_enable_lsp0(void);
 
 /**
- * @brief The function turns on SDR subsystem, waits for status register to
- *        report "on"
- */
-void service_enable_sdr(void);
-
-/**
  * @brief The function returns a pointer
  *        to the URB register address
  *        of the Service subsystem
