@@ -6,7 +6,7 @@
 pb python
 pb import os
 pb import sys
-pb IMAGES_PATH = 'buildroot/output/images'
+pb IMAGES_PATH = os.environ.get('MDB_IMAGES_PATH', 'buildroot/output/images')
 pb SCRIPTS_PATH = f'{IMAGES_PATH}/sbl/scripts'
 pb sys.path.append(SCRIPTS_PATH)
 pb import helpers
