@@ -83,6 +83,8 @@ static struct spi_nor_id spi_nor_ids[] = {
 	{ "W25Q128FW/JW", 0xEF6018, 0, 16 * MiB, 64 * KiB, 256, 0 },
 	{ "W25Q256JV-IQ/IN/JQ", 0xEF4019, 0, 32 * MiB, 64 * KiB, 256, 0 },
 	{ "W25Q256JV-IM/JM", 0xEF7019, 0, 32 * MiB, 64 * KiB, 256, 0 },
+	{ "W25Q256JW", 0xEF6019, 0, 32 * MiB, 64 * KiB, 256, 0 },
+	{ "W25Q256JW-IM", 0xEF8019, 0, 32 * MiB, 64 * KiB, 256, 0 },
 };
 
 static nor_flash_t nor_flash;
