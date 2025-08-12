@@ -14,7 +14,8 @@ pb end
 
 pb python
 pb dtb = os.environ.get('MDB_DTB_FILE', 'mcom03-mcom03bub-r1.3.0.dtb')
-pb board = helpers.parse_ddrinit_dtb_map(f'{SCRIPTS_PATH}/ddrinit-dtb-map.txt', dtb)
+pb map_file = os.environ.get('MDB_DDRINIT_DTB_MAP', 'mcom03-ddrinit-dtb-map.txt')
+pb board = helpers.parse_ddrinit_dtb_map(f'{SCRIPTS_PATH}/{map_file}', dtb)
 pb end
 
 # Load and run sbl-s1 to setup required clocks
