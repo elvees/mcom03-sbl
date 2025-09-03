@@ -101,6 +101,8 @@ int main(void)
 #ifdef UART_ENABLE
 	if (ret == -EALREADYINITIALIZED)
 		printf("WDT0 is already enabled\n");
+	else
+		printf("WDT0 is initialized successfully\n");
 #endif
 
 	ret = wdt_start(wdt0);
