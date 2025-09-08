@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: MIT
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.20)
 
 set(CMAKE_BUILD_TYPE_INIT Release)
 
 project(sbl ASM C)
+
+include(cmake/helpers.cmake)
 
 set(DDRINIT_DTB_MAP_FILE CACHE PATH "ddrinit-DTB map file")
 if(NOT EXISTS ${DDRINIT_DTB_MAP_FILE})

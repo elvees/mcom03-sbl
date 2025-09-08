@@ -46,40 +46,31 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     set_target_properties(sbl-xip-${DTB_NAME}.elf PROPERTIES
                           LINK_FLAGS "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/sbl-xip.map")
 
-    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_LINK
-                       COMMAND ${CMAKE_C_COMPILER}
-                       $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS)
-                       -E ${CMAKE_CURRENT_SOURCE_DIR}/link.ld.S -P
-                       -o ${CMAKE_CURRENT_BINARY_DIR}/link.ld)
+    generate_and_add_as_dependency(sbl-xip-${DTB_NAME}.elf
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/link.ld.S
+                                   ${CMAKE_CURRENT_BINARY_DIR}/link.ld)
 
-    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_BUILD
-                       COMMAND ${CMAKE_OBJCOPY} -I binary
-                       -O elf32-littlemips -B mips --rename-section .data=.rodata
-                       ${IMAGES_PATH}/ddrinit-${DDRINIT_NAME}/ddrinit.bin
-                       ${CMAKE_CURRENT_BINARY_DIR}/ddrinit.o)
+    generate_and_add_as_dependency(sbl-xip-${DTB_NAME}.elf
+                                   ${IMAGES_PATH}/ddrinit-${DDRINIT_NAME}/ddrinit.bin
+                                   ${CMAKE_CURRENT_BINARY_DIR}/ddrinit.o)
 
-    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_BUILD
-                       COMMAND ${CMAKE_OBJCOPY} -I binary
-                       -O elf32-littlemips -B mips --rename-section .data=.rodata
-                       ${IMAGES_PATH}/uboot-dtb/${DTB_NAME}.dtb
-                       ${CMAKE_CURRENT_BINARY_DIR}/dtb.o)
+    generate_and_add_as_dependency(sbl-xip-${DTB_NAME}.elf
+                                   ${IMAGES_PATH}/uboot-dtb/${DTB_NAME}.dtb
+                                   ${CMAKE_CURRENT_BINARY_DIR}/dtb.o)
 
-    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_BUILD
-                       COMMAND ${CMAKE_OBJCOPY} -I binary
-                       -O elf32-littlemips -B mips --rename-section .data=.rodata
-                       ${IMAGES_PATH}/bl31.bin ${CMAKE_CURRENT_BINARY_DIR}/tfa.o)
+    generate_and_add_as_dependency(sbl-xip-${DTB_NAME}.elf
+                                   ${IMAGES_PATH}/bl31.bin
+                                   ${CMAKE_CURRENT_BINARY_DIR}/tfa.o)
 
     if(EXISTS ${IMAGES_PATH}/bl32.bin)
-        add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_BUILD
-                           COMMAND ${CMAKE_OBJCOPY}
-                           -I binary -O elf32-littlemips -B mips --rename-section .data=.rodata
-                           ${IMAGES_PATH}/bl32.bin ${CMAKE_CURRENT_BINARY_DIR}/bl32.o)
+        generate_and_add_as_dependency(sbl-xip-${DTB_NAME}.elf
+                                       ${IMAGES_PATH}/bl32.bin
+                                       ${CMAKE_CURRENT_BINARY_DIR}/bl32.o)
     endif()
 
-    add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf PRE_BUILD
-                       COMMAND ${CMAKE_OBJCOPY} -I binary
-                       -O elf32-littlemips -B mips --rename-section .data=.rodata
-                       ${IMAGES_PATH}/u-boot.bin ${CMAKE_CURRENT_BINARY_DIR}/u-boot.o)
+    generate_and_add_as_dependency(sbl-xip-${DTB_NAME}.elf
+                                   ${IMAGES_PATH}/u-boot.bin
+                                   ${CMAKE_CURRENT_BINARY_DIR}/u-boot.o)
 
     add_custom_command(TARGET sbl-xip-${DTB_NAME}.elf POST_BUILD
                        COMMAND ${CMAKE_OBJDUMP}
