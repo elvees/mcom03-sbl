@@ -9,9 +9,7 @@
 #include <drivers/mips-cp0/asm/mips-cp0.h>
 #include <libs/asm.h>
 
-#include "platform-def.h"
-
-	.global _startup
+	.global main
 
 LEAF(_startup)
 	li            $k1, 0x000000           // disable interrupts, IE[0] = 0, ERL[2] = 0,
