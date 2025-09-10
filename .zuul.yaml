@@ -1,4 +1,14 @@
+- job:
+    name: mcom03-sbl-unittests
+    description: Run SBL unit tests
+    run: playbooks/sbl-unittests.yaml
+
 - project:
     check:
       jobs:
         - pre-commit
+        - mcom03-sbl-unittests:
+            irrelevant-files:
+              - ^\..*
+              - LICENSE$
+              - .*\.rst$

@@ -5,6 +5,10 @@
 
 #include <sys/errno.h>
 
+#ifndef __ELASTERROR
+#define __ELASTERROR 1000
+#endif
+
 // Enumerated type for error codes.
 
 #define EINTERNAL           (__ELASTERROR + 1)

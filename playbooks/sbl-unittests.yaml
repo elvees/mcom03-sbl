@@ -1,0 +1,28 @@
+- hosts: all
+
+  tasks:
+    - name: Build and run SBL unit tests
+      shell: |
+        set -exu
+        cd src/gerrit.elvees.com/mcom03/sbl
+
+        ./docker-run.sh cmake -S . -B build -DBUILD_UNIT_TESTS=ON \
+          -DCMAKE_CXX_FLAGS='-Wall -Werror'
+        ./docker-run.sh cmake --build build --parallel $(nproc)
+
+        # Prepare coverage
+        ./docker-run.sh lcov -z -d build
+        ./docker-run.sh lcov -t sbl -o build/coverage.info -c -i -d .
+
+        # Run test
+        ./docker-run.sh build/tests/sbl-unittests.elf
+
+        # Calculate coverage
+        ./docker-run.sh lcov -t sbl -o build/coverage.info \
+          -c -d build --include '*/libs/env/*'
+
+        # Generate report
+        ./docker-run.sh genhtml -o build/html build/coverage.info
+
+        # Copy report to Zuul output
+        cp -r build/html "{{ ansible_env.HOME }}/zuul-output/logs"
