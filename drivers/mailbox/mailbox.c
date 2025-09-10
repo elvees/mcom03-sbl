@@ -7,8 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <drivers/qlic/irq.h>
-#include <drivers/qlic/qlic.h>
+#include <drivers/irq/irq.h>
+#include <drivers/irq/qlic.h>
 #include <drivers/service/service.h>
 #include <drivers/timer/timer.h>
 #include <libs/errors.h>

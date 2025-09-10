@@ -3,10 +3,10 @@
 
 #include <drivers/cpu/cpu.h>
 #include <drivers/iommu/iommu.h>
+#include <drivers/irq/irq.h>
 #include <drivers/mailbox/mailbox.h>
 #include <drivers/mips-cp0/mips-cp0.h>
 #include <drivers/pll/pll.h>
-#include <drivers/qlic/irq.h>
 #include <drivers/service/service.h>
 #include <drivers/ucg/ucg.h>
 #include <libs/console/console.h>

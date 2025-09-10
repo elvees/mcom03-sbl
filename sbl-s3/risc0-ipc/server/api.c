@@ -6,9 +6,9 @@
 #include <sys/cdefs.h>
 
 #include <drivers/iommu/iommu.h>
+#include <drivers/irq/irq.h>
 #include <drivers/mailbox/mailbox.h>
 #include <drivers/mips-cp0/mips-cp0.h>
-#include <drivers/qlic/irq.h>
 #include <libs/helpers/helpers.h>
 #include <libs/log.h>
 #include <libs/queue/queue.h>
