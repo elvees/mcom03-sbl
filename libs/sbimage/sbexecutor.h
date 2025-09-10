@@ -56,7 +56,7 @@ typedef struct __packed {
 	uint8_t rot[SHA_DIGEST_LEN];
 	uint8_t crl[32];
 	uint8_t crt_protection[32];
-	size_t risc0fw_cnt;
+	uint32_t risc0fw_cnt[2];
 } otp_t;
 
 typedef struct {
