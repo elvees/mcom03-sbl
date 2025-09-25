@@ -1,9 +1,5 @@
 # SPDX-License-Identifier: MIT
 
-cmake_minimum_required(VERSION 3.15)
-
-set(CMAKE_BUILD_TYPE_INIT Release)
-
 project(sbl-s3 ASM C)
 
 set(WDT_RESET_INTERNAL FALSE CACHE BOOL "Allow internal WDT reset by sbl-s3 itself")
