@@ -10,6 +10,7 @@ include(cmake/helpers.cmake)
 
 set(BUILD_UNIT_TESTS OFF CACHE BOOL "Enable building unit tests")
 set(GIT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "Git DIR")
+set(BUILD_ID CACHE STRING "Build identificator")
 
 execute_process(
     COMMAND git describe --always --dirty
@@ -24,8 +25,8 @@ string(STRIP "${COMMIT}" COMMIT)
 
 add_compile_definitions(COMMIT="${COMMIT}")
 
-if(NOT "$ENV{BUILD_ID}" STREQUAL "")
-    add_compile_definitions(BUILD_ID="$ENV{BUILD_ID}")
+if(NOT "${BUILD_ID}" STREQUAL "")
+    add_compile_definitions(BUILD_ID="${BUILD_ID}")
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
@@ -99,4 +100,5 @@ else()
     add_subdirectory(sbl-s3)
     add_subdirectory(sbl-xip)
     add_subdirectory(scripts)
+    add_subdirectory(tl-sbimg)
 endif()

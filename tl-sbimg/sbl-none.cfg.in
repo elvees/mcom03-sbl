@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+# Copyright 2023-2025 RnD Center "ELVEES", JSC
+
+# Loading TF-A images
+path_to_bin_part=@SBIMG_DTB_BIN@ 0xC0002000 no_exec
+path_to_bin_part=@SBIMG_BL31_BIN@ 0xC0300000 no_exec
+path_to_bin_part=@SBIMG_UBOOT_BIN@ 0xC0080000 no_exec
+
+# Load SBL-S3
+path_to_bin=@SBIMG_SBL_S3_BIN@
+load_address=0x40003000
+entry_address=0x40003000
+
+# Set attributes for SecBoot
+check_payload_hash=1
+check_encrypted_payload_integrity=0
+skip_header_hash=0

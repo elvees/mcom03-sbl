@@ -35,6 +35,11 @@ repos:
         args:
           - --license-filepath=.license-header
           - --comment-style=..
+      - id: insert-license
+        files: ^.*\.cfg(\.in)?$
+        args:
+          - --license-filepath=.license-header
+          - --comment-style=#
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -46,6 +51,7 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
       - id: check-yaml
+      - id: check-toml
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v20.1.0
     hooks:
@@ -109,6 +115,9 @@ repos:
         # without that key check doesn't work
         types_or: []
         files: ^.*\.mdb$
+      - id: check-copyright
+        types_or: [] # without that key check doesn't work
+        files: ^.*\.cfg(\.in)?$
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.11.6
     hooks:
