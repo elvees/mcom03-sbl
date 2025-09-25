@@ -44,8 +44,6 @@ LEAF(_startup)
 jtag:
 	.align 4
 	nop
-	jr              $ra
-	nop
 
 3:	b               .                    // Infinity loop in case of error
 	nop
