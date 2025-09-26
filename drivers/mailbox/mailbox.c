@@ -8,7 +8,6 @@
 #include <string.h>
 
 #include <drivers/irq/irq.h>
-#include <drivers/irq/qlic.h>
 #include <drivers/service/service.h>
 #include <drivers/timer/timer.h>
 #include <libs/errors.h>
@@ -33,7 +32,7 @@ static void irq_mailbox_handler(unsigned int id)
 {
 	struct llist *node;
 
-	unsigned int fifo_num = id - QLIC0_ID_MB0_RRQ_RISC0;
+	unsigned int fifo_num = id - IRQ_ID_MB0_RRQ_RISC0;
 
 	assert(fifo_num < MAILBOX_FIFO_COUNT);
 
@@ -79,7 +78,7 @@ int mbox_init(mailbox_regs_t *regs)
 		return ret;
 
 	for (uint8_t fifo_num = 0; fifo_num < MAILBOX_FIFO_COUNT; ++fifo_num) {
-		ret = irq_attach_handler(fifo_num + QLIC0_ID_MB0_RRQ_RISC0, irq_mailbox_handler);
+		ret = irq_attach_handler(fifo_num + IRQ_ID_MB0_RRQ_RISC0, irq_mailbox_handler);
 		if (ret)
 			return ret;
 	}
@@ -95,7 +94,7 @@ int mbox_deinit(mailbox_regs_t *regs)
 		return -ENULL;
 
 	for (uint8_t fifo_num = 0; fifo_num < MAILBOX_FIFO_COUNT; ++fifo_num) {
-		ret = irq_detach_handler(fifo_num + QLIC0_ID_MB0_RRQ_RISC0);
+		ret = irq_detach_handler(fifo_num + IRQ_ID_MB0_RRQ_RISC0);
 		if (ret)
 			return ret;
 	}

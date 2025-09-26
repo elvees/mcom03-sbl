@@ -10,6 +10,8 @@ add_library(drivers OBJECT
             ${CMAKE_CURRENT_SOURCE_DIR}/mailbox/mailbox.c
             ${CMAKE_CURRENT_SOURCE_DIR}/mips-cp0/mips-cp0.c
             ${CMAKE_CURRENT_SOURCE_DIR}/pll/pll.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/irq/exception-handler.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/irq/exception.S
             ${CMAKE_CURRENT_SOURCE_DIR}/irq/irq.c
             ${CMAKE_CURRENT_SOURCE_DIR}/irq/qlic.c
             ${CMAKE_CURRENT_SOURCE_DIR}/qspi/qspi.c

@@ -138,6 +138,9 @@ uint32_t risc0_ipc_stop(void)
 
 void risc0_ipc_handler(void)
 {
+	// Ensure that all instructions are completed before enter to critical section
+	mem_barrier();
+
 	CRITICAL_SECTION_ENTER();
 	void *data = queue_pop(&mbox_msgs);
 	if (data) {

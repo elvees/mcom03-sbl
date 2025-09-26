@@ -4,6 +4,7 @@ project(sbl-s2 ASM C)
 
 add_executable(${PROJECT_NAME}.elf
                startup.S
+               vectors.S
                main.c)
 
 # Link static libraries

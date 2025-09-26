@@ -5,7 +5,6 @@
 #include <drivers/iommu/iommu.h>
 #include <drivers/irq/irq.h>
 #include <drivers/mailbox/mailbox.h>
-#include <drivers/mips-cp0/mips-cp0.h>
 #include <drivers/pll/pll.h>
 #include <drivers/service/service.h>
 #include <drivers/ucg/ucg.h>
@@ -28,6 +27,10 @@
 int main(int argc, char **argv)
 {
 	int ret;
+
+	ret = irq_init();
+	if (ret)
+		return ret;
 
 #ifdef UART_ENABLE
 	uart_param_t uart = { .uart_num = UART0 };
@@ -81,16 +84,10 @@ int main(int argc, char **argv)
 	iommu_reset(iommu_regs);
 	iommu_init(iommu_regs, (void *)(0x40000000));
 
-	ret = irq_init();
-	if (ret)
-		panic_handler("Intmgr init failed ret=%d\n", ret);
-
 	mailbox_regs_t *regs = mbox_get_regs();
 	ret = mbox_init(regs);
 	if (ret)
 		panic_handler("Mailbox0 init failed ret=%d\n", ret);
-
-	mips_global_irq_enable();
 
 	ret = risc0_ipc_start();
 	if (ret)

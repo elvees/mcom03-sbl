@@ -33,9 +33,22 @@ SECTIONS
 	. = ORIGIN(ram);
 	ASSERT(. == ALIGN(4), "ORIGIN(ram) address is not aligned on a word boundary.")
 
-	.text : {
+	.startup.text ORIGIN(ram) : {
 		__ram_start = ABSOLUTE(.);
 		KEEP(*startup.*(.text .text.*));
+	} > ram
+
+	.vectors.text : {
+		. = ALIGN(4);
+		KEEP(*vectors.*(.text .text.*));
+		. = ALIGN(4);
+	} > cram_uncached AT > ram
+
+	PROVIDE(__l_vectors_start = LOADADDR(.vectors.text));
+	PROVIDE(__l_vectors_size = SIZEOF(.vectors.text));
+	PROVIDE(__v_vectors_start = ADDR(.vectors.text));
+
+	.text : {
 		*(.text .text.*)
 	} > ram
 

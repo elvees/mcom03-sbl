@@ -41,14 +41,18 @@
 #define CP0_LLADDR   17 // physical address of the last LL command
 #define CP0_ERROREPC 30 // return address from exception error
 
-#define MIPS_CP0_CR_QLIC0_TARGET_IP GENMASK(14, 10)
+#define MIPS_CP0_CR_QLIC0_TARGS     GENMASK(13, 10)
+#define MIPS_CP0_CR_CNT_CMP_TARG_IP BIT(14)
 
-#define MIPS_CP0_SR_IE                BIT(0)
-#define MIPS_CP0_SR_IM2_QLIC0_TARG0   BIT(10)
-#define MIPS_CP0_SR_IM3_QLIC0_TARG1   BIT(11)
-#define MIPS_CP0_SR_IM4_QLIC0_TARG2   BIT(12)
-#define MIPS_CP0_SR_IM5_QLIC0_TARG3   BIT(13)
-#define MIPS_CP0_SR_IM6_COUNT_COMPARE BIT(14)
+#define MIPS_CP0_SR_IE              BIT(0)
+#define MIPS_CP0_SR_IM2_QLIC0_TARG0 BIT(10)
+#define MIPS_CP0_SR_IM3_QLIC0_TARG1 BIT(11)
+#define MIPS_CP0_SR_IM4_QLIC0_TARG2 BIT(12)
+#define MIPS_CP0_SR_IM5_QLIC0_TARG3 BIT(13)
+#define MIPS_CP0_SR_IM6_CNT_CMP     BIT(14)
+
+// MIPS interrupt ID
+#define MIPS_ID_CP0_CNT_CMP 0
 
 /**
  * @brief Enables all MIPS global interrupts
@@ -74,10 +78,3 @@ void mips_disable_irq_target(unsigned int target);
  * @brief Gets info if a specific external MIPS interrupt is enabled
  */
 int mips_is_irq_target_enabled(unsigned int target);
-
-/**
- * @brief Gets current IRQ target. Function is called in ISR
- *
- * @return Current IRQ target
- */
-int mips_get_irq_target(void);

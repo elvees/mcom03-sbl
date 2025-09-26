@@ -58,8 +58,8 @@ void dump_stack(const struct eframe *f)
 	printf("\tk0 0x%lx\r\n", f->r[k0]);
 	printf("\tk1 0x%lx\r\n", f->r[k1]);
 	printf("\tgp 0x%lx\r\n", f->r[gp]);
-	printf("\ts8 0x%lx\r\n", f->r[s8]);
-	printf("\tfp 0x%lx\r\n", f->r[fp]);
+	printf("\tsp 0x%lx\r\n", f->r[sp]);
+	printf("\tfp/s8 0x%lx\r\n", f->r[fp]);
 	printf("\tra 0x%lx\r\n", f->r[ra]);
 }
 

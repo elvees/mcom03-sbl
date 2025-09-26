@@ -5,11 +5,9 @@ project(sbl-s3 ASM C)
 set(WDT_RESET_INTERNAL FALSE CACHE BOOL "Allow internal WDT reset by sbl-s3 itself")
 
 add_executable(${PROJECT_NAME}.elf
-               exception-handler.c
-               exception.S
                startup.S
-               vectors.S
                main.c
+               vectors.S
                risc0-ipc/server/api.c
                risc0-ipc/server/ipc-ddr-subs.c
                risc0-ipc/server/ipc-init.c

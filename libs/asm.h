@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #pragma once
 
@@ -35,8 +35,7 @@
 #define k1   27
 #define gp   28
 #define sp   29
-#define s8   30
-#define fp   30
+#define fp   30 // s8
 #define ra   31
 
 #ifdef __ASSEMBLER__
