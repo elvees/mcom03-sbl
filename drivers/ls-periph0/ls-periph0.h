@@ -25,3 +25,5 @@
 #define LSP0_UCG2_CLK_SSI0    4
 #define LSP0_UCG2_CLK_I2C0    5
 #define LSP0_UCG2_CLK_GPIO0   6
+
+int lsp0_enable(void);

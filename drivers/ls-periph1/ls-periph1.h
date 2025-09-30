@@ -68,4 +68,5 @@ enum pad_driver_strength {
 
 lsp1_urb_regs_t *lsp1_get_urb_registers(void);
 
+int lsp1_enable(void);
 int lsp1_pad_cfg(unsigned int port, unsigned int pin, unsigned int value);

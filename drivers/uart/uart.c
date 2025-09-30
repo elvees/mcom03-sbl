@@ -52,8 +52,11 @@ int uart_drv_config_default(void *ctx)
 int uart_hw_enable(void)
 {
 	int ret;
-	ucg_regs_t *ucg;
 	gpio_regs_t *gpio;
+
+	ret = lsp1_enable();
+	if (ret)
+		return ret;
 
 	gpio = gpio_get_registers((void *)BASE_ADDR_LSP1_GPIO1_BASE);
 
@@ -62,19 +65,6 @@ int uart_hw_enable(void)
 	if (ret)
 		return ret;
 	ret = gpio_init(gpio, UART0_PORT, UART0_SIN_PIN, GPIO_MODE_HW, GPIO_DIR_INPUT);
-	if (ret)
-		return ret;
-
-	// Initialize the UCG register for clocking UART0
-	ucg = ucg_get_registers(UCG_SUBSYS_LSP1, 0);
-
-	ret = ucg_enable_bp(ucg, LSP1_UCG_ALL_CH_MASK);
-	if (ret)
-		return ret;
-	ret = ucg_set_divider(ucg, LSP1_UCG_CLK_UART0, 1, 1000);
-	if (ret)
-		return ret;
-	ret = ucg_sync_and_disable_bp(ucg, LSP1_UCG_ALL_CH_MASK, LSP1_UCG_SYNC_MASK);
 	if (ret)
 		return ret;
 
