@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include <drivers/factory-reset/factory-reset.h>
+#include <drivers/ls-periph1/ls-periph1.h>
 #include <drivers/spi-nor/spi-nor.h>
 #include <drivers/timer/timer.h>
 #include <drivers/top/top.h>
@@ -275,6 +276,21 @@ int main(void)
 	int use_slot_b = 0;
 	sb_mem_t sbmem;
 	otp_t otp;
+
+	/* The timer data shared between boot stages is not in .bss section.
+	 * So we have to reset it once here.
+	 */
+	timer_reset();
+
+	ret = irq_init();
+	if (ret)
+		return ret;
+
+	// Register LSP1 TIMERS as system timer.
+	// Don't init timer as it is done early.
+	ret = lsp1_timer_register(false, 0, true);
+	if (ret)
+		return ret;
 
 #ifdef RECOVERY_ENABLE
 	last = timer_get_us();

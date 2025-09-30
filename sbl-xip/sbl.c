@@ -9,6 +9,7 @@
 #include <drivers/hs-periph/hs-periph.h>
 #include <drivers/ls-periph1/ls-periph1.h>
 #include <drivers/service/service.h>
+#include <drivers/timer/timer.h>
 #include <drivers/top/top.h>
 #include <drivers/ucg/ucg.h>
 #include <libs/console/console.h>
@@ -50,6 +51,11 @@ int main(void)
 	// Initialize and configure the TOP clock gate
 	service_urb_regs_t *serv_urb = service_get_urb_registers();
 	serv_urb->top_clkgate = SERVICE_TOP_CLK_GATE_ALL_CH_MASK;
+
+	// Register LSP1 TIMERS as system timer.
+	ret = lsp1_timer_register(true, 0, false);
+	if (ret)
+		return ret;
 
 #ifdef UART_ENABLE
 	uart_param_t uart = { .uart_num = UART0 };

@@ -105,6 +105,12 @@ SECTIONS
 	__iommu_start = ORIGIN(iommu);
 	__iommu_end = ORIGIN(iommu) + LENGTH(iommu);
 
+	.timer (NOLOAD) : {
+		. = . + __l_vectors_size;
+		. = ALIGN(4);
+		KEEP(*(.timer .timer.*));
+	} > cram
+
 	.stack (NOLOAD) : {
 		KEEP(* (.stack .stack.*));
 	} > cram

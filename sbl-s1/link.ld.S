@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 OUTPUT_FORMAT("elf32-littlemips")
 OUTPUT_ARCH("mips:isa32")
@@ -50,6 +50,11 @@ SECTIONS
 		__bss_end = ABSOLUTE(.);
 	} > spram
 	__bss_length = __bss_end - __bss_start;
+
+	.timer (NOLOAD) : {
+		. = ALIGN(4);
+		KEEP(*(.timer .timer.*));
+	} > spram
 
 	.stack (NOLOAD) : {
 		. = ALIGN(8);

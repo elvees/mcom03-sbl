@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 #include <libs/utils-def.h>
 
 #define BASE_ADDR_LSP1_PDMA1_BASE   0xa1700000
@@ -42,6 +44,27 @@
 #define LSP1_PADCTR_CTL_MASK GENMASK(10, 5)
 #define LSP1_PADCTR_E_MASK   BIT(12)
 
+#define LSP1_TIMERS(i)               (BASE_ADDR_LSP1_TIMERS_BASE + (i) * 0x14)
+#define LSP1_TIMERS_LOAD_COUNT(i)    (LSP1_TIMERS(i) + 0x0)
+#define LSP1_TIMERS_CURRENT_VALUE(i) (LSP1_TIMERS(i) + 0x4)
+#define LSP1_TIMERS_CTRL(i)          (LSP1_TIMERS(i) + 0x8)
+#define LSP1_TIMERS_N_EOI(i)         (LSP1_TIMERS(i) + 0x0C)
+#define LSP1_TIMERS_N_IRQ_STATUS(i)  (LSP1_TIMERS(i) + 0x10)
+#define LSP1_TIMERS_IRQ_STATUS       (BASE_ADDR_LSP1_TIMERS_BASE + 0xA0)
+#define LSP1_TIMERS_RAW_IRQ_STATUS   (BASE_ADDR_LSP1_TIMERS_BASE + 0xA8)
+
+#define LSP1_TIMERS_CTRL_EN      BIT(0)
+#define LSP1_TIMERS_CTRL_DISABLE 0
+#define LSP1_TIMERS_CTRL_ENABLE  1
+
+#define LSP1_TIMERS_CTRL_MODE     BIT(1)
+#define LSP1_TIMERS_CTRL_FREE_RUN 0
+#define LSP1_TIMERS_CTRL_USER_DEF 1
+
+#define LSP1_TIMERS_CTRL_IRQ_MASK    BIT(2)
+#define LSP1_TIMERS_CTRL_IRQ_ENABLE  0
+#define LSP1_TIMERS_CTRL_IRQ_DISABLE 1
+
 typedef struct {
 	volatile unsigned int pll_cfg;
 	volatile unsigned int pll_diag;
@@ -70,3 +93,4 @@ lsp1_urb_regs_t *lsp1_get_urb_registers(void);
 
 int lsp1_enable(void);
 int lsp1_pad_cfg(unsigned int port, unsigned int pin, unsigned int value);
+int lsp1_timer_register(bool do_hw_init, uint64_t timebase_us, bool do_irq_init);

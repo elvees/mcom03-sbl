@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #include "platform-def.h"
 
@@ -77,14 +77,16 @@ SECTIONS
 	__ram_end = ORIGIN(ram) + LENGTH(ram);
 	__heap_end = __ram_end;
 
-	__cram_start = ORIGIN(cram);
-	__cram_end = ORIGIN(cram) + LENGTH(cram);
+	.timer (NOLOAD) : {
+		. = . + __l_vectors_size;
+		. = ALIGN(4);
+		KEEP(*(.timer .timer.*));
+	} > cram
 
 	.stack (NOLOAD) : {
-		. = . + __l_vectors_size;
 		KEEP(* (.stack .stack.*));
 	} > cram
-	__stack = __cram_end - 0x20;
+	__stack = ORIGIN(cram) + LENGTH(cram) - 0x20;
 
 #ifndef NDEBUG
 	/**

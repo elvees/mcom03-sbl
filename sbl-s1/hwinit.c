@@ -29,6 +29,11 @@ int main(void)
 {
 	int ret;
 
+	// Register LSP1 TIMERS as system timer
+	ret = lsp1_timer_register(true, 0, false);
+	if (ret)
+		return ret;
+
 	// Initialize and configure the TOP clock gate
 	uint32_t top_clkgate = BIT(SERVICE_TOP_CLK_GATE_SERVICE) | BIT(SERVICE_TOP_CLK_GATE_LSP0) |
 	                       BIT(SERVICE_TOP_CLK_GATE_LSP1) | BIT(SERVICE_TOP_CLK_GATE_HSP) |
@@ -101,7 +106,6 @@ int main(void)
 	ret = wdt_start(wdt0);
 	if (ret)
 		return ret;
-
 #endif
 
 	// Initialize and configure the top clocking system

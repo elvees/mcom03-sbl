@@ -4,6 +4,7 @@
 #include <drivers/cpu/cpu.h>
 #include <drivers/iommu/iommu.h>
 #include <drivers/irq/irq.h>
+#include <drivers/ls-periph1/ls-periph1.h>
 #include <drivers/mailbox/mailbox.h>
 #include <drivers/pll/pll.h>
 #include <drivers/service/service.h>
@@ -28,6 +29,12 @@ int main(int argc, char **argv)
 	int ret;
 
 	ret = irq_init();
+	if (ret)
+		return ret;
+
+	// Register LSP1 TIMERS as system timer.
+	// Don't init timer as it is done early.
+	ret = lsp1_timer_register(false, 0, true);
 	if (ret)
 		return ret;
 
