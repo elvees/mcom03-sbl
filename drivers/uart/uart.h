@@ -132,12 +132,15 @@ typedef struct {
 int uart_drv_config_default(void *ctx);
 
 /**
- * @brief The function initializes the required subsystems for uart
+ * @brief The function initializes the required subsystems for UART0
  *
+ * @param ctx - The pointer to structure uart_param_t. Structure uart_param_t describes
+ *              parameters of uart controller.
  * @return  0        - Success,
+ *         -ENULL    - ctx param or uart_ptr field in ctx are not provided (NULL pointers)
  *         -ETIMEOUT - Function reached maximum attempts to set one of UCG divides
  */
-int uart_hw_enable(void);
+int uart0_hw_enable(void *ctx);
 
 /**
  * @brief The function returns pointer into uart controller

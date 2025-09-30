@@ -60,9 +60,9 @@ int main(void)
 	serv_urb->top_clkgate = top_clkgate;
 
 #ifdef UART_ENABLE
-	uart_param_t uart = { .uart_num = UART0 };
+	uart_param_t uart;
 
-	console_ops_t uart_console_ops = { .init = uart_drv_config_default,
+	console_ops_t uart_console_ops = { .init = uart_drv_config,
 		                           .putchar = uart_drv_putchar,
 		                           .getchar = uart_drv_getchar,
 		                           .flush = uart_drv_flush,
@@ -70,15 +70,18 @@ int main(void)
 
 	console_t console = { .hw = &uart, .ops = &uart_console_ops };
 
-	// Initialize LS Peripheral 1 for UART 0
-	ret = uart_hw_enable();
+	// Initialize and configure the UART0
+	ret = uart_drv_config_default(&uart);
+	if (ret)
+		return ret;
+
+	ret = uart0_hw_enable(&uart);
 	if (ret)
 		return ret;
 
 	ret = console_register(&console);
 	if (ret)
 		return ret;
-
 #endif
 
 	ret = console_init();

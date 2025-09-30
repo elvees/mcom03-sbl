@@ -37,22 +37,26 @@ int uart_drv_config_default(void *ctx)
 	if (!uart)
 		return -ENULL;
 
-	uart->uart_num = UART0;
-	uart_drv_get_handler(uart->uart_num, &uart->uart_ptr);
-
 	uart->baudrate = BAUDRATE_DEFAULT;
 	uart->bits = UART_8BIT;
 	uart->stop_bit = UART_STOPBIT1;
 	uart->parity = UART_NOPARITY;
 	uart->max_retries = UINT32_MAX;
 
-	return uart_drv_config(ctx);
+	return 0;
 }
 
-int uart_hw_enable(void)
+int uart0_hw_enable(void *ctx)
 {
 	int ret;
 	gpio_regs_t *gpio;
+	uart_param_t *uart = (uart_param_t *)ctx;
+
+	if (!uart)
+		return -ENULL;
+
+	uart->uart_num = UART0;
+	uart_drv_get_handler(uart->uart_num, &uart->uart_ptr);
 
 	ret = lsp1_enable();
 	if (ret)
@@ -171,6 +175,7 @@ int uart_drv_deinit(void *ctx)
 		return -ENULL;
 
 	uart_drv_flush(ctx);
+
 	// Disable interrupts
 	uart->uart_ptr->dlh_ier = UART_IER_RESETVALUE;
 
