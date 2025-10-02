@@ -57,6 +57,13 @@ repos:
             libs/asm.h|
             tests/unittest-env.cc
           )$
+  - repo: https://github.com/cmake-lint/cmake-lint
+    rev: 1.4.3
+    hooks:
+      - id: cmakelint
+        args:
+          - --linelength=100
+          - --filter=-whitespace/indent
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.37.0
     hooks:

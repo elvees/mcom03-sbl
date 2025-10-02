@@ -16,7 +16,7 @@ execute_process(
     WORKING_DIRECTORY ${GIT_DIR}
     ERROR_QUIET
     OUTPUT_VARIABLE COMMIT)
-if ("${COMMIT}" STREQUAL "")
+if("${COMMIT}" STREQUAL "")
     set(COMMIT "unknown")
 endif()
 
@@ -24,7 +24,7 @@ string(STRIP "${COMMIT}" COMMIT)
 
 add_compile_definitions(COMMIT="${COMMIT}")
 
-if (NOT "$ENV{BUILD_ID}" STREQUAL "")
+if(NOT "$ENV{BUILD_ID}" STREQUAL "")
     add_compile_definitions(BUILD_ID="$ENV{BUILD_ID}")
 endif()
 
