@@ -26,12 +26,12 @@ hbp unset jtag
 
 # Initialize and configure the TOP clock gate for MEDIA, CPU, SDR channels
 pb python
-pb top = helpers.get_32bit(0xbf001008)
+pb top = helpers.get_by_addr(0xbf001008)
 pb top_clk_gate_media = 1
 pb top_clk_gate_cpu = 2
 pb top_clk_gate_sdr = 3
 pb top |= (1 << top_clk_gate_media) | (1 << top_clk_gate_cpu) | (1 << top_clk_gate_sdr)
-pb helpers.set_32bit(0xbf001008, top)
+pb helpers.set_by_addr(0xbf001008, top)
 pb end
 
 # Load and run ddrinit to setup DDR memory
