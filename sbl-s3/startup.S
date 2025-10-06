@@ -15,6 +15,11 @@ LEAF(_startup)
 	li            $k1, 0x000000           // disable interrupts, IE[0] = 0, ERL[2] = 0,
 	mtc0          $k1, $CP0_STATUS        // BEV[22] = 0
 
+	// Allocate address for a JTAG breakpoint
+jtag:
+	.align 4
+	nop
+
 	INIT_REGS
 
 	// zero fill .bss/.sbss sections

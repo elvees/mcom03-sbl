@@ -49,7 +49,14 @@ py helpers.loadbin(f'{IMAGES_PATH}/u-boot.bin', 0xc0080000)
 
 # Load and run sbl-s3 to launch TF-A and provide mailbox services
 py helpers.loadelf(f'{IMAGES_PATH}/sbl/sbl-s3.elf')
-set RISC.PC _startup
+hbp set jtag
+run
+hbp unset jtag
+
+pb python
+pb addr = helpers.get_var_addr(f'{IMAGES_PATH}/sbl/sbl-s3.elf', 'timer_ticks')
+pb helpers.set_by_addr64(addr, 0)
+pb end
 
 detach -r
 quit
