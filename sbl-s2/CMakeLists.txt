@@ -29,6 +29,7 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
                    COMMAND ${CMAKE_OBJCOPY}
                    -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
+                   COMMAND truncate -s %${IMG_ALIGN} ${PROJECT_NAME}.bin
                    BYPRODUCTS ${PROJECT_NAME}.bin)
 
 install(TARGETS ${PROJECT_NAME}.elf DESTINATION ./sbl)

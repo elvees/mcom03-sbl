@@ -11,6 +11,7 @@ include(cmake/helpers.cmake)
 set(BUILD_UNIT_TESTS OFF CACHE BOOL "Enable building unit tests")
 set(GIT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "Git DIR")
 set(BUILD_ID CACHE STRING "Build identificator")
+set(IMG_ALIGN 16 CACHE STRING "Image alignment")
 
 execute_process(
     COMMAND git describe --always --dirty
