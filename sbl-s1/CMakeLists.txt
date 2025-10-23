@@ -27,5 +27,5 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
                    -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin
                    BYPRODUCTS ${PROJECT_NAME}.bin)
 
-install(TARGETS ${PROJECT_NAME}.elf DESTINATION .)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.bin DESTINATION .)
+install(TARGETS ${PROJECT_NAME}.elf DESTINATION ./sbl)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.bin DESTINATION ./sbl)

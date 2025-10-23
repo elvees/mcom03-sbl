@@ -85,6 +85,6 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     # Restore CMAKE_CURRENT_BINARY_DIR for successful artifacts installation
     set(CMAKE_CURRENT_BINARY_DIR ${BINARY_DIR})
 
-    install(TARGETS sbl-xip-${DTB_NAME}.elf DESTINATION .)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sbl-xip-${DTB_NAME}.bin DESTINATION .)
+    install(TARGETS sbl-xip-${DTB_NAME}.elf DESTINATION ./sbl)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sbl-xip-${DTB_NAME}.bin DESTINATION ./sbl)
 endforeach()

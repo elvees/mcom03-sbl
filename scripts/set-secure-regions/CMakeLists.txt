@@ -20,4 +20,4 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
                    -dx ${PROJECT_NAME}.elf > ${PROJECT_NAME}.dis
                    BYPRODUCTS ${PROJECT_NAME}.dis)
 
-install(TARGETS ${PROJECT_NAME}.elf DESTINATION ./scripts)
+install(TARGETS ${PROJECT_NAME}.elf DESTINATION ./sbl/scripts)

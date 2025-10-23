@@ -9,4 +9,4 @@ install(FILES
         mcom03-boot.mdb
         mcom03-boot-s3.mdb
         ${DDRINIT_DTB_MAP_FILE}
-        DESTINATION ./scripts)
+        DESTINATION ./sbl/scripts)
