@@ -354,7 +354,7 @@ int main(void)
 	// Initialize and configure the watchdog
 	ret = wdt_set_config(wdt, WDT_MAX_TIMEOUT);
 	if (ret)
-		return ret;
+		panic_handler("Failed to set wdt config, ret=%d\n", ret);
 
 	ret = wdt_init(wdt);
 	if (ret && (ret != -EALREADYINITIALIZED))
@@ -367,7 +367,7 @@ int main(void)
 
 	ret = spi_nor_init();
 	if (ret)
-		return ret;
+		panic_handler("SPI NOR init failed, ret=%d\n", ret);
 
 #if defined(BOOTSTAGE_ENABLE)
 	bootstage_mark(BOOTSTAGE_ID_SBL_S2_LOAD_START);
@@ -405,7 +405,7 @@ int main(void)
 
 	ret = secure_setup();
 	if (ret)
-		return ret;
+		panic_handler("Failed to setup secure regions, ret=%d\n", ret);
 
 	prepare_env(&sbl);
 
@@ -449,6 +449,4 @@ int main(void)
 #endif
 
 	sblimg_finish(ret);
-
-	return ret;
 }

@@ -17,7 +17,7 @@ void risc0_ipc_bootstage_handler(uint32_t link_id, const risc0_ipc_cmd_t *cmd,
                                  risc0_ipc_resp_param_t *resp_param)
 {
 	if ((link_id != FIFO4) && (link_id != FIFO5)) {
-		ERROR("Bootstage request is allowed from secure world only\r\n");
+		ERROR("Bootstage request is allowed from secure world only\n");
 		return;
 	}
 
@@ -31,7 +31,7 @@ void risc0_ipc_bootstage_handler(uint32_t link_id, const risc0_ipc_cmd_t *cmd,
 			bootstage_get_timestamp(cmd->param.bootstage.get_timestamp.id);
 		break;
 	default:
-		ERROR("Unsupported Bootstage command=%d\r\n", cmd->hdr.func);
+		ERROR("Unsupported Bootstage command=%d\n", cmd->hdr.func);
 		break;
 	}
 #endif

@@ -30,37 +30,37 @@ struct eframe {
 
 void dump_stack(const struct eframe *f)
 {
-	printf("\tat 0x%lx\r\n", f->r[AT]);
-	printf("\tv0 0x%lx\r\n", f->r[v0]);
-	printf("\tv1 0x%lx\r\n", f->r[v1]);
-	printf("\ta0 0x%lx\r\n", f->r[a0]);
-	printf("\ta1 0x%lx\r\n", f->r[a1]);
-	printf("\ta2 0x%lx\r\n", f->r[a2]);
-	printf("\ta3 0x%lx\r\n", f->r[a3]);
-	printf("\tt0 0x%lx\r\n", f->r[t0]);
-	printf("\tt1 0x%lx\r\n", f->r[t1]);
-	printf("\tt2 0x%lx\r\n", f->r[t2]);
-	printf("\tt3 0x%lx\r\n", f->r[t3]);
-	printf("\tt4 0x%lx\r\n", f->r[t4]);
-	printf("\tt5 0x%lx\r\n", f->r[t5]);
-	printf("\tt6 0x%lx\r\n", f->r[t6]);
-	printf("\tt7 0x%lx\r\n", f->r[t7]);
-	printf("\ts0 0x%lx\r\n", f->r[s0]);
-	printf("\ts1 0x%lx\r\n", f->r[s1]);
-	printf("\ts2 0x%lx\r\n", f->r[s2]);
-	printf("\ts3 0x%lx\r\n", f->r[s3]);
-	printf("\ts4 0x%lx\r\n", f->r[s4]);
-	printf("\ts5 0x%lx\r\n", f->r[s5]);
-	printf("\ts6 0x%lx\r\n", f->r[s6]);
-	printf("\ts7 0x%lx\r\n", f->r[s7]);
-	printf("\tt8 0x%lx\r\n", f->r[t8]);
-	printf("\tt9 0x%lx\r\n", f->r[t9]);
-	printf("\tk0 0x%lx\r\n", f->r[k0]);
-	printf("\tk1 0x%lx\r\n", f->r[k1]);
-	printf("\tgp 0x%lx\r\n", f->r[gp]);
-	printf("\tsp 0x%lx\r\n", f->r[sp]);
-	printf("\tfp/s8 0x%lx\r\n", f->r[fp]);
-	printf("\tra 0x%lx\r\n", f->r[ra]);
+	printf("\tat 0x%lx\n", f->r[AT]);
+	printf("\tv0 0x%lx\n", f->r[v0]);
+	printf("\tv1 0x%lx\n", f->r[v1]);
+	printf("\ta0 0x%lx\n", f->r[a0]);
+	printf("\ta1 0x%lx\n", f->r[a1]);
+	printf("\ta2 0x%lx\n", f->r[a2]);
+	printf("\ta3 0x%lx\n", f->r[a3]);
+	printf("\tt0 0x%lx\n", f->r[t0]);
+	printf("\tt1 0x%lx\n", f->r[t1]);
+	printf("\tt2 0x%lx\n", f->r[t2]);
+	printf("\tt3 0x%lx\n", f->r[t3]);
+	printf("\tt4 0x%lx\n", f->r[t4]);
+	printf("\tt5 0x%lx\n", f->r[t5]);
+	printf("\tt6 0x%lx\n", f->r[t6]);
+	printf("\tt7 0x%lx\n", f->r[t7]);
+	printf("\ts0 0x%lx\n", f->r[s0]);
+	printf("\ts1 0x%lx\n", f->r[s1]);
+	printf("\ts2 0x%lx\n", f->r[s2]);
+	printf("\ts3 0x%lx\n", f->r[s3]);
+	printf("\ts4 0x%lx\n", f->r[s4]);
+	printf("\ts5 0x%lx\n", f->r[s5]);
+	printf("\ts6 0x%lx\n", f->r[s6]);
+	printf("\ts7 0x%lx\n", f->r[s7]);
+	printf("\tt8 0x%lx\n", f->r[t8]);
+	printf("\tt9 0x%lx\n", f->r[t9]);
+	printf("\tk0 0x%lx\n", f->r[k0]);
+	printf("\tk1 0x%lx\n", f->r[k1]);
+	printf("\tgp 0x%lx\n", f->r[gp]);
+	printf("\tsp 0x%lx\n", f->r[sp]);
+	printf("\tfp/s8 0x%lx\n", f->r[fp]);
+	printf("\tra 0x%lx\n", f->r[ra]);
 }
 
 void __dead2 exception_handler(struct eframe *regs)
@@ -109,16 +109,16 @@ void __dead2 exception_handler(struct eframe *regs)
 		exc_name = "Unknown";
 		break;
 	}
-	printf("\r\n**************************************************\r\n");
-	printf("EXCEPTION \"%s\".\r\n", exc_name);
+	printf("\n**************************************************\n");
+	printf("EXCEPTION \"%s\".\n", exc_name);
 	if ((exc_code == EXC_ADEL) || (exc_code == EXC_ADES))
-		printf("BADVADDR : 0x%08x\r\n", mips_read_cp0_register(CP0_BADVADDR));
+		printf("BADVADDR : 0x%08x\n", mips_read_cp0_register(CP0_BADVADDR));
 	else
-		printf("BADVADDR : \"Unknown\"\r\n");
-	printf("EPC : 0x%08x\r\n", mips_read_cp0_register(CP0_EPC));
-	printf("Registers:\r\n");
+		printf("BADVADDR : \"Unknown\"\n");
+	printf("EPC : 0x%08x\n", mips_read_cp0_register(CP0_EPC));
+	printf("Registers:\n");
 	dump_stack(regs);
-	printf("**************************************************\r\n");
+	printf("**************************************************\n");
 	while (1)
 		; // Unreachable
 }

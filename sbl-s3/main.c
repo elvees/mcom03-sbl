@@ -74,12 +74,12 @@ int main(int argc, char **argv)
 
 	ret = console_register(&console);
 	if (ret)
-		panic_handler("Failed register console ret=%d\n", ret);
+		return ret;
 #endif
 
 	ret = console_init();
 	if (ret)
-		panic_handler("Failed to init console ret=%d\n", ret);
+		return ret;
 
 	printf(PREFIX " " BUILD_VERSION_STR "\n");
 
@@ -88,15 +88,15 @@ int main(int argc, char **argv)
 
 	ret = wdt_set_config(wdt, WDT_MAX_TIMEOUT);
 	if (ret)
-		panic_handler("Failed to set wdt config ret=%d\n", ret);
+		panic_handler("Failed to set wdt config, ret=%d\n", ret);
 
 	ret = wdt_init(wdt);
 	if (ret && (ret != -EALREADYINITIALIZED))
-		panic_handler("WDT init failed ret=%d\n", ret);
+		panic_handler("WDT init failed, ret=%d\n", ret);
 
 	ret = wdt_start(wdt);
 	if (ret)
-		panic_handler("WDT start failed ret=%d\n", ret);
+		panic_handler("WDT start failed, ret=%d\n", ret);
 #endif
 
 	// Initialize IOMMU
@@ -108,20 +108,20 @@ int main(int argc, char **argv)
 	mailbox_regs_t *regs = mbox_get_regs();
 	ret = mbox_init(regs);
 	if (ret)
-		panic_handler("Mailbox0 init failed ret=%d\n", ret);
+		panic_handler("Mailbox0 init failed, ret=%d\n", ret);
 
 	ret = risc0_ipc_start();
 	if (ret)
-		panic_handler("Services start failed ret=%d\n", ret);
+		panic_handler("Services start failed, ret=%d\n", ret);
 
 	ret = cpu_set_clock();
 	if (ret)
-		panic_handler("Fail to setup ARM core freq ret=%d\n", ret);
+		panic_handler("Fail to setup ARM core freq, ret=%d\n", ret);
 
 	// TODO: add macros to be able to change entrypoint during building
 	ret = cpu_start_arm0_core(0x880300000);
 	if (ret)
-		panic_handler("Fail to start ARM core ret=%d\n", ret);
+		panic_handler("Fail to start ARM core, ret=%d\n", ret);
 
 	for (;;) {
 		risc0_ipc_handler();

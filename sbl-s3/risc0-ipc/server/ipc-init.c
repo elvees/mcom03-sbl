@@ -31,7 +31,7 @@ void risc0_ipc_init_handler(uint32_t link_id, const risc0_ipc_cmd_t *cmd,
 		}
 		break;
 	default:
-		ERROR("Unsupported init command=%d\r\n", cmd->hdr.func);
+		ERROR("Unsupported init command=%d\n", cmd->hdr.func);
 		break;
 	}
 }

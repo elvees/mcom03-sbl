@@ -38,7 +38,7 @@ static void risc0_ipc_irq_handler(unsigned int fifo_num)
 
 	risc0_ipc_msg_t *msg = malloc(sizeof(risc0_ipc_msg_t));
 	if (!msg)
-		panic_handler("No free memory\r\n");
+		panic_handler("No free memory\n");
 
 	unsigned int count =
 		mbox_read(&regs->mailbox[fifo_num], (char *)&msg->req.hdr, sizeof(msg->req.hdr));
@@ -46,20 +46,20 @@ static void risc0_ipc_irq_handler(unsigned int fifo_num)
 		return;
 
 	if (msg->req.hdr.cmd_len != sizeof(msg->req.cmd))
-		panic_handler("Wrong cmd len=%d\r\n", count);
+		panic_handler("Wrong cmd len=%d\n", count);
 
 	count = mbox_read(&regs->mailbox[fifo_num], (char *)&msg->req.cmd, sizeof(msg->req.cmd));
 	if (count != sizeof(msg->req.cmd))
-		panic_handler("Wrong cmd len=%d \r\n", count);
+		panic_handler("Wrong cmd len=%d\n", count);
 
 	if (msg->req.hdr.shrmem_len) {
 		if (msg->req.hdr.shrmem_len != sizeof(msg->req.shrmem))
-			panic_handler("Wrong resp len=%d\r\n", count);
+			panic_handler("Wrong resp len=%d\n", count);
 
 		count = mbox_read(&regs->mailbox[fifo_num], (char *)&msg->req.shrmem,
 		                  sizeof(msg->req.shrmem));
 		if (count != sizeof(msg->req.shrmem))
-			panic_handler("Wrong resp len=%d\r\n", count);
+			panic_handler("Wrong resp len=%d\n", count);
 	}
 
 	msg->link_id = fifo_num;
@@ -74,12 +74,12 @@ static void risc0_ipc_resp(risc0_ipc_req_t *req, risc0_ipc_resp_param_t *resp_pa
 
 	// Protect Service subsystem from writing in it's own address space (first 4 GB)
 	if (req->shrmem.data <= UINTPTR_MAX)
-		panic_handler("The address[0x%llu] must be outside 32bit address space\r\n",
+		panic_handler("The address[0x%llu] must be outside 32bit address space\n",
 		              req->shrmem.data);
 
 	resp = (risc0_ipc_resp_t *)iommu_map(iommu_regs, req->shrmem.data);
 	if (!resp)
-		panic_handler("No free memory\r\n");
+		panic_handler("No free memory\n");
 	memcpy((void *)&resp->param, (void *)resp_param, sizeof(risc0_ipc_resp_param_t));
 	wmem_barrier();
 
@@ -110,7 +110,7 @@ static void risc0_ipc_cmd_handler(risc0_ipc_msg_t *msg)
 		risc0_ipc_bootstage_handler(msg->link_id, &msg->req.cmd, &resp_param);
 		break;
 	default:
-		ERROR("Unsupported mbox service=%d\r\n", msg->req.cmd.hdr.service);
+		ERROR("Unsupported mbox service=%d\n", msg->req.cmd.hdr.service);
 		break;
 	}
 
@@ -126,7 +126,7 @@ uint32_t risc0_ipc_start(void)
 
 	int ret = mbox_attach_irq_handler(risc0_ipc_irq_handler);
 	if (ret)
-		panic_handler("Failed to start services, ret=%d\r\n", ret);
+		panic_handler("Failed to start services, ret=%d\n", ret);
 
 	return 0;
 }
@@ -135,7 +135,7 @@ uint32_t risc0_ipc_stop(void)
 {
 	int ret = mbox_detach_irq_handler(risc0_ipc_irq_handler);
 	if (ret)
-		panic_handler("Failed to stop services, ret=%d\r\n", ret);
+		panic_handler("Failed to stop services, ret=%d\n", ret);
 	return 0;
 }
 

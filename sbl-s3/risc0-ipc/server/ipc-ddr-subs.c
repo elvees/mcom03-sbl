@@ -21,7 +21,7 @@ void risc0_ipc_ddr_subs_handler(uint32_t link_id, const risc0_ipc_cmd_t *cmd,
 	uintptr_t addr = 0;
 
 	if ((link_id != FIFO4) && (link_id != FIFO5)) {
-		ERROR("DDR subsystem request is allowed from secure world only\r\n");
+		ERROR("DDR subsystem request is allowed from secure world only\n");
 		return;
 	}
 
@@ -39,7 +39,7 @@ void risc0_ipc_ddr_subs_handler(uint32_t link_id, const risc0_ipc_cmd_t *cmd,
 		addr = BASE_ADDR_DDR_SYS_URB + GPU_BAR;
 		break;
 	default:
-		ERROR("Unsupported DDR subsystem command=%d\r\n", cmd->hdr.func);
+		ERROR("Unsupported DDR subsystem command=%d\n", cmd->hdr.func);
 		break;
 	}
 

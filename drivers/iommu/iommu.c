@@ -293,7 +293,7 @@ uintptr_t iommu_map(iommu_regs_t *dev, uint64_t addr64)
 
 	iobase = __iommu_map_64(dev, (addr64 & IOMMU_4_KIB_ADDR_MASK));
 	if (!iobase)
-		panic_handler("iommu failed to register 64bit addr\r\n");
+		panic_handler("iommu failed to register 64bit addr\n");
 
 	offset = addr64 & IOMMU_4_KIB_OFFSET_MASK;
 
@@ -305,7 +305,7 @@ void iommu_unmap(iommu_regs_t *dev, uintptr_t addr32)
 	uintptr_t iobase = (uintptr_t)(addr32 & IOMMU_2_MIB_ADDR_MASK);
 
 	if (__iommu_unmap_64(dev, iobase))
-		panic_handler("iommu failed to unregister 64bit addr\r\n");
+		panic_handler("iommu failed to unregister 64bit addr\n");
 }
 
 int iommu_map_range(iommu_regs_t *dev, uintptr_t base32_start, ptrdiff_t base32_size,

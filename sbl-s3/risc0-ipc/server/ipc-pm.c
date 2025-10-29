@@ -17,7 +17,7 @@ void risc0_ipc_pm_handler(uint32_t link_id, const risc0_ipc_cmd_t *cmd,
                           risc0_ipc_resp_param_t *resp_param)
 {
 	if ((link_id != FIFO4) && (link_id != FIFO5)) {
-		ERROR("Power domain request is allowed from secure world only\r\n");
+		ERROR("Power domain request is allowed from secure world only\n");
 		return;
 	}
 
@@ -35,7 +35,7 @@ void risc0_ipc_pm_handler(uint32_t link_id, const risc0_ipc_cmd_t *cmd,
 			service_subsystem_set_power(cmd->param.pm.toggle.id, PP_OFF);
 		break;
 	default:
-		ERROR("Unsupported power domain command=%d\r\n", cmd->hdr.func);
+		ERROR("Unsupported power domain command=%d\n", cmd->hdr.func);
 		break;
 	}
 }
