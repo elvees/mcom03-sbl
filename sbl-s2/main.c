@@ -33,8 +33,6 @@
 #include <drivers/wdt/wdt.h>
 #endif
 
-#define PREFIX "SBL-S2"
-
 extern uintptr_t __spram0_start;
 extern uintptr_t __spram0_end;
 extern uintptr_t __spram0_uncached_start;
@@ -162,6 +160,8 @@ static int prepare_recovery(void)
 
 static int prepare_env(env_ctx_t *sbl)
 {
+	bool need_export = false;
+
 	env_init(sbl, PLAT_SBL_ENV_OFF, PLAT_ENV_SIZE, ENV_IO_SPI);
 	env_import(sbl);
 
@@ -170,8 +170,18 @@ static int prepare_env(env_ctx_t *sbl)
 	if (!bootvol || !safe_bootvol) {
 		env_set(sbl, "bootvol", "a");
 		env_set(sbl, "safe_bootvol", "a");
-		env_export(sbl);
+		need_export = true;
 	}
+
+	char *sbl_s2_ver = env_get(sbl, "sbl-s2-ver");
+	if (!sbl_s2_ver) {
+		env_set(sbl, "sbl-s2-ver", BUILD_VERSION_STR);
+		env_set_flag(sbl, "sbl-s2-ver", "so");
+		need_export = true;
+	}
+
+	if (need_export)
+		env_export(sbl);
 
 	return 0;
 }
@@ -295,10 +305,7 @@ int main(void)
 	if (ret)
 		return ret;
 
-	printf(PREFIX " (" __DATE__ " - " __TIME__ "): " COMMIT "\n");
-#ifdef BUILD_ID
-	printf(PREFIX ": Build: %s\n", BUILD_ID);
-#endif
+	printf(PREFIX " " BUILD_VERSION_STR "\n");
 
 #ifdef WDT_ENABLE
 	// WDT setup configuration

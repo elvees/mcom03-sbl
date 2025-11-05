@@ -17,14 +17,14 @@ execute_process(
     COMMAND git describe --always --dirty
     WORKING_DIRECTORY ${GIT_DIR}
     ERROR_QUIET
-    OUTPUT_VARIABLE COMMIT)
-if("${COMMIT}" STREQUAL "")
-    set(COMMIT "unknown")
+    OUTPUT_VARIABLE BUILD_COMMIT)
+if("${BUILD_COMMIT}" STREQUAL "")
+    set(BUILD_COMMIT "unknown")
 endif()
 
-string(STRIP "${COMMIT}" COMMIT)
+string(STRIP "${BUILD_COMMIT}" BUILD_COMMIT)
 
-add_compile_definitions(COMMIT="${COMMIT}")
+add_compile_definitions(BUILD_COMMIT="${BUILD_COMMIT}")
 
 if(NOT "${BUILD_ID}" STREQUAL "")
     add_compile_definitions(BUILD_ID="${BUILD_ID}")

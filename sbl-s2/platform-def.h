@@ -5,6 +5,8 @@
 
 #include <libs/platform-def-common.h>
 
+#define PREFIX "SBL-S2"
+
 #define PLAT_SBL_S2_BASE 0x48000000
 #define PLAT_SBL_S2_SIZE 0x02000000
 

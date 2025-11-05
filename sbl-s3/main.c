@@ -12,6 +12,7 @@
 #include <libs/errors.h>
 #include <libs/log.h>
 
+#include "platform-def.h"
 #include "risc0-ipc/server/api.h"
 
 #ifdef WDT_ENABLE
@@ -21,8 +22,6 @@
 #ifdef UART_ENABLE
 #include <drivers/uart/uart.h>
 #endif
-
-#define PREFIX "SBL-S3"
 
 int main(int argc, char **argv)
 {
@@ -57,10 +56,7 @@ int main(int argc, char **argv)
 	if (ret)
 		panic_handler("Failed to init console ret=%d\n", ret);
 
-	printf(PREFIX " (" __DATE__ " - " __TIME__ "): " COMMIT "\n");
-#ifdef BUILD_ID
-	printf(PREFIX ": Build: %s\n", BUILD_ID);
-#endif
+	printf(PREFIX " " BUILD_VERSION_STR "\n");
 
 #ifdef WDT_ENABLE
 	wdt_dev_t *wdt = wdt_get_instance();

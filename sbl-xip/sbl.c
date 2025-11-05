@@ -18,6 +18,8 @@
 #include <libs/mmio.h>
 #include <libs/utils-def.h>
 
+#include "platform-def.h"
+
 #ifdef WDT_ENABLE
 #include <drivers/wdt/wdt.h>
 #endif
@@ -25,8 +27,6 @@
 #ifdef UART_ENABLE
 #include <drivers/uart/uart.h>
 #endif
-
-#define PREFIX "SBL-XIP"
 
 #define DDRINIT_START_ADDR_VIRT 0xA0000000
 #define TFA_START_ADDR_VIRT     0xC0300000
@@ -76,10 +76,7 @@ int main(void)
 	if (ret)
 		return ret;
 
-	printf(PREFIX " (" __DATE__ " - " __TIME__ "): " COMMIT "\n");
-#ifdef BUILD_ID
-	printf(PREFIX ": Build: %s\n", BUILD_ID);
-#endif
+	printf(PREFIX " " BUILD_VERSION_STR "\n");
 
 	// Initialize and configure the RISC0 clocking system
 	ret = service_set_clock(SERVICE_UCG1_ALL_CH_MASK, SERVICE_UCG1_SYNC_MASK);
