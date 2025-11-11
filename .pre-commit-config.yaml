@@ -46,6 +46,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: mixed-line-ending
+        args: [--fix=lf]
       - id: fix-byte-order-marker
       - id: check-executables-have-shebangs
       - id: check-merge-conflict
