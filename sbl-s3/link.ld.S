@@ -15,13 +15,28 @@ GROUP(-lc -lgcc)
 
 MEMORY
 {
-	cram (rwx)           : ORIGIN = 0x9fa00000,     LENGTH = 32K
-	cram_uncached (rwx)  : ORIGIN = 0xbfa00000,     LENGTH = 32K
-	ram (rwx)            : ORIGIN = PLAT_MIPS_BASE, LENGTH = PLAT_MIPS_SIZE
+	cram (rwx)           : ORIGIN = 0x9fa00000,          LENGTH = 32K
+	cram_uncached (rwx)  : ORIGIN = 0xbfa00000,          LENGTH = 32K
+#if defined(BOOTSTAGE_ENABLE)
+	bootstage (rw)       : ORIGIN = PLAT_BOOTSTAGE_BASE, LENGTH = PLAT_BOOTSTAGE_SIZE
+#endif
+	ram (rwx)            : ORIGIN = PLAT_MIPS_BASE,      LENGTH = PLAT_MIPS_SIZE
 }
 
 SECTIONS
 {
+#if defined(BOOTSTAGE_ENABLE)
+	. = ORIGIN(bootstage);
+	ASSERT(. == ALIGN(4), "ORIGIN(bootstage) address is not aligned on a word boundary.")
+
+	.bootstage (NOLOAD) : {
+		__bs_start = ABSOLUTE(.);
+		. = . + PLAT_BOOTSTAGE_SIZE;
+		. = ALIGN(4);
+		__bs_end = ABSOLUTE(.);
+	} > bootstage
+#endif
+
 	. = ORIGIN(ram);
 	ASSERT(. == ALIGN(4), "ORIGIN(ram) address is not aligned on a word boundary.")
 

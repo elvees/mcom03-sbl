@@ -24,6 +24,10 @@
 #include <drivers/uart/uart.h>
 #endif
 
+#if defined(BOOTSTAGE_ENABLE)
+#include <libs/bootstage/bootstage.h>
+#endif
+
 int main(int argc, char **argv)
 {
 	int ret;
@@ -37,6 +41,16 @@ int main(int argc, char **argv)
 	ret = lsp1_timer_register(false, 0, true);
 	if (ret)
 		return ret;
+
+#if defined(BOOTSTAGE_ENABLE)
+	extern uintptr_t __bs_start;
+	extern uintptr_t __bs_end;
+	const uintptr_t bs_start = (uintptr_t)&__bs_start;
+	const uintptr_t bs_end = (uintptr_t)&__bs_end;
+
+	bootstage_import((void *)bs_start, bs_end - bs_start);
+	bootstage_mark(BOOTSTAGE_ID_SBL_S3_START);
+#endif
 
 #ifdef UART_ENABLE
 	uart_param_t uart = { .uart_num = UART0 };

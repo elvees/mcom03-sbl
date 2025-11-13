@@ -106,6 +106,9 @@ static void risc0_ipc_cmd_handler(risc0_ipc_msg_t *msg)
 	case RISC0_IPC_DDR_SUBS:
 		risc0_ipc_ddr_subs_handler(msg->link_id, &msg->req.cmd, &resp_param);
 		break;
+	case RISC0_IPC_BOOTSTAGE:
+		risc0_ipc_bootstage_handler(msg->link_id, &msg->req.cmd, &resp_param);
+		break;
 	default:
 		ERROR("Unsupported mbox service=%d\r\n", msg->req.cmd.hdr.service);
 		break;

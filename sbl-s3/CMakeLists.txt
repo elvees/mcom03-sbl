@@ -9,6 +9,7 @@ add_executable(${PROJECT_NAME}.elf
                main.c
                vectors.S
                risc0-ipc/server/api.c
+               risc0-ipc/server/ipc-bootstage.c
                risc0-ipc/server/ipc-ddr-subs.c
                risc0-ipc/server/ipc-init.c
                risc0-ipc/server/ipc-pm.c

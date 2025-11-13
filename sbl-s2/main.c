@@ -34,6 +34,10 @@
 #include <drivers/wdt/wdt.h>
 #endif
 
+#if defined(BOOTSTAGE_ENABLE)
+#include <libs/bootstage/bootstage.h>
+#endif
+
 extern uintptr_t __spram0_start;
 extern uintptr_t __spram0_end;
 extern uintptr_t __spram0_uncached_start;
@@ -52,6 +56,10 @@ extern uintptr_t __ddr_low_sdr1_start;
 extern uintptr_t __ddr_low_sdr1_end;
 extern uintptr_t __iommu_start;
 extern uintptr_t __iommu_end;
+#if defined(BOOTSTAGE_ENABLE)
+extern uintptr_t __bs_start;
+extern uintptr_t __bs_end;
+#endif
 extern uintptr_t __ram_start;
 extern uintptr_t __ram_end;
 
@@ -73,6 +81,10 @@ static const uintptr_t ddr_low_sdr1_start = (uintptr_t)&__ddr_low_sdr1_start;
 static const uintptr_t ddr_low_sdr1_end = (uintptr_t)&__ddr_low_sdr1_end;
 static const uintptr_t iommu_start = (uintptr_t)&__iommu_start;
 static const uintptr_t iommu_end = (uintptr_t)&__iommu_end;
+#if defined(BOOTSTAGE_ENABLE)
+static const uintptr_t bs_start = (uintptr_t)&__bs_start;
+static const uintptr_t bs_end = (uintptr_t)&__bs_end;
+#endif
 static const uintptr_t ram_start = (uintptr_t)&__ram_start;
 static const uintptr_t ram_end = (uintptr_t)&__ram_end;
 
@@ -94,6 +106,9 @@ static int check_load_address(uintptr_t lAddr, unsigned int size)
 	         !(((lAddr >= cram_start) && ((lAddr + size) < cram_end)) ||
 	           ((lAddr >= cram_uncached_start) && ((lAddr + size) < cram_uncached_end)) ||
 	           ((lAddr >= iommu_start) && ((lAddr + size) < iommu_end)) ||
+#if defined(BOOTSTAGE_ENABLE)
+	           ((lAddr >= bs_start) && ((lAddr + size) < bs_end)) ||
+#endif
 	           ((lAddr >= ram_start) && ((lAddr + size) < ram_end))));
 }
 
@@ -292,6 +307,11 @@ int main(void)
 	if (ret)
 		return ret;
 
+#if defined(BOOTSTAGE_ENABLE)
+	bootstage_import((void *)bs_start, bs_end - bs_start);
+	bootstage_mark(BOOTSTAGE_ID_SBL_S2_START);
+#endif
+
 #ifdef RECOVERY_ENABLE
 	last = timer_get_us();
 #endif
@@ -344,6 +364,10 @@ int main(void)
 	ret = spi_nor_init();
 	if (ret)
 		return ret;
+
+#if defined(BOOTSTAGE_ENABLE)
+	bootstage_mark(BOOTSTAGE_ID_SBL_S2_LOAD_START);
+#endif
 
 	ret = read_image(&otp, PLAT_OTP_OFFSET, sizeof(otp));
 	if (ret)
@@ -414,6 +438,12 @@ int main(void)
 		wdt_reset(wdt);
 #endif
 	}
+
+#if defined(BOOTSTAGE_ENABLE)
+	bootstage_mark(BOOTSTAGE_ID_SBL_S2_LOAD_COMPLETE);
+	bootstage_export((void *)bs_start, bs_end - bs_start);
+#endif
+
 	sblimg_finish(ret);
 
 	return ret;

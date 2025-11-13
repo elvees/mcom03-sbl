@@ -25,6 +25,18 @@
 #include <drivers/uart/uart.h>
 #endif
 
+#if defined(BOOTSTAGE_ENABLE)
+#include <libs/bootstage/bootstage.h>
+#endif
+
+#if defined(BOOTSTAGE_ENABLE)
+extern uintptr_t __bs_start;
+extern uintptr_t __bs_end;
+
+static const uintptr_t bs_start = (uintptr_t)&__bs_start;
+static const uintptr_t bs_end = (uintptr_t)&__bs_end;
+#endif
+
 int main(void)
 {
 	int ret;
@@ -33,6 +45,10 @@ int main(void)
 	ret = lsp1_timer_register(true, 0, false);
 	if (ret)
 		return ret;
+
+#if defined(BOOTSTAGE_ENABLE)
+	bootstage_init(BOOTSTAGE_ID_SBL_S1_START);
+#endif
 
 	// Initialize and configure the TOP clock gate
 	uint32_t top_clkgate = BIT(SERVICE_TOP_CLK_GATE_SERVICE) | BIT(SERVICE_TOP_CLK_GATE_LSP0) |
@@ -140,6 +156,10 @@ int main(void)
 	ret = wdt_start(wdt0);
 	if (ret)
 		return ret;
+#endif
+
+#if defined(BOOTSTAGE_ENABLE)
+	bootstage_export((void *)bs_start, bs_end - bs_start);
 #endif
 
 	return 0;

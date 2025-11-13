@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2023-2025 RnD Center "ELVEES", JSC
 
+#include "platform-def.h"
+
 OUTPUT_FORMAT("elf32-littlemips")
 OUTPUT_ARCH("mips:isa32")
 ENTRY(_startup)
@@ -14,7 +16,10 @@ GROUP(-lc -lgcc)
 MEMORY
 {
 	// use cached address for fast access
-	spram (rwx)  : ORIGIN = 0x80000000, LENGTH = 64K - 4096
+	spram (rwx)  : ORIGIN = PLAT_SBL_S1_BASE, LENGTH = PLAT_SBL_S1_SIZE
+#if defined(BOOTSTAGE_ENABLE)
+	bootstage (rw)  : ORIGIN = PLAT_BOOTSTAGE_BASE, LENGTH = PLAT_BOOTSTAGE_SIZE
+#endif
 }
 
 SECTIONS
@@ -61,6 +66,18 @@ SECTIONS
 		KEEP(* (.stack .stack.*));
 		__stack = ORIGIN(spram) + LENGTH(spram) - 0x20;
 	} > spram
+
+#if defined(BOOTSTAGE_ENABLE)
+	. = ORIGIN(bootstage);
+	ASSERT(. == ALIGN(4), "ORIGIN(bootstage) address is not aligned on a word boundary.")
+
+	.bootstage (NOLOAD) : {
+		__bs_start = ABSOLUTE(.);
+		. = . + PLAT_BOOTSTAGE_SIZE;
+		. = ALIGN(4);
+		__bs_end = ABSOLUTE(.);
+	} > bootstage
+#endif
 
 #ifndef NDEBUG
 	/**

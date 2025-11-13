@@ -26,7 +26,7 @@ run
 hbp unset jtag
 
 # Load and run ddrinit to setup DDR memory
-py helpers.loadelf(f'{IMAGES_PATH}/ddrinit-{board}/ddrinit.elf')
+py helpers.loadelf(f'{IMAGES_PATH}/ddrinit-{board}-bootrom/ddrinit.elf')
 hbp set jtag
 run
 hbp unset jtag

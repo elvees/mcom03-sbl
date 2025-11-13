@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023-2024 RnD Center "ELVEES", JSC
+// Copyright 2023-2025 RnD Center "ELVEES", JSC
 
 #include <stdint.h>
 
@@ -22,6 +22,9 @@ void risc0_ipc_init_handler(uint32_t link_id, const risc0_ipc_cmd_t *cmd,
 			resp_param->init.capability.value |= BIT(RISC0_IPC_WDT);
 			resp_param->init.capability.value |= BIT(RISC0_IPC_PM);
 			resp_param->init.capability.value |= BIT(RISC0_IPC_DDR_SUBS);
+#if defined(BOOTSTAGE_ENABLE)
+			resp_param->init.capability.value |= BIT(RISC0_IPC_BOOTSTAGE);
+#endif
 			break;
 		default:
 			break;

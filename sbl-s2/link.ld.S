@@ -25,11 +25,26 @@ MEMORY
 	ddr_low_trusted1 (rwx)  : ORIGIN = 0xc0000000,          LENGTH = 512M
 	ddr_low_sdr1 (rwx)      : ORIGIN = 0xe0000000,          LENGTH = 512M
 	iommu (rwx)             : ORIGIN = PLAT_IOMMU_BASE,     LENGTH = PLAT_IOMMU_SIZE
+#if defined(BOOTSTAGE_ENABLE)
+	bootstage (rw)          : ORIGIN = PLAT_BOOTSTAGE_BASE, LENGTH = PLAT_BOOTSTAGE_SIZE
+#endif
 	ram (rwx)               : ORIGIN = PLAT_SBL_S2_BASE,    LENGTH = PLAT_SBL_S2_SIZE
 }
 
 SECTIONS
 {
+#if defined(BOOTSTAGE_ENABLE)
+	. = ORIGIN(bootstage);
+	ASSERT(. == ALIGN(4), "ORIGIN(bootstage) address is not aligned on a word boundary.")
+
+	.bootstage (NOLOAD) : {
+		__bs_start = ABSOLUTE(.);
+		. = . + PLAT_BOOTSTAGE_SIZE;
+		. = ALIGN(4);
+		__bs_end = ABSOLUTE(.);
+	} > bootstage
+#endif
+
 	. = ORIGIN(ram);
 	ASSERT(. == ALIGN(4), "ORIGIN(ram) address is not aligned on a word boundary.")
 

@@ -57,6 +57,7 @@ else()
     set(UART_ENABLE TRUE CACHE BOOL "Enable UART")
     set(DEBUG_INTERFACE_DISABLE OFF CACHE BOOL "Disable SoC debug interface")
     set(RECOVERY_ENABLE FALSE CACHE BOOL "Enable recovery support")
+    set(BOOTSTAGE_ENABLE TRUE CACHE BOOL "Enable bootstage support")
 
     if(CMAKE_BUILD_TYPE MATCHES Debug)
         add_compile_definitions(LOG_LEVEL=40)
@@ -85,6 +86,10 @@ else()
 
     if(RECOVERY_ENABLE)
         add_compile_definitions(RECOVERY_ENABLE)
+    endif()
+
+    if(BOOTSTAGE_ENABLE)
+        add_compile_definitions(BOOTSTAGE_ENABLE)
     endif()
 
     add_subdirectory(third-party)
