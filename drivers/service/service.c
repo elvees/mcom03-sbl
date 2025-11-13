@@ -58,7 +58,7 @@ static const struct pm_domain_settings pm_domain_settings[] = {
 		.bypass1_mask = BIT(TOP_UCG1_CHANNEL_AXI_SLOW_COMM) |
 				BIT(TOP_UCG1_CHANNEL_AXI_FAST_COMM) |
 				BIT(TOP_UCG1_CHANNEL_DDR_SDR_DSP) |
-				BIT(TOP_UCG1_CHANNEL_DDR_SDR_PICE),
+				BIT(TOP_UCG1_CHANNEL_DDR_SDR_PCIE),
 		.clkgate_mask = BIT(SERVICE_TOP_CLK_GATE_SDR),
 		.reg_offset = 0x8,
 	},
