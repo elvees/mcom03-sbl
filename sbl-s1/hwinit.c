@@ -104,27 +104,25 @@ int main(void)
 		return ret;
 
 #ifdef WDT_ENABLE
-	wdt_dev_t *wdt0 = wdt_get_instance();
+	wdt_dev_t *wdt = wdt_get_instance();
 
 	// Initialize and configure the watchdog
-	ret = wdt_set_config(wdt0, WDT_MAX_TIMEOUT);
+	ret = wdt_config_default(wdt);
 	if (ret)
 		return ret;
 
-	ret = wdt_init(wdt0);
+	ret = wdt0_hw_enable(wdt);
+	if (ret)
+		return ret;
+
+	ret = wdt_start(wdt);
 	if (ret && (ret != -EALREADYINITIALIZED))
 		return ret;
 
-#ifdef UART_ENABLE
 	if (ret == -EALREADYINITIALIZED)
 		printf("WDT0 is already enabled\n");
 	else
 		printf("WDT0 is initialized successfully\n");
-#endif
-
-	ret = wdt_start(wdt0);
-	if (ret)
-		return ret;
 #endif
 
 	// Initialize and configure the top clocking system
@@ -152,11 +150,7 @@ int main(void)
 
 #ifdef WDT_ENABLE
 	// Reconfigure the watchdog
-	ret = wdt_set_config(wdt0, 3000);
-	if (ret)
-		return ret;
-
-	ret = wdt_start(wdt0);
+	ret = wdt_set_timeout_ms(wdt, 3000);
 	if (ret)
 		return ret;
 #endif

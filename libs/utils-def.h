@@ -80,3 +80,7 @@
 #define ULL(_x) (_x##ULL)
 #define L(_x)   (_x##L)
 #define LL(_x)  (_x##LL)
+
+#define USEC_IN_SEC  ULL(1000000)
+#define MSEC_IN_SEC  ULL(1000)
+#define USEC_IN_MSEC ULL(1000)

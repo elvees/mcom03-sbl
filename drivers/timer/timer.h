@@ -9,10 +9,6 @@
 #include <libs/errors.h>
 #include <libs/utils-def.h>
 
-#define USEC_IN_SEC  ULL(1000000)
-#define MSEC_IN_SEC  ULL(1000)
-#define USEC_IN_MSEC ULL(1000)
-
 #define time_after(a, b)  ((long)((b) - (a)) < 0)
 #define time_before(a, b) time_after(b, a)
 

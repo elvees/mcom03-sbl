@@ -348,21 +348,20 @@ int main(void)
 	printf(PREFIX " " BUILD_VERSION_STR "\n");
 
 #ifdef WDT_ENABLE
-	// WDT setup configuration
 	wdt_dev_t *wdt = wdt_get_instance();
 
 	// Initialize and configure the watchdog
-	ret = wdt_set_config(wdt, WDT_MAX_TIMEOUT);
+	ret = wdt_config_default(wdt);
 	if (ret)
-		panic_handler("Failed to set wdt config, ret=%d\n", ret);
+		panic_handler("Failed to apply default config to WDT instance, ret=%d\n", ret);
 
-	ret = wdt_init(wdt);
-	if (ret && (ret != -EALREADYINITIALIZED))
-		panic_handler("WDT0: Not initialized, ret=%d\n", ret);
+	ret = wdt0_hw_enable(wdt);
+	if (ret)
+		panic_handler("Failed to initialize WDT0 hardware, ret=%d\n", ret);
 
 	ret = wdt_start(wdt);
-	if (ret)
-		panic_handler("WDT0: Timeout update failed, ret=%d\n", ret);
+	if (ret && (ret != -EALREADYINITIALIZED))
+		panic_handler("WDT0 is failed to start, ret=%d\n", ret);
 #endif
 
 	ret = spi_nor_init();

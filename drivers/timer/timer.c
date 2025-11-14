@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <libs/utils-def.h>
+
 #include "timer.h"
 
 typedef struct timer_ticks_t {

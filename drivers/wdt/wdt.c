@@ -10,221 +10,173 @@
 
 #include "wdt.h"
 
-static wdt_dev_t wdt_dev;
+#define __wdt_get_timeout_ms(freq, coef) (BIT(WDT_TORR_NUM_TOPS + (coef)) / ((freq) / MSEC_IN_SEC))
 
-wdt_dev_t *wdt_get_instance(void)
-{
-	return &wdt_dev;
-}
-
-int wdt_set_config(wdt_dev_t *wdt_dev, uint32_t timeout)
-{
-	int ret;
-	uint32_t apb_freq;
-
-	if (!wdt_dev)
-		return -ENULL;
-
-	ret = service_get_apb_clock(&apb_freq);
-	if (ret)
-		return ret;
-
-	wdt_dev->rmod = WDT_RST_MODE;
-	wdt_dev->rpl = WDT_RST_PULSE_LEN_2;
-	wdt_dev->timeout = timeout;
-	wdt_dev->wdt_freq = apb_freq;
-
-	return 0;
-}
+static wdt_dev_t wdt;
 
 /**
  * @brief The function calculates a coefficient to set the required timeout period
  *
- * @param wdt_dev - WDT handler contains desirable user's timeout. After calculation
- *                  timeout variable sets to real value of WDT timeout in milliseconds.
+ * @param wdt - Pointer to WDT instance structure
+ * @param timeout_ms - Desired timeout in ms.
  *
- * @return Coefficient that must be written to the TOP and TOP_INT fields of the WDT_TOPR register
+ * @return Coefficient that must be written to the WDT_TORR::{TOP,TOP_INT} register
  */
-static uint32_t __wdt_get_timeout_coef(wdt_dev_t *wdt_dev)
+static uint32_t __wdt_get_timeout_coef(wdt_dev_t *wdt, uint32_t timeout_ms)
 {
 	int i = 0;
+
 	// number of ticks before counter zeroing
 	uint32_t clk_number_to_zero;
 	// number of ticks to obtain the required delay
-	uint32_t clk_number = wdt_dev->timeout * ((wdt_dev->wdt_freq) / 1000UL);
-	for (i = WDT_MIN_TIMEOUT_COEF; i < WDT_MAX_TIMEOUT_COEF; i++) {
-		clk_number_to_zero = BIT(WDT_NUM_TOPS + i);
+	uint32_t clk_number = timeout_ms * (wdt->freq / MSEC_IN_SEC);
+	for (i = WDT_TORR_TOP_MIN_TIMEOUT_COEF; i < WDT_TORR_TOP_MAX_TIMEOUT_COEF; i++) {
+		clk_number_to_zero = BIT(WDT_TORR_NUM_TOPS + i);
 		if (clk_number <= clk_number_to_zero)
 			break;
 	}
-	wdt_dev->timeout = BIT(WDT_NUM_TOPS + i) / (wdt_dev->wdt_freq / 1000UL);
-	wdt_dev->pretimeout = wdt_dev->timeout;
+
 	return i;
 }
 
-int wdt_is_enabled(wdt_dev_t *wdt_dev)
+wdt_dev_t *wdt_get_instance(void)
 {
-	return !!(wdt_dev->regs->wdt_cr & WDT_CR_WDT_EN_MASK);
+	return &wdt;
 }
 
-int wdt_init(wdt_dev_t *wdt_dev)
+int wdt_config_default(wdt_dev_t *wdt)
 {
-	if (!wdt_dev)
+	if (!wdt)
 		return -ENULL;
 
-	if (wdt_dev->rmod > 1)
-		return -EINVALIDPARAM;
-	if (wdt_dev->rpl > 7)
-		return -EINVALIDPARAM;
-
-	wdt_dev->regs = (wdt_regs_t *)BASE_ADDR_SERVICE_WDT0;
-
-	// Set maximum timeout if WDT is already run
-	if (wdt_is_enabled(wdt_dev)) {
-		uint32_t wdt_torr_val = wdt_dev->regs->wdt_torr;
-		wdt_torr_val &= ~WDT_TORR_TOP_MASK;
-		wdt_torr_val |= WDT_MAX_TIMEOUT_COEF;
-		wdt_dev->regs->wdt_torr = wdt_torr_val;
-
-		wdt_reset(wdt_dev);
-
-		wdt_dev->status = WDT_ON;
-
-		return -EALREADYINITIALIZED;
-	}
+	wdt->rmod = WDT_CR_RMOD_RST_MODE;
+	wdt->rpl = WDT_CR_RPL_RST_PULSE_LEN_2;
 
 	return 0;
 }
 
-int wdt_start(wdt_dev_t *wdt_dev)
+int wdt_set_timeout_ms(wdt_dev_t *wdt, uint32_t timeout_ms)
 {
-	int err = 0;
+	uint32_t torr_val;
 
-	if (!wdt_dev)
+	if (!wdt || !wdt->regs)
 		return -ENULL;
 
-	uint32_t wdt_torr_val = wdt_dev->regs->wdt_torr;
+	// Fill the WDT_TORR register
+	torr_val = wdt->regs->torr;
+	torr_val &= ~WDT_TORR_TOP_MASK;
+	torr_val |= FIELD_PREP(WDT_TORR_TOP_MASK, __wdt_get_timeout_coef(wdt, timeout_ms));
+	wdt->regs->torr = torr_val;
 
-	// Fill the wdt_cr register
-	uint32_t timeout_top, timeout_top_int;
-
-	if (wdt_dev->timeout > WDT_MAX_TIMEOUT)
-		wdt_dev->timeout = WDT_MAX_TIMEOUT;
-
-	switch (wdt_dev->timeout) {
-	case WDT_MIN_TIMEOUT:
-		wdt_dev->timeout = BIT(WDT_NUM_TOPS) / (wdt_dev->wdt_freq / 1000UL);
-		timeout_top = WDT_MIN_TIMEOUT_COEF;
-		break;
-	case WDT_MAX_TIMEOUT:
-		wdt_dev->timeout =
-			BIT(WDT_NUM_TOPS + WDT_MAX_TIMEOUT_COEF) / (wdt_dev->wdt_freq / 1000UL);
-		timeout_top = WDT_MAX_TIMEOUT_COEF;
-		break;
-	default:
-		timeout_top = __wdt_get_timeout_coef(wdt_dev);
-		break;
-	}
-
-	timeout_top_int = timeout_top;
-
-	wdt_torr_val = FIELD_PREP(WDT_TORR_TOP_INT_MASK, timeout_top_int) |
-	               FIELD_PREP(WDT_TORR_TOP_MASK, timeout_top);
-
-	wdt_dev->regs->wdt_torr = wdt_torr_val;
-
-	// Update WDT reset timer
-	wdt_reset(wdt_dev);
-
-	// Fill the wdt_cr register var
-	uint32_t wdt_cr_val = wdt_dev->regs->wdt_cr;
-
-	if (wdt_dev->rmod == WDT_IRQ_MODE) {
-		wdt_cr_val |= FIELD_PREP(WDT_CR_RMOD_MASK, WDT_IRQ_MODE);
-		wdt_dev->pretimeout = timeout_top;
-	} else {
-		wdt_cr_val &= ~FIELD_PREP(WDT_CR_RMOD_MASK, WDT_IRQ_MODE);
-		wdt_dev->pretimeout = 0;
-	}
-
-	wdt_cr_val &= ~WDT_CR_RPL_MASK;
-	wdt_cr_val |= FIELD_PREP(WDT_CR_RPL_MASK, wdt_dev->rpl);
-
-	if (!(wdt_cr_val & WDT_CR_WDT_EN_MASK)) {
-		wdt_dev->status = WDT_ON;
-		wdt_cr_val |= FIELD_PREP(WDT_CR_WDT_EN_MASK, WDT_ON);
-	}
-
-	wdt_dev->regs->wdt_cr = wdt_cr_val;
-
-	return err;
+	// Reset WDT counter
+	return wdt_reset(wdt);
 }
 
-int wdt_stop(wdt_dev_t *wdt_dev)
+uint32_t wdt_get_timeout_ms(wdt_dev_t *wdt)
 {
-	(void)wdt_dev;
-	return -EFORBIDDEN;
+	if (!wdt || !wdt->regs)
+		return 0;
+
+	return __wdt_get_timeout_ms(wdt->freq, FIELD_GET(WDT_TORR_TOP_MASK, wdt->regs->torr));
 }
 
-int wdt_reset_irq(wdt_dev_t *wdt_dev)
+uint32_t wdt_get_min_timeout_ms(wdt_dev_t *wdt)
 {
-	if (!wdt_dev)
+	if (!wdt)
+		return 0;
+
+	return __wdt_get_timeout_ms(wdt->freq, WDT_TORR_TOP_MIN_TIMEOUT_COEF);
+}
+
+uint32_t wdt_get_max_timeout_ms(wdt_dev_t *wdt)
+{
+	if (!wdt)
+		return 0;
+
+	return __wdt_get_timeout_ms(wdt->freq, WDT_TORR_TOP_MAX_TIMEOUT_COEF);
+}
+
+int wdt_is_enabled(wdt_dev_t *wdt)
+{
+	if (!wdt || !wdt->regs)
+		return 0;
+
+	return !!(wdt->regs->cr & WDT_CR_WDT_EN_MASK);
+}
+
+int wdt_start(wdt_dev_t *wdt)
+{
+	uint32_t cr_val, torr_val;
+
+	if (!wdt || !wdt->regs)
 		return -ENULL;
 
-	register volatile uint32_t eoi_read = wdt_dev->regs->wdt_eoi;
+	cr_val = wdt->regs->cr;
+	cr_val &= ~(WDT_CR_RMOD_MASK | WDT_CR_RPL_MASK);
+	cr_val |= FIELD_PREP(WDT_CR_RMOD_MASK, wdt->rmod) | FIELD_PREP(WDT_CR_RPL_MASK, wdt->rpl);
+	wdt->regs->cr = cr_val;
+
+	if (wdt_is_enabled(wdt)) {
+		// Set max timeout
+		torr_val = wdt->regs->torr;
+		torr_val &= ~WDT_TORR_TOP_MASK;
+		torr_val |= FIELD_PREP(WDT_TORR_TOP_MASK, WDT_TORR_TOP_MAX_TIMEOUT_COEF);
+		wdt->regs->torr = torr_val;
+
+		// Reset WDT counter
+		wdt_reset(wdt);
+
+		return -EALREADYINITIALIZED;
+	}
+
+	// Fill the WDT_TORR register
+	torr_val = wdt->regs->torr;
+	torr_val &= ~WDT_TORR_TOP_INT_MASK;
+	torr_val |= FIELD_PREP(WDT_TORR_TOP_INT_MASK, WDT_TORR_TOP_MAX_TIMEOUT_COEF);
+	wdt->regs->torr = torr_val;
+
+	// Enable WDT
+	cr_val = wdt->regs->cr;
+	cr_val |= FIELD_PREP(WDT_CR_WDT_EN_MASK, WDT_CR_WDT_EN_ON);
+	wdt->regs->cr = cr_val;
+
+	return 0;
+}
+
+int wdt_reset_irq(wdt_dev_t *wdt)
+{
+	if (!wdt || !wdt->regs)
+		return -ENULL;
+
+	register volatile uint32_t eoi_read = wdt->regs->eoi;
 	(void)eoi_read;
 
 	return 0;
 }
 
-int wdt_reset(wdt_dev_t *wdt_dev)
+int wdt_reset(wdt_dev_t *wdt)
 {
-	if (!wdt_dev)
+	if (!wdt || !wdt->regs)
 		return -ENULL;
 
-	wdt_dev->regs->wdt_crr = WDT_CRR_RESET_VALUE;
-	wdt_reset_irq(wdt_dev);
+	wdt->regs->crr = WDT_CRR_RESET_VALUE;
+	wdt_reset_irq(wdt);
 
 	return 0;
 }
 
-uint32_t wdt_get_timeleft(wdt_dev_t *wdt_dev)
+int wdt0_hw_enable(wdt_dev_t *wdt)
 {
-	uint32_t millis;
-	uint32_t val;
+	int ret;
 
-	val = wdt_dev->regs->wdt_ccvr;
-	millis = val / ((wdt_dev->wdt_freq) / 1000UL);
-
-	if (wdt_dev->rmod == WDT_IRQ_MODE) {
-		val = wdt_dev->regs->wdt_stat;
-		if (!val)
-			millis += wdt_dev->pretimeout;
-	}
-
-	return millis;
-}
-
-int wdt_set_timeout(wdt_dev_t *wdt_dev, uint32_t timeout)
-{
-	if (!wdt_dev)
+	if (!wdt)
 		return -ENULL;
 
-	wdt_dev->timeout = timeout;
-	return wdt_start(wdt_dev);
-}
+	ret = service_get_apb_clock(&wdt->freq);
+	if (ret)
+		return ret;
 
-uint32_t wdt_get_timeout(wdt_dev_t *wdt_dev)
-{
-	return wdt_dev->timeout;
-}
+	wdt->regs = (wdt_regs_t *)BASE_ADDR_SERVICE_WDT0;
 
-uint32_t wdt_get_min_timeout(wdt_dev_t *wdt_dev)
-{
-	return BIT(WDT_NUM_TOPS) / (wdt_dev->wdt_freq / 1000UL);
-}
-
-uint32_t wdt_get_max_timeout(wdt_dev_t *wdt_dev)
-{
-	return BIT(WDT_NUM_TOPS + WDT_MAX_TIMEOUT_COEF) / (wdt_dev->wdt_freq / 1000UL);
+	return 0;
 }

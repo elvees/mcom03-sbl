@@ -9,16 +9,13 @@
 #include <drivers/pll/pll.h>
 #include <drivers/service/service.h>
 #include <drivers/ucg/ucg.h>
+#include <drivers/wdt/wdt.h>
 #include <libs/console/console.h>
 #include <libs/errors.h>
 #include <libs/log.h>
 
 #include "platform-def.h"
 #include "risc0-ipc/server/api.h"
-
-#ifdef WDT_ENABLE
-#include <drivers/wdt/wdt.h>
-#endif
 
 #ifdef UART_ENABLE
 #include <drivers/uart/uart.h>
@@ -83,20 +80,21 @@ int main(int argc, char **argv)
 
 	printf(PREFIX " " BUILD_VERSION_STR "\n");
 
-#ifdef WDT_ENABLE
 	wdt_dev_t *wdt = wdt_get_instance();
 
-	ret = wdt_set_config(wdt, WDT_MAX_TIMEOUT);
+	// Initialize and configure the watchdog
+	ret = wdt_config_default(wdt);
 	if (ret)
-		panic_handler("Failed to set wdt config, ret=%d\n", ret);
+		panic_handler("Failed to apply default config to WDT instance, ret=%d\n", ret);
 
-	ret = wdt_init(wdt);
-	if (ret && (ret != -EALREADYINITIALIZED))
-		panic_handler("WDT init failed, ret=%d\n", ret);
+	ret = wdt0_hw_enable(wdt);
+	if (ret)
+		panic_handler("Failed to initialize WDT0 hardware, ret=%d\n", ret);
 
+#ifdef WDT_ENABLE
 	ret = wdt_start(wdt);
-	if (ret)
-		panic_handler("WDT start failed, ret=%d\n", ret);
+	if (ret && (ret != -EALREADYINITIALIZED))
+		panic_handler("WDT0 is failed to start, ret=%d\n", ret);
 #endif
 
 	// Initialize IOMMU
