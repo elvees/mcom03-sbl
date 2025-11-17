@@ -190,9 +190,9 @@ static int prepare_env(env_ctx_t *sbl)
 	}
 
 	char *sbl_s2_ver = env_get(sbl, "sbl-s2-ver");
-	if (!sbl_s2_ver) {
+	if (!sbl_s2_ver || strcmp(sbl_s2_ver, BUILD_VERSION_STR)) {
 		env_set(sbl, "sbl-s2-ver", BUILD_VERSION_STR);
-		env_set_flag(sbl, "sbl-s2-ver", "so");
+		env_set_flag(sbl, "sbl-s2-ver", "sr");
 		need_export = true;
 	}
 
