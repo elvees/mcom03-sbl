@@ -1,7 +1,6 @@
 // Copyright 2020-2025 RnD Center "ELVEES", JSC
 // SPDX-License-Identifier: MIT
 
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -145,37 +144,6 @@ int ucg_sync_and_disable_bp(ucg_regs_t *ucg, uint32_t ch_mask, uint32_t sync_mas
 	if (sync_mask)
 		ucg->ucg_sync_clk_reg = sync_mask;
 	ucg->ucg_bp_ctr_reg = bp_val;
-
-	return 0;
-}
-
-int ucg_get_state(ucg_regs_t *ucg, uint32_t ch, uint32_t *div, bool *enable)
-{
-	if (!ucg)
-		return -ENULL;
-
-	if (ch > UCG_CTR_REG_CH_ID_MAX)
-		return -EINVALIDPARAM;
-
-	if (!div)
-		return -ENULL;
-
-	if (!enable)
-		return -ENULL;
-
-	unsigned int ucg_ctr_reg = ucg->ucg_ctr_reg[ch];
-
-	// Get State Enable or Disable
-	if (FIELD_GET(UCG_CTR_REG_CLK_EN, ucg_ctr_reg) &&
-	    (FIELD_GET(UCG_CTR_REG_Q_FSM_STATE, ucg_ctr_reg) == UCG_Q_FSM_STATE_RUN))
-		*enable = true;
-
-	if (!FIELD_GET(UCG_CTR_REG_CLK_EN, ucg_ctr_reg) &&
-	    (FIELD_GET(UCG_CTR_REG_Q_FSM_STATE, ucg_ctr_reg) == UCG_Q_FSM_STATE_STOPPED))
-		*enable = false;
-
-	// Get Divider
-	*div = FIELD_GET(UCG_CTR_REG_DIV_COEFF, ucg_ctr_reg);
 
 	return 0;
 }

@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <stdbool.h>
 #include <stdint.h>
 
 #include <libs/utils-def.h>
@@ -108,20 +107,6 @@ int ucg_set_divider(ucg_regs_t *ucg, uint32_t ch, uint32_t div, uint32_t max_ret
  *                          in it are bigger than the maximum ucg channel id
  */
 int ucg_sync_and_disable_bp(ucg_regs_t *ucg, uint32_t ch_mask, uint32_t sync_mask);
-
-/**
- * @brief UCG channel state getting function
- *
- * @param ucg    - Pointer to UCG register address
- * @param ch     - UCG channel number
- * @param div    - Value of divider
- * @param enable - Channel state: enable or disable
- *
- * @return  0             - Success,
- *         -ENULL         - ucg or div or enable params are not provided (NULL pointers),
- *         -EINVALIDPARAM - ch param is bigger than the maximum ucg channel id
- */
-int ucg_get_state(ucg_regs_t *ucg, uint32_t ch, uint32_t *div, bool *enable);
 
 /**
  * @brief Clock divider value getting function

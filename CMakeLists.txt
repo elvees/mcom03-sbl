@@ -55,7 +55,6 @@ else()
 
     set(WDT_ENABLE TRUE CACHE BOOL "Enable WDT")
     set(UART_ENABLE TRUE CACHE BOOL "Enable UART")
-    set(DEBUG_INTERFACE_DISABLE OFF CACHE BOOL "Disable SoC debug interface")
     set(RECOVERY_ENABLE FALSE CACHE BOOL "Enable recovery support")
     set(BOOTSTAGE_ENABLE TRUE CACHE BOOL "Enable bootstage support")
 
@@ -65,10 +64,6 @@ else()
         add_compile_definitions(LOG_LEVEL=20)
         if(WDT_ENABLE)
             add_compile_definitions(WDT_ENABLE)
-        endif()
-
-        if(DEBUG_INTERFACE_DISABLE)
-            add_compile_definitions(DEBUG_INTERFACE_DISABLE)
         endif()
     endif()
 

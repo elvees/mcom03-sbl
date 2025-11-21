@@ -11,7 +11,6 @@
 #include <drivers/ucg/ucg.h>
 #include <libs/console/console.h>
 #include <libs/errors.h>
-#include <libs/helpers/helpers.h>
 #include <libs/mmio.h>
 #include <libs/utils-def.h>
 
@@ -127,11 +126,6 @@ int main(void)
 
 	// Initialize and configure the top clocking system
 	ret = top_set_clock();
-	if (ret)
-		return ret;
-
-	// Disabling the debugging subsystem
-	ret = soc_debug_if_disable();
 	if (ret)
 		return ret;
 
