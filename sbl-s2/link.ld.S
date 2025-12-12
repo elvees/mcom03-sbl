@@ -15,7 +15,6 @@ GROUP(-lc -lgcc)
 
 MEMORY
 {
-
 	spram0 (rwx)            : ORIGIN = 0x80000000,          LENGTH = 64K
 	spram0_uncached (rwx)   : ORIGIN = 0xa0000000,          LENGTH = 64K
 	cram (rwx)              : ORIGIN = 0x9fa00000,          LENGTH = 32K

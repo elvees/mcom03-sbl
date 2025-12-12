@@ -72,7 +72,7 @@ static void risc0_ipc_resp(risc0_ipc_req_t *req, risc0_ipc_resp_param_t *resp_pa
 	risc0_ipc_resp_t *resp = NULL;
 	iommu_regs_t *iommu_regs = iommu_get_registers();
 
-	// Protect Service subsystem from writing in it's own address space (first 4 GB)
+	// Protect firmware from writing in it's own address space (first 4 GB)
 	if (req->shrmem.data <= UINTPTR_MAX)
 		panic_handler("The address[0x%llu] must be outside 32bit address space\n",
 		              req->shrmem.data);
@@ -109,6 +109,9 @@ static void risc0_ipc_cmd_handler(risc0_ipc_msg_t *msg)
 	case RISC0_IPC_BOOTSTAGE:
 		risc0_ipc_bootstage_handler(msg->link_id, &msg->req.cmd, &resp_param);
 		break;
+	case RISC0_IPC_OTP:
+		risc0_ipc_otp_handler(msg->link_id, &msg->req.cmd, &resp_param);
+		break;
 	default:
 		ERROR("Unsupported mbox service=%d\n", msg->req.cmd.hdr.service);
 		break;
@@ -124,9 +127,13 @@ uint32_t risc0_ipc_start(void)
 	COMPILE_TIME_ASSERT(!(sizeof(risc0_ipc_cmd_t) % sizeof(uint32_t)));
 	COMPILE_TIME_ASSERT(!(sizeof(risc0_ipc_shrmem_t) % sizeof(uint32_t)));
 
-	int ret = mbox_attach_irq_handler(risc0_ipc_irq_handler);
+	int ret = risc0_ipc_otp_init();
 	if (ret)
-		panic_handler("Failed to start services, ret=%d\n", ret);
+		panic_handler("Failed to init OTP services, ret=%d\n", ret);
+
+	ret = mbox_attach_irq_handler(risc0_ipc_irq_handler);
+	if (ret)
+		panic_handler("Failed to attach RISC0 IPC handler, ret=%d\n", ret);
 
 	return 0;
 }
@@ -135,7 +142,7 @@ uint32_t risc0_ipc_stop(void)
 {
 	int ret = mbox_detach_irq_handler(risc0_ipc_irq_handler);
 	if (ret)
-		panic_handler("Failed to stop services, ret=%d\n", ret);
+		panic_handler("Failed to detach RISC0 IPC handler, ret=%d\n", ret);
 	return 0;
 }
 

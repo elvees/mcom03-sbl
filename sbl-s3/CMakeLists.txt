@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME}.elf
                risc0-ipc/server/ipc-ddr-subs.c
                risc0-ipc/server/ipc-init.c
                risc0-ipc/server/ipc-pm.c
+               risc0-ipc/server/ipc-otp.c
                risc0-ipc/server/ipc-wdt.c)
 
 if(WDT_ENABLE AND WDT_RESET_INTERNAL)

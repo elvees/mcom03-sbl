@@ -25,6 +25,7 @@ void risc0_ipc_init_handler(uint32_t link_id, const risc0_ipc_cmd_t *cmd,
 #if defined(BOOTSTAGE_ENABLE)
 			resp_param->init.capability.value |= BIT(RISC0_IPC_BOOTSTAGE);
 #endif
+			resp_param->init.capability.value |= BIT(RISC0_IPC_OTP);
 			break;
 		default:
 			break;

@@ -20,7 +20,7 @@ MEMORY
 #if defined(BOOTSTAGE_ENABLE)
 	bootstage (rw)       : ORIGIN = PLAT_BOOTSTAGE_BASE, LENGTH = PLAT_BOOTSTAGE_SIZE
 #endif
-	ram (rwx)            : ORIGIN = PLAT_MIPS_BASE,      LENGTH = PLAT_MIPS_SIZE
+	ram (rwx)            : ORIGIN = PLAT_SBL_S3_BASE,    LENGTH = PLAT_SBL_S3_SIZE
 }
 
 SECTIONS

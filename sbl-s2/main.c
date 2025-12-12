@@ -94,7 +94,7 @@ static volatile uint64_t last = 0;
 
 static volatile int recovery_mode = 0;
 
-static int check_load_address(uintptr_t lAddr, unsigned int size)
+static int check_load_address(uintptr_t lAddr, uint32_t size)
 {
 	// TODO: Add CRAM RISC1 region as allowed
 	return !((((lAddr >= spram0_start) && ((lAddr + size) < spram0_end)) ||
@@ -112,7 +112,7 @@ static int check_load_address(uintptr_t lAddr, unsigned int size)
 	           ((lAddr >= ram_start) && ((lAddr + size) < ram_end))));
 }
 
-static int check_exec_address(uintptr_t lAddr, unsigned int size, uintptr_t eAddr)
+static int check_exec_address(uintptr_t lAddr, uint32_t size, uintptr_t eAddr)
 {
 	return !((eAddr >= lAddr) && (eAddr < (lAddr + size)));
 }
