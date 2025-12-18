@@ -143,10 +143,7 @@ int main(void)
 	// TODO: May be necessary to block writing to the flash memory
 
 #ifdef WDT_ENABLE
-	// Reconfigure the watchdog
-	ret = wdt_set_timeout_ms(wdt, 3000);
-	if (ret)
-		return ret;
+	wdt_reset(wdt);
 #endif
 
 #if defined(BOOTSTAGE_ENABLE)
