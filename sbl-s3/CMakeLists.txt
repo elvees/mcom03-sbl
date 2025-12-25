@@ -20,7 +20,7 @@ if(WDT_ENABLE AND WDT_RESET_INTERNAL)
 endif()
 
 # Link static libraries
-target_link_libraries(${PROJECT_NAME}.elf common)
+target_link_libraries(${PROJECT_NAME}.elf ${MipsCSP_LIBRARIES})
 
 target_link_options(${PROJECT_NAME}.elf PRIVATE
                     -T ${CMAKE_CURRENT_BINARY_DIR}/link.ld

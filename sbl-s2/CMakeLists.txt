@@ -8,7 +8,7 @@ add_executable(${PROJECT_NAME}.elf
                main.c)
 
 # Link static libraries
-target_link_libraries(${PROJECT_NAME}.elf common)
+target_link_libraries(${PROJECT_NAME}.elf ${MipsCSP_LIBRARIES})
 
 target_compile_definitions(${PROJECT_NAME}.elf PRIVATE
                            -D_GNU_SOURCE)

@@ -9,7 +9,7 @@ target_link_options(${PROJECT_NAME}.elf PRIVATE
                     -Wl,-Map=${PROJECT_NAME}.map)
 
 # Link static libraries
-target_link_libraries(${PROJECT_NAME}.elf common)
+target_link_libraries(${PROJECT_NAME}.elf ${MipsCSP_LIBRARIES})
 
 generate_and_add_as_dependency(${PROJECT_NAME}.elf
                                ${CMAKE_CURRENT_SOURCE_DIR}/link.ld.S

@@ -6,7 +6,7 @@
         set -exu
         cd src/gerrit.elvees.com/mcom03/sbl
 
-        ./docker-run.sh cmake -S . -B build -DBUILD_UNIT_TESTS=ON \
+        ./docker-run.sh cmake -S . -B build -DBUILD_TARGET=UNIT_TESTS \
           -DCMAKE_CXX_FLAGS='-Wall -Werror'
         ./docker-run.sh cmake --build build --parallel $(nproc)
 

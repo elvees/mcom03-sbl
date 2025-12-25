@@ -70,7 +70,7 @@ repos:
       - id: cmakelint
         args:
           - --linelength=100
-          - --filter=-whitespace/indent
+          - --filter=-whitespace/indent,-readability/wonkycase
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.37.0
     hooks:

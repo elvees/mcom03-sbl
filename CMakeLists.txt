@@ -8,7 +8,8 @@ project(sbl ASM C)
 
 include(cmake/helpers.cmake)
 
-set(BUILD_UNIT_TESTS OFF CACHE BOOL "Enable building unit tests")
+set(BUILD_TARGET DEFAULT CACHE STRING
+    "Build target. Values: UNIT_TESTS, COMMON_LIBS otherwise SBL will be built")
 set(GIT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "Git DIR")
 set(BUILD_ID CACHE STRING "Build identificator")
 set(IMG_ALIGN 16 CACHE STRING "Image alignment")
@@ -45,8 +46,14 @@ add_compile_options(-ffunction-sections -fdata-sections)
 
 add_link_options(-Wl,--gc-sections)
 
-if(BUILD_UNIT_TESTS)
+set(MipsCSP_LIBRARIES mips-csp)
+set(MipsCSP_INCLUDE_DIRS third-party drivers libs)
+include(cmake/MipsCSPConfig.cmake)
+
+if("${BUILD_TARGET}" STREQUAL "UNIT_TESTS")
     add_subdirectory(tests)
+elseif("${BUILD_TARGET}" STREQUAL "COMMON_LIBS")
+    build_static_library(MipsCSP_INCLUDE_DIRS ${MipsCSP_LIBRARIES})
 else()
     set(DDRINIT_DTB_MAP_FILE CACHE PATH "ddrinit-DTB map file")
     if(NOT EXISTS ${DDRINIT_DTB_MAP_FILE})
@@ -87,14 +94,7 @@ else()
         add_compile_definitions(BOOTSTAGE_ENABLE)
     endif()
 
-    add_subdirectory(third-party)
-    add_subdirectory(drivers)
-    add_subdirectory(libs)
-
-    add_library(common STATIC
-                $<TARGET_OBJECTS:third-party>
-                $<TARGET_OBJECTS:drivers>
-                $<TARGET_OBJECTS:libs>)
+    build_static_library(MipsCSP_INCLUDE_DIRS ${MipsCSP_LIBRARIES})
 
     add_subdirectory(sbl-s1)
     add_subdirectory(sbl-s2)

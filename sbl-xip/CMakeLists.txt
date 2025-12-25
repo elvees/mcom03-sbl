@@ -37,7 +37,7 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     add_executable(sbl-xip-${DTB_NAME}.elf startup.S sbl.c)
 
     # Link static libraries
-    target_link_libraries(sbl-xip-${DTB_NAME}.elf common)
+    target_link_libraries(sbl-xip-${DTB_NAME}.elf ${MipsCSP_LIBRARIES})
 
     target_link_options(sbl-xip-${DTB_NAME}.elf PRIVATE -T ${CMAKE_CURRENT_BINARY_DIR}/link.ld)
 
