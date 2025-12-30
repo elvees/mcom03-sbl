@@ -84,3 +84,6 @@
 #define USEC_IN_SEC  ULL(1000000)
 #define MSEC_IN_SEC  ULL(1000)
 #define USEC_IN_MSEC ULL(1000)
+
+#define STRINGIZE_NX(A) #A
+#define STRINGIZE(A)    STRINGIZE_NX(A)
