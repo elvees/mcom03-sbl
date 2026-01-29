@@ -62,6 +62,11 @@ int gpio_init(gpio_regs_t *gpio, unsigned int port, unsigned int pin, unsigned i
 		break;
 	case BASE_ADDR_LSP1_GPIO1_BASE:
 		lsp1_enable();
+		if (dir == GPIO_DIR_INPUT) {
+			ret = lsp1_pad_cfg(port, pin, FIELD_PREP(LSP1_PADCTR_E_MASK, 1));
+			if (ret)
+				return ret;
+		}
 		break;
 	default:
 		return -EINVALIDPARAM;

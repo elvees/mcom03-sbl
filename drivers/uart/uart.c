@@ -68,6 +68,7 @@ int uart0_hw_enable(void *ctx)
 	ret = gpio_init(gpio, UART0_PORT, UART0_SOUT_PIN, GPIO_MODE_HW, GPIO_DIR_OUTPUT);
 	if (ret)
 		return ret;
+
 	ret = gpio_init(gpio, UART0_PORT, UART0_SIN_PIN, GPIO_MODE_HW, GPIO_DIR_INPUT);
 	if (ret)
 		return ret;
@@ -78,6 +79,7 @@ int uart0_hw_enable(void *ctx)
 	                           FIELD_PREP(LSP1_PADCTR_CTL_MASK, PAD_DRIVER_STREGTH_6_MILLI_A));
 	if (ret)
 		return ret;
+
 	ret = lsp1_pad_cfg(UART0_PORT, UART0_SIN_PIN,
 	                   FIELD_PREP(LSP1_PADCTR_SUS_MASK, 1) | FIELD_PREP(LSP1_PADCTR_E_MASK, 1));
 	if (ret)
