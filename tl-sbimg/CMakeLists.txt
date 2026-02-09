@@ -3,8 +3,6 @@
 project(tl-sbimg)
 
 # Set vars
-set(SBIMG_MKSBIMG ${SBIMG_BOOTROM_TOOLS_INSTALL_DIR}/mksbimage/mksbimage)
-set(SBIMG_OTPCREATOR ${SBIMG_BOOTROM_TOOLS_INSTALL_DIR}/otpcreator/otpcreator)
 set(SBIMG_BOOTROM_UTILS_CFG_IN ${CMAKE_CURRENT_SOURCE_DIR}/bootrom-none.cfg.in)
 set(SBIMG_SBL_UTILS_CFG_IN ${CMAKE_CURRENT_SOURCE_DIR}/sbl-${SBIMG_SEC_TYPE}.cfg.in)
 set(SBIMG_BINARIES_DIR ${CMAKE_CURRENT_BINARY_DIR}/build)
@@ -41,15 +39,15 @@ string(REPLACE "\n" ";" DDRINIT_DTB_MAP ${DDRINIT_DTB_MAP})
 # Generate OTP
 if("${SBIMG_SEC_TYPE}" STREQUAL "none")
     add_custom_command(OUTPUT ${SBIMG_OTP_IMG}
-                       COMMAND ${SBIMG_OTPCREATOR} -o ${SBIMG_OTP_IMG})
+                       COMMAND otpcreator -o ${SBIMG_OTP_IMG})
 elseif("${SBIMG_SEC_TYPE}" STREQUAL "sign")
     add_custom_command(OUTPUT ${SBIMG_OTP_IMG}
-                       COMMAND ${SBIMG_OTPCREATOR} -o ${SBIMG_OTP_IMG}
+                       COMMAND otpcreator -o ${SBIMG_OTP_IMG}
                                -S -R ${SBIMG_ROOT_CA}
                        DEPENDS ${SBIMG_ROOT_CA})
 elseif("${SBIMG_SEC_TYPE}" STREQUAL "enc")
     add_custom_command(OUTPUT ${SBIMG_OTP_IMG}
-                       COMMAND ${SBIMG_OTPCREATOR} -o ${SBIMG_OTP_IMG}
+                       COMMAND otpcreator -o ${SBIMG_OTP_IMG}
                                -S -R ${SBIMG_ROOT_CA}
                                -E -N ${SBIMG_ENC_DSN}
                                -K ${SBIMG_ENC_DUK}
@@ -116,7 +114,7 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
 
     # Generate bootrom sbimg image
     add_custom_command(OUTPUT ${SBIMG_BOOTROM_IMG}
-                       COMMAND ${SBIMG_MKSBIMG}
+                       COMMAND mksbimage
                                -i ${SBIMG_BOOTROM_UTILS_CFG}
                                -o ${SBIMG_BOOTROM_IMG}
                        DEPENDS ${SBIMG_DDRINIT_BIN}
@@ -125,7 +123,7 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
 
     # Generate sbl sbimg image
     add_custom_command(OUTPUT ${SBIMG_SBL_IMG}
-                       COMMAND ${SBIMG_MKSBIMG}
+                       COMMAND mksbimage
                                -i ${SBIMG_SBL_UTILS_CFG}
                                -o ${SBIMG_SBL_IMG}
                        DEPENDS ${SBIMG_BL31_BIN}
