@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# Copyright 2026 RnD Center "ELVEES", JSC
+
+set -eu
+
+FIT_GEN_MKIMAGE="${HOST_DIR}/bin/mkimage -A arm64"
+
+FIT_GEN_KEYS=@FIT_KEYS@
+FIT_GEN_KEY_NAME=@FIT_KEY_NAME@
+FIT_GEN_SIGN_ALGO=@FIT_SIGN_ALGO@
+
+FIT_GEN_WORKING_DIR=$(mktemp -d)
+trap 'rm -rf ${FIT_GEN_WORKING_DIR}' EXIT
+
+FIT_GEN_DTBS="${BINARIES_DIR}"/elvees
+FIT_GEN_SIGN_ALGO_HASH=$(echo ${FIT_GEN_SIGN_ALGO} | cut -f1 -d',')
+FIT_GEN_ITS="${FIT_GEN_WORKING_DIR}"/sign-configs-${FIT_GEN_SIGN_ALGO}.its
+FIT_GEN_FIT_DIR="${TARGET_DIR}"/boot
+FIT_GEN_FIT="${FIT_GEN_FIT_DIR}"/Image.fit
+
+cat <<EOF >"${FIT_GEN_ITS}"
+/dts-v1/;
+
+/ {
+    description = "FIT image with MCom-03 Linux kernel and FDT blobs";
+    #address-cells = <2>;
+
+    images: images {
+        kernel {
+            description = "Linux Kernel";
+            data = /incbin/("${BINARIES_DIR}/Image");
+            type = "kernel";
+            arch = "arm64";
+            os = "linux";
+            compression = "none";
+            load = <0x8 0x92400000>;
+            entry = <0x8 0x92400000>;
+            hash {
+                algo = "${FIT_GEN_SIGN_ALGO_HASH}";
+            };
+        };
+EOF
+
+DTB_FILES="${FIT_GEN_DTBS}/*.dtb"
+for i in ${DTB_FILES}; do
+    DTB_SUFFIX=$(basename "${i}" .dtb)
+    cat <<EOF >>"${FIT_GEN_ITS}"
+        fdt-${DTB_SUFFIX} {
+            description = "${DTB_SUFFIX} FDT Blob";
+            data = /incbin/("${FIT_GEN_DTBS}/${DTB_SUFFIX}.dtb");
+            type = "flat_dt";
+            arch = "arm64";
+            compression = "none";
+            load = <0x8 0x98c00000>;
+            hash {
+                algo = "${FIT_GEN_SIGN_ALGO_HASH}";
+            };
+        };
+EOF
+done
+
+cat <<EOF >>"${FIT_GEN_ITS}"
+    };
+    configurations {
+EOF
+
+for i in ${DTB_FILES}; do
+    DTB_SUFFIX=$(basename "${i}" .dtb)
+    cat <<EOF >>"${FIT_GEN_ITS}"
+        config${DTB_SUFFIX//[^A-Za-z0-9]/}: config-${DTB_SUFFIX} {
+            description = "${DTB_SUFFIX} configuration";
+            kernel = "kernel";
+            fdt = "fdt-${DTB_SUFFIX}";
+            signature${DTB_SUFFIX//[^A-Za-z0-9]/}: signature {
+                algo = "${FIT_GEN_SIGN_ALGO}";
+                key-name-hint = "${FIT_GEN_KEY_NAME}";
+                sign-images = "kernel", "fdt";
+            };
+        };
+EOF
+done
+
+cat <<EOF >>"${FIT_GEN_ITS}"
+    };
+};
+EOF
+
+mkdir -p "${FIT_GEN_FIT_DIR}"
+${FIT_GEN_MKIMAGE} -f "${FIT_GEN_ITS}" -k "${FIT_GEN_KEYS}" -r "${FIT_GEN_FIT}"

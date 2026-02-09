@@ -102,4 +102,5 @@ else()
     add_subdirectory(sbl-xip)
     add_subdirectory(scripts)
     add_subdirectory(tl-sbimg)
+    add_subdirectory(fitimg) # Don't move it, must be last
 endif()
