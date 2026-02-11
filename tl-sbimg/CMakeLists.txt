@@ -3,7 +3,7 @@
 project(tl-sbimg)
 
 # Set vars
-set(SBIMG_BOOTROM_UTILS_CFG_IN ${CMAKE_CURRENT_SOURCE_DIR}/bootrom-none.cfg.in)
+set(SBIMG_BOOTROM_UTILS_CFG_IN ${CMAKE_CURRENT_SOURCE_DIR}/bootrom-${SBIMG_SEC_TYPE}.cfg.in)
 set(SBIMG_SBL_UTILS_CFG_IN ${CMAKE_CURRENT_SOURCE_DIR}/sbl-${SBIMG_SEC_TYPE}.cfg.in)
 set(SBIMG_BINARIES_DIR ${CMAKE_CURRENT_BINARY_DIR}/build)
 
@@ -25,8 +25,47 @@ set(SBIMG_SBL_S3_BIN ${SBIMG_SBL_S3_BIN_DIR}/sbl-s3.bin)
 set(SBIMG_BL31_BIN ${IMAGES_PATH}/bl31.bin)
 set(SBIMG_UBOOT_BIN ${IMAGES_PATH}/u-boot.bin)
 
-set(SBIMG_OTP_IMG ${SBIMG_BINARIES_DIR}/sbl-otp.bin)
-get_filename_component(OTP_IMG "${SBIMG_OTP_IMG}" NAME)
+if("${SBIMG_SEC_TYPE}" STREQUAL "none")
+    list(APPEND OTP_SECTION
+        "\n"
+        "[otp]\n"
+        "flags.force-sign = 0\n"
+        "flags.force-encrypt = 0\n"
+    )
+else()
+    # Execute the bash script and capture its output
+    execute_process(
+        COMMAND bash -c "${CMAKE_CURRENT_SOURCE_DIR}/get-sha256-tbs.sh ${SBIMG_ROOT_CA}"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        OUTPUT_VARIABLE OTP_ROTPK
+        RESULT_VARIABLE exit_status)
+    if(exit_status)
+        message(FATAL_ERROR "${OTP_ROTPK}")
+    endif()
+    if("${SBIMG_SEC_TYPE}" STREQUAL "sign")
+        list(APPEND OTP_SECTION
+            "\n"
+            "[otp]\n"
+            "flags.force-sign = 1\n"
+            "flags.force-encrypt = 0\n"
+            "rotpk = \"${OTP_ROTPK}\"\n"
+        )
+    elseif("${SBIMG_SEC_TYPE}" STREQUAL "enc")
+        list(APPEND OTP_SECTION
+            "\n"
+            "[otp]\n"
+            "flags.force-sign = 1\n"
+            "flags.force-encrypt = 1\n"
+            "serial = ${SBIMG_ENC_DSN}\n"
+            "duk = ${SBIMG_ENC_DUK}\n"
+            "rotpk = \"${OTP_ROTPK}\"\n"
+        )
+    else()
+        message(FATAL_ERROR "Unsupported secure type ("${SBIMG_SEC_TYPE}")}")
+    endif()
+    unset(OTP_ROTPK)
+endif()
+list(JOIN OTP_SECTION "" OTP_SECTION)
 
 # Generate dir where to store artifacts
 file(MAKE_DIRECTORY ${SBIMG_BINARIES_DIR})
@@ -35,26 +74,6 @@ file(MAKE_DIRECTORY ${SBIMG_BINARIES_DIR})
 file(READ ${DDRINIT_DTB_MAP_FILE} DDRINIT_DTB_MAP)
 string(STRIP ${DDRINIT_DTB_MAP} DDRINIT_DTB_MAP)
 string(REPLACE "\n" ";" DDRINIT_DTB_MAP ${DDRINIT_DTB_MAP})
-
-# Generate OTP
-if("${SBIMG_SEC_TYPE}" STREQUAL "none")
-    add_custom_command(OUTPUT ${SBIMG_OTP_IMG}
-                       COMMAND otpcreator -o ${SBIMG_OTP_IMG})
-elseif("${SBIMG_SEC_TYPE}" STREQUAL "sign")
-    add_custom_command(OUTPUT ${SBIMG_OTP_IMG}
-                       COMMAND otpcreator -o ${SBIMG_OTP_IMG}
-                               -S -R ${SBIMG_ROOT_CA}
-                       DEPENDS ${SBIMG_ROOT_CA})
-elseif("${SBIMG_SEC_TYPE}" STREQUAL "enc")
-    add_custom_command(OUTPUT ${SBIMG_OTP_IMG}
-                       COMMAND otpcreator -o ${SBIMG_OTP_IMG}
-                               -S -R ${SBIMG_ROOT_CA}
-                               -E -N ${SBIMG_ENC_DSN}
-                               -K ${SBIMG_ENC_DUK}
-                       DEPENDS ${SBIMG_ROOT_CA})
-else()
-    message(FATAL_ERROR "Unsupported type tl-sbimg: \"${SBIMG_SEC_TYPE}\"")
-endif()
 
 # Iterate over ddrinit:dtb pairs
 foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
@@ -73,11 +92,11 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     set(SBIMG_DTB_BIN ${IMAGES_PATH}/uboot-dtb/${DTB_NAME}.dtb)
 
     set(SBIMG_BOOTROM_UTILS_CFG
-        ${CMAKE_CURRENT_BINARY_DIR}/bootrom-none-${DDRINIT_NAME}.cfg)
+        ${CMAKE_CURRENT_BINARY_DIR}/bootrom-${SBIMG_SEC_TYPE}-${DDRINIT_NAME}.cfg)
     set(SBIMG_SBL_UTILS_CFG ${CMAKE_CURRENT_BINARY_DIR}/sbl-${SBIMG_SEC_TYPE}-${DTB_NAME}.cfg)
 
     set(SBIMG_BOOTROM_IMG
-        ${CMAKE_CURRENT_BINARY_DIR}/bootrom-none-${DDRINIT_NAME}.sbimg)
+        ${CMAKE_CURRENT_BINARY_DIR}/bootrom-${SBIMG_SEC_TYPE}-${DDRINIT_NAME}.sbimg)
     set(SBIMG_PKG_TOML ${CMAKE_CURRENT_BINARY_DIR}/package.toml)
 
     if("${SBIMG_MAKE_RECOVERY}" STREQUAL "y")
@@ -95,12 +114,10 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     # Set the files that are used to build the tl-sbimg image depending on the secure image type
     set(SBIMG_TO_TAR -C ${CMAKE_CURRENT_BINARY_DIR} ${PKG_TOML}
                      -C ${CMAKE_CURRENT_BINARY_DIR} ${BOOTROM_SBIMG}
-                     -C ${CMAKE_CURRENT_BINARY_DIR} ${SBL_SBIMG}
-                     -C ${SBIMG_BINARIES_DIR} ${OTP_IMG})
+                     -C ${CMAKE_CURRENT_BINARY_DIR} ${SBL_SBIMG})
     set(SBIMG_TAR_DEPENDS ${SBIMG_PKG_TOML}
                           ${SBIMG_BOOTROM_IMG}
-                          ${SBIMG_SBL_IMG}
-                          ${SBIMG_OTP_IMG})
+                          ${SBIMG_SBL_IMG})
 
     # Configure files before building process
     configure_file(${SBIMG_BOOTROM_UTILS_CFG_IN}
@@ -111,6 +128,8 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
 
     configure_file(${SBIMG_PKG_TOML_IN}
                    ${SBIMG_PKG_TOML} @ONLY)
+
+    file(APPEND "${SBIMG_PKG_TOML}" ${OTP_SECTION})
 
     # Generate bootrom sbimg image
     add_custom_command(OUTPUT ${SBIMG_BOOTROM_IMG}

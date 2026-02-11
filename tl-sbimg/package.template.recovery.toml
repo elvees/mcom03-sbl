@@ -13,11 +13,6 @@ sbl.command = "flash"
 sbl.name = "@SBL_SBIMG@"
 sbl.offset = 0xA10000
 
-otp.description = "Flash OTP image used by SBL"
-otp.command = "flash"
-otp.name = "sbl-otp.bin"
-otp.offset = 0xA00000
-
 sbl_env.description = "Erase SBL environment"
 sbl_env.command = "erase"
 sbl_env.offset = 0x30000

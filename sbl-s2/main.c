@@ -290,7 +290,6 @@ int main(void)
 	env_ctx_t sbl;
 	int use_slot_b = 0;
 	sb_mem_t sbmem;
-	otp_t otp;
 
 	/* The timer data shared between boot stages is not in .bss section.
 	 * So we have to reset it once here.
@@ -372,10 +371,6 @@ int main(void)
 	bootstage_mark(BOOTSTAGE_ID_SBL_S2_LOAD_START);
 #endif
 
-	ret = read_image(&otp, PLAT_OTP_OFFSET, sizeof(otp));
-	if (ret)
-		return ret;
-
 #ifdef RECOVERY_ENABLE
 	NOTICE("Please wait. FW is checking...\n");
 
@@ -386,7 +381,6 @@ int main(void)
 	sbmem.cpy_func = (memcopy_t)memcpy;
 	sbmem.read_img_func = (read_img_t)read_image;
 	sbmem.image_offset = (uintptr_t)PLAT_OFFSET_FIRMWARE_R;
-	sbmem.otp = otp;
 
 	ret = sblimg_init(&sbmem);
 	while (ret == ESBIMGBOOT_NO_ERR) {
@@ -414,7 +408,6 @@ int main(void)
 	sbmem.cpy_func = (memcopy_t)memcpy;
 	sbmem.read_img_func = (read_img_t)read_image;
 	sbmem.chck_img = NULL;
-	sbmem.otp = otp;
 
 	if (recovery_mode == 0) {
 		select_slot(&sbl, &use_slot_b);

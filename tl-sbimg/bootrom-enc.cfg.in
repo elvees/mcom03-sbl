@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: MIT
+# Copyright 2025 RnD Center "ELVEES", JSC
+
+# Loading root certificate
+path_to_root_cert=@SBIMG_ROOT_CA@
+root_cert_id=1
+
+# Loading non-root certificates
+path_to_cert=@SBIMG_NON_ROOT_CA@ 2 1
+path_to_cert=@SBIMG_FW_CA@ 3 2
+
+# Encryption settings
+encryption_key=@SBIMG_ENC_KEY@
+number_of_key=2
+device_unique_key=@SBIMG_ENC_DUK@
+device_serial_number=@SBIMG_ENC_DSN@
+key_cert_id=3
+path_to_encryption_key=@SBIMG_FW_PK@
+
+# Loading sbl-s1
+sign_bin_part=@SBIMG_FW_PK@ 3 1
+path_to_bin_part=@SBIMG_SBL_S1_BIN@ 0xa0000000 0xa0000000 1
+
+# Loading ddrinit
+sign_bin_part=@SBIMG_FW_PK@ 3 2
+path_to_bin_part=@SBIMG_DDRINIT_BIN@ 0xa0000000 0xa0000000 2
+
+# Loading sbl-s2
+payload_cert_id=3
+path_to_payload_key=@SBIMG_FW_PK@
+path_to_bin=@SBIMG_SBL_S2_BIN@
+load_address=0x48000000
+entry_address=0x48000000
+
+# Set attributes for SecBoot
+check_payload_hash=0
+check_encrypted_payload_integrity=0
+skip_header_hash=0

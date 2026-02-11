@@ -10,6 +10,7 @@
 #include <libs/asm.h>
 
 	.global main
+	.global otp_clean_dump
 
 LEAF(_startup)
 	li            $k1, 0x000000           // disable interrupts, IE[0] = 0, ERL[2] = 0,
@@ -77,6 +78,10 @@ LEAF(_startup)
 	nop
 
 	la            $k0, main               // call main
+	jalr          $k0
+	nop
+
+	la            $k0, otp_clean_dump     // call otp_clean_dump
 	jalr          $k0
 	nop
 

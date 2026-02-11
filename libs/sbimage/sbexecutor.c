@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <drivers/otp/otp.h>
 #include <libs/errors.h>
 #include <libs/log.h>
 #include <third-party/aes/aes.h>
@@ -382,10 +383,10 @@ static int derrived_key(uint8_t *cek, size_t size)
 		                           (uint8_t)(key_number >> 8),
 		                           (uint8_t)key_number };
 
-	uint8_t prekey2[AES_BLOCK_LEN] = { sb_mem.otp.sn[0],
-		                           sb_mem.otp.sn[1],
-		                           sb_mem.otp.sn[2],
-		                           sb_mem.otp.sn[3],
+	uint8_t prekey2[AES_BLOCK_LEN] = { (uint8_t)sb_mem.otp->serial,
+		                           (uint8_t)(sb_mem.otp->serial >> 8),
+		                           (uint8_t)(sb_mem.otp->serial >> 16),
+		                           (uint8_t)(sb_mem.otp->serial >> 24),
 		                           0x00,
 		                           0x01,
 		                           0x00,
@@ -401,7 +402,7 @@ static int derrived_key(uint8_t *cek, size_t size)
 	uint8_t kek[AES_KEY_LEN];
 
 	uint8_t k1[AES_KEY_LEN];
-	AES_ECB_encrypt_wrap(prekey1, sb_mem.otp.duk, k1, AES_KEY_LEN);
+	AES_ECB_encrypt_wrap(prekey1, sb_mem.otp->duk, k1, AES_KEY_LEN);
 	AES_ECB_encrypt_wrap(prekey2, k1, kek, AES_KEY_LEN);
 	memset_s(k1, 0, AES_KEY_LEN);
 
@@ -546,33 +547,33 @@ static void crypto_free(void)
 	memset_s(sign_cert_arr, 0, sizeof(sign_cert_arr));
 }
 
-int static check_end_cert_load_requirement(sbimghdr_t *header)
+static int check_end_cert_load_requirement(sbimghdr_t *header)
 {
 	int status = 0;
 
-	if (sb_mem.otp.flags_bits.force_sign)
+	if (sb_mem.otp->flags_bits.force_sign)
 		CHECK_OK(ESBIMGBOOT_PAYLOAD_BAD_CERT_CHAIN, !end_cert_has_been_handled);
 
 end:
 	return status;
 }
 
-int static check_signed_load_requirement(sbimghdr_t *header)
+static int check_signed_load_requirement(sbimghdr_t *header)
 {
 	int status = 0;
 
-	if (sb_mem.otp.flags_bits.force_sign)
+	if (sb_mem.otp->flags_bits.force_sign)
 		CHECK_OK(ESBIMGBOOT_PAYLOAD_IS_NOT_SIGNED, !header->flags_bits.signed_obj);
 
 end:
 	return status;
 }
 
-int static check_encrypted_load_requirement(sbimghdr_t *header)
+static int check_encrypted_load_requirement(sbimghdr_t *header)
 {
 	int status = 0;
 
-	if (sb_mem.otp.flags_bits.force_encrypt)
+	if (sb_mem.otp->flags_bits.force_encrypt)
 		CHECK_OK(ESBIMGBOOT_PAYLOAD_IS_NOT_ENCRYPTED, !header->flags_bits.encrypted);
 
 end:
@@ -581,16 +582,16 @@ end:
 
 int sblimg_init(sb_mem_t *sb_ctx)
 {
-	sb_mem.chck_laddr_func = sb_ctx->chck_laddr_func;
-	sb_mem.chck_eaddr_func = sb_ctx->chck_eaddr_func;
-	sb_mem.chck_img = sb_ctx->chck_img;
-	sb_mem.cpy_func = sb_ctx->cpy_func;
-	sb_mem.read_img_func = sb_ctx->read_img_func;
-	sb_mem.image_offset = sb_ctx->image_offset;
+	int status = ESBIMGBOOT_NO_ERR;
 
-	sb_mem.cpy_func(&sb_mem.otp, (uintptr_t)&sb_ctx->otp, sizeof(otp_t));
+	memset((void *)&sb_mem, 0, sizeof(sb_mem));
+	sb_mem = *sb_ctx;
 
-	return ESBIMGBOOT_NO_ERR;
+	sb_mem.otp = otp_get_dump();
+	CHECK_OK(-ENULL, sb_mem.otp == NULL);
+
+end:
+	return status;
 }
 
 int sblimg_check(void)
@@ -646,7 +647,7 @@ int sblimg_check(void)
 		CHECK_OK(-ENULL, x509_root == NULL);
 
 		CHECK_OK(ESBIMGBOOT_ROOT_CERT_BAD_HASH,
-		         memcmp((const void *)sb_mem.otp.rot,
+		         memcmp((const void *)sb_mem.otp->rotpk,
 		                (const void *)x509_root->sha256_digest, SHA_DIGEST_LEN));
 		break;
 
@@ -788,7 +789,7 @@ int sblimg_update(void)
 		CHECK_NULL(x509_root);
 
 		CHECK_OK(ESBIMGBOOT_ROOT_CERT_BAD_HASH,
-		         memcmp((const void *)sb_mem.otp.rot,
+		         memcmp((const void *)sb_mem.otp->rotpk,
 		                (const void *)x509_root->sha256_digest, SHA_DIGEST_LEN));
 		break;
 
@@ -891,6 +892,8 @@ void sblimg_abort(void)
 void __dead2 sblimg_finish(int status)
 {
 	crypto_free();
+
+	otp_clean_dump();
 
 	if (status == ESBIMGBOOT_LOAD_FINISH) {
 		sbimghdr_t sbimg;

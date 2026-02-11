@@ -16,6 +16,7 @@ add_library(drivers OBJECT
             ${CMAKE_CURRENT_SOURCE_DIR}/irq/irq.c
             ${CMAKE_CURRENT_SOURCE_DIR}/irq/qlic.c
             ${CMAKE_CURRENT_SOURCE_DIR}/qspi/qspi.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/otp/otp.c
             ${CMAKE_CURRENT_SOURCE_DIR}/service/service.c
             ${CMAKE_CURRENT_SOURCE_DIR}/spi-nor/spi-nor.c
             ${CMAKE_CURRENT_SOURCE_DIR}/timer/timer.c
