@@ -28,6 +28,7 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     string(REPLACE ":" ";" DDRINIT_DTB_LIST ${DDRINIT_DTB_PAIR})
     list(GET DDRINIT_DTB_LIST 0 DDRINIT_NAME)
     list(GET DDRINIT_DTB_LIST 1 DTB_NAME)
+    string(REPLACE "," "-" DDRINIT_NAME ${DDRINIT_NAME})
     set(SBL_XIP_NAME "sbl-xip-${DDRINIT_NAME}-${DTB_NAME}")
 
     # We need to put 3rd-party artifacts to different directories

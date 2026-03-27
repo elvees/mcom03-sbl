@@ -81,6 +81,7 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     string(REPLACE ":" ";" DDRINIT_DTB_LIST ${DDRINIT_DTB_PAIR})
     list(GET DDRINIT_DTB_LIST 0 DDRINIT_NAME)
     list(GET DDRINIT_DTB_LIST 1 DTB_NAME)
+    string(REPLACE "," "-" DDRINIT_NAME ${DDRINIT_NAME})
     set(TL_SBIMG_NAME "${DDRINIT_NAME}-${DTB_NAME}")
 
     # Store artifacts in corresponding directories
