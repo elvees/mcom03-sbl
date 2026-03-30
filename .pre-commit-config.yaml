@@ -132,3 +132,15 @@ repos:
         args:
           - --ignore-words=.codespell.ignore
           - --after-context=0
+  - repo: https://github.com/openstack/bashate
+    rev: 2.1.1
+    hooks:
+      - id: bashate
+        args: [--max-line-length=100]
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        args:
+          - --exclude=SC2046,SC2086,SC2155
+          - --shell=bash
