@@ -1,7 +1,7 @@
 - job:
     name: mcom03-sbl-unittests
     description: Run SBL unit tests
-    run: playbooks/sbl-unittests.yaml
+    run: zuul.d/playbooks/sbl-unittests.yaml
 
 - project:
     check:
