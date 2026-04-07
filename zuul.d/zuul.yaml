@@ -12,3 +12,6 @@
               - ^\..*
               - LICENSE$
               - .*\.rst$
+    gate:
+      jobs:
+        - mcom03-sbl-unittests
