@@ -96,7 +96,7 @@ int qspi_read(void *i_buff, size_t count)
 	qspi_write_reg(&qspi_regs->ctrl_aux, QSPI_CTRL_AUX_BITSIZE_MASK, 7);
 
 	while (qspi_regs->rx_fifo_lvl)
-		qspi_regs->rx_data; // empty fifo
+		(void)qspi_regs->rx_data; // empty fifo
 
 	// Allow writing to fifo
 	qspi_write_reg(&qspi_regs->ctrl_aux, QSPI_CTRL_AUX_INHIBITDIN_MASK, 0);
