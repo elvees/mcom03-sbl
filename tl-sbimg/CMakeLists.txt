@@ -29,8 +29,8 @@ if("${SBIMG_SEC_TYPE}" STREQUAL "none")
     list(APPEND OTP_SECTION
         "\n"
         "[otp]\n"
-        "flags.force-sign = 0\n"
-        "flags.force-encrypt = 0\n"
+        "flags.force_sign = 0\n"
+        "flags.force_encrypt = 0\n"
     )
 else()
     # Execute the bash script and capture its output
@@ -46,22 +46,22 @@ else()
         list(APPEND OTP_SECTION
             "\n"
             "[otp]\n"
-            "flags.force-sign = 1\n"
-            "flags.force-encrypt = 0\n"
+            "flags.force_sign = 1\n"
+            "flags.force_encrypt = 0\n"
             "rotpk = \"${OTP_ROTPK}\"\n"
         )
     elseif("${SBIMG_SEC_TYPE}" STREQUAL "enc")
         list(APPEND OTP_SECTION
             "\n"
             "[otp]\n"
-            "flags.force-sign = 1\n"
-            "flags.force-encrypt = 1\n"
+            "flags.force_sign = 1\n"
+            "flags.force_encrypt = 1\n"
             "serial = ${SBIMG_ENC_DSN}\n"
             "duk = ${SBIMG_ENC_DUK}\n"
             "rotpk = \"${OTP_ROTPK}\"\n"
         )
     else()
-        message(FATAL_ERROR "Unsupported secure type ("${SBIMG_SEC_TYPE}")}")
+        message(FATAL_ERROR "Unsupported secure type (\"${SBIMG_SEC_TYPE}\")}")
     endif()
     unset(OTP_ROTPK)
 endif()
