@@ -81,9 +81,10 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     string(REPLACE ":" ";" DDRINIT_DTB_LIST ${DDRINIT_DTB_PAIR})
     list(GET DDRINIT_DTB_LIST 0 DDRINIT_NAME)
     list(GET DDRINIT_DTB_LIST 1 DTB_NAME)
+    set(TL_SBIMG_NAME "${DDRINIT_NAME}-${DTB_NAME}")
 
     # Store artifacts in corresponding directories
-    set(CMAKE_CURRENT_BINARY_DIR ${SBIMG_BINARIES_DIR}/${DTB_NAME})
+    set(CMAKE_CURRENT_BINARY_DIR ${SBIMG_BINARIES_DIR}/${TL_SBIMG_NAME})
     set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -93,7 +94,7 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
 
     set(SBIMG_BOOTROM_UTILS_CFG
         ${CMAKE_CURRENT_BINARY_DIR}/bootrom-${SBIMG_SEC_TYPE}-${DDRINIT_NAME}.cfg)
-    set(SBIMG_SBL_UTILS_CFG ${CMAKE_CURRENT_BINARY_DIR}/sbl-${SBIMG_SEC_TYPE}-${DTB_NAME}.cfg)
+    set(SBIMG_SBL_UTILS_CFG ${CMAKE_CURRENT_BINARY_DIR}/sbl-${SBIMG_SEC_TYPE}-${TL_SBIMG_NAME}.cfg)
 
     set(SBIMG_BOOTROM_IMG
         ${CMAKE_CURRENT_BINARY_DIR}/bootrom-${SBIMG_SEC_TYPE}-${DDRINIT_NAME}.sbimg)
@@ -101,11 +102,11 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
 
     if("${SBIMG_MAKE_RECOVERY}" STREQUAL "y")
         set(SBIMG_SBL_IMG
-            ${CMAKE_CURRENT_BINARY_DIR}/sbl-${SBIMG_SEC_TYPE}-${DTB_NAME}-recovery.sbimg)
-        set(SBIMG_TAR ${CMAKE_CURRENT_BINARY_DIR}/${DTB_NAME}-recovery.tl-image)
+            ${CMAKE_CURRENT_BINARY_DIR}/sbl-${SBIMG_SEC_TYPE}-${TL_SBIMG_NAME}-recovery.sbimg)
+        set(SBIMG_TAR ${CMAKE_CURRENT_BINARY_DIR}/${TL_SBIMG_NAME}-recovery.tl-image)
     else()
-        set(SBIMG_SBL_IMG ${CMAKE_CURRENT_BINARY_DIR}/sbl-${SBIMG_SEC_TYPE}-${DTB_NAME}.sbimg)
-        set(SBIMG_TAR ${CMAKE_CURRENT_BINARY_DIR}/${DTB_NAME}.tl-image)
+        set(SBIMG_SBL_IMG ${CMAKE_CURRENT_BINARY_DIR}/sbl-${SBIMG_SEC_TYPE}-${TL_SBIMG_NAME}.sbimg)
+        set(SBIMG_TAR ${CMAKE_CURRENT_BINARY_DIR}/${TL_SBIMG_NAME}.tl-image)
     endif()
     get_filename_component(PKG_TOML "${SBIMG_PKG_TOML}" NAME)
     get_filename_component(BOOTROM_SBIMG "${SBIMG_BOOTROM_IMG}" NAME)
@@ -155,9 +156,9 @@ foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
                        COMMAND tar -czf ${SBIMG_TAR} ${SBIMG_TO_TAR}
                        DEPENDS ${SBIMG_TAR_DEPENDS})
 
-    add_custom_target(${DTB_NAME}.tl-sbimg ALL DEPENDS ${SBIMG_TAR})
+    add_custom_target(${TL_SBIMG_NAME}.tl-sbimg ALL DEPENDS ${SBIMG_TAR})
 
-    add_dependencies(${DTB_NAME}.tl-sbimg sbl-s1.elf
+    add_dependencies(${TL_SBIMG_NAME}.tl-sbimg sbl-s1.elf
                                           sbl-s2.elf
                                           sbl-s3.elf)
 

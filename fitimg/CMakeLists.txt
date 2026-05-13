@@ -22,22 +22,26 @@ string(REPLACE "\n" ";" DDRINIT_DTB_MAP ${DDRINIT_DTB_MAP})
 foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
     # Make list from colon-divided pair to extract values
     string(REPLACE ":" ";" DDRINIT_DTB_LIST ${DDRINIT_DTB_PAIR})
+    list(GET DDRINIT_DTB_LIST 0 DDRINIT_NAME)
     list(GET DDRINIT_DTB_LIST 1 DTB_NAME)
+    set(FITIMG_NAME "${DDRINIT_NAME}-${DTB_NAME}")
 
     # Set variables that depend on corresponding ddrinit:dtb pair
     set(FIT_DTB_BIN ${IMAGES_PATH}/uboot-dtb/${DTB_NAME}.dtb)
 
     # Embed public key into U-Boot DTB
-    add_custom_target(${DTB_NAME}.keyed.dtb
-                      COMMAND fdt_add_pubkey -a ${FIT_SIGN_ALGO}
-                              -k ${FIT_KEYS} -n ${FIT_KEY_NAME}
-                              -r conf ${FIT_DTB_BIN}
-                      DEPENDS ${FIT_DTB_BIN})
+    if(NOT TARGET ${DTB_NAME}.keyed.dtb)
+        add_custom_target(${DTB_NAME}.keyed.dtb
+                          COMMAND fdt_add_pubkey -a ${FIT_SIGN_ALGO}
+                                  -k ${FIT_KEYS} -n ${FIT_KEY_NAME}
+                                  -r conf ${FIT_DTB_BIN}
+                          DEPENDS ${FIT_DTB_BIN})
 
-    # It is ok as the add_subdirectory command processes the CMakeLists.txt
-    # file in the specified directory immediately upon being called. So the file
-    # has to be processed after directory where {DTB_NAME}.tl-sbimg are created
-    add_dependencies(${DTB_NAME}.tl-sbimg ${DTB_NAME}.keyed.dtb)
+        # It is ok as the add_subdirectory command processes the CMakeLists.txt
+        # file in the specified directory immediately upon being called. So the file
+        # has to be processed after directory where {FITIMG_NAME}.tl-sbimg are created
+        add_dependencies(${FITIMG_NAME}.tl-sbimg ${DTB_NAME}.keyed.dtb)
+    endif()
 endforeach()
 
 # Install FIT gen script
