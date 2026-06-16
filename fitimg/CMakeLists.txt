@@ -13,20 +13,20 @@ set(FIT_GEN_SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/mcom03-fit-gen)
 
 configure_file(${FIT_GEN_SCRIPT_IN} ${FIT_GEN_SCRIPT} @ONLY)
 
-# Read ddrinit-DTB map file
-file(READ ${DDRINIT_DTB_MAP_FILE} DDRINIT_DTB_MAP)
-string(STRIP ${DDRINIT_DTB_MAP} DDRINIT_DTB_MAP)
-string(REPLACE "\n" ";" DDRINIT_DTB_MAP ${DDRINIT_DTB_MAP})
+# Read SBL build configuration file
 
-# Iterate over ddrinit:dtb pairs
-foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
-    # Make list from colon-divided pair to extract values
-    string(REPLACE ":" ";" DDRINIT_DTB_LIST ${DDRINIT_DTB_PAIR})
-    list(GET DDRINIT_DTB_LIST 0 DDRINIT_NAME)
-    list(GET DDRINIT_DTB_LIST 1 DTB_NAME)
-    set(FITIMG_NAME "${DDRINIT_NAME}-${DTB_NAME}")
+file(READ ${SBL_CONFIG_FILE} SBL_CONFIGS)
+string(JSON DICT_LENGTH LENGTH "${SBL_CONFIGS}")
+math(EXPR DICT_LENGTH "${DICT_LENGTH} - 1")
 
-    # Set variables that depend on corresponding ddrinit:dtb pair
+# Iterate over SBL entries
+foreach(IDX RANGE ${DICT_LENGTH})
+    string(JSON SBL_CONFIG GET ${SBL_CONFIGS} ${IDX})
+    string(JSON DTB_NAME GET ${SBL_CONFIG} "uboot_dtb")
+    string(JSON DDRINIT_UBOOT_DTB GET ${SBL_CONFIG} "ddrinit_uboot_dtb")
+    set(FITIMG_NAME "${DDRINIT_UBOOT_DTB}")
+
+    # Set variables that depend on corresponding dtb values
     set(FIT_DTB_BIN ${IMAGES_PATH}/uboot-dtb/${DTB_NAME}.dtb)
 
     # Embed public key into U-Boot DTB

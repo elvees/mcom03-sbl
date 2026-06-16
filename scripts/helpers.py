@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright 2023-2025 RnD Center "ELVEES", JSC
 
+import json
 from typing import Optional
 
 import mdb
@@ -31,33 +32,35 @@ def get_var_addr(elfpath: str, variable: str) -> Optional[str]:
     return None
 
 
-def parse_ddrinit_dtb_map(map_file: str, dtb_file: str) -> str:
+def get_ddrinit_dir(config_file: str, dtb_file: str, boot_type: str) -> str:
     """
-    The function return board name based on ddrinit and U-Boot DTB
+    Return ddrinit binaries directory based on U-Boot DTB and
+    SBL build configuration.
 
     Args:
-        map_file (str): Path to ddrinit MAP file
+        config_file (str): Path to SBL build config file
         dtb_file (str): Path to U-Boot DTB binary
 
     Raises:
         ValueError: Board is not found
 
     Returns:
-        str: board name
+        str: ddrinit directory
     """
-    with open(map_file) as f:
-        map_ = f.read()
+    with open(config_file) as f:
+        sbl_config = json.load(f)
     dtb = dtb_file.strip(".dtb")
 
     board = None
-    for line in map_.splitlines():
-        if dtb not in line:
+    for entry in sbl_config:
+        if dtb != entry["uboot_dtb"] or boot_type != entry["boot_type"]:
             continue
-        board = line.split(":")[0]
-        break
+        board = "ddrinit-" + entry["ddrinit_name"]
+        if "ddrinit_fragments" not in entry:
+            break
 
     if not board:
-        raise ValueError(f"{dtb} not in {map_file}")
+        raise ValueError(f"{dtb} not in {config_file}")
     return board
 
 

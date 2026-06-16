@@ -19,20 +19,24 @@ endif()
 
 set(BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-file(READ ${DDRINIT_DTB_MAP_FILE} DDRINIT_DTB_MAP)
-string(STRIP ${DDRINIT_DTB_MAP} DDRINIT_DTB_MAP)
-string(REPLACE "\n" ";" DDRINIT_DTB_MAP ${DDRINIT_DTB_MAP})
+file(READ ${SBL_CONFIG_FILE} SBL_CONFIGS)
+string(JSON DICT_LENGTH LENGTH "${SBL_CONFIGS}")
+math(EXPR DICT_LENGTH "${DICT_LENGTH} - 1")
 
-foreach(DDRINIT_DTB_PAIR IN LISTS DDRINIT_DTB_MAP)
-    # Make list from colon-divided pair to extract values
-    string(REPLACE ":" ";" DDRINIT_DTB_LIST ${DDRINIT_DTB_PAIR})
-    list(GET DDRINIT_DTB_LIST 0 DDRINIT_NAME)
-    list(GET DDRINIT_DTB_LIST 1 DTB_NAME)
-    string(REPLACE "," "-" DDRINIT_NAME ${DDRINIT_NAME})
-    set(SBL_XIP_NAME "sbl-xip-${DDRINIT_NAME}-${DTB_NAME}")
+foreach(IDX RANGE ${DICT_LENGTH})
+    string(JSON SBL_CONFIG GET ${SBL_CONFIGS} ${IDX})
+    string(JSON BUILD_TYPE GET ${SBL_CONFIG} "boot_type")
+    if(NOT "xip" STREQUAL BUILD_TYPE)
+        continue()
+    endif()
+
+    string(JSON DTB_NAME GET ${SBL_CONFIG} "uboot_dtb")
+    string(JSON DDRINIT_NAME GET ${SBL_CONFIG} "ddrinit_name")
+    string(JSON SBL_XIP_NAME GET ${SBL_CONFIG} "sbl_xip_name")
+    string(JSON DDRINIT_UBOOT_DTB GET ${SBL_CONFIG} "ddrinit_uboot_dtb")
 
     # We need to put 3rd-party artifacts to different directories
-    set(CMAKE_CURRENT_BINARY_DIR ${BINARY_DIR}/${DDRINIT_NAME}-${DTB_NAME})
+    set(CMAKE_CURRENT_BINARY_DIR ${BINARY_DIR}/${DDRINIT_UBOOT_DTB})
     set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 

@@ -8,5 +8,5 @@ install(FILES
         helpers.py
         mcom03-boot.mdb
         mcom03-boot-s3.mdb
-        ${DDRINIT_DTB_MAP_FILE}
+        ${SBL_CONFIG_FILE}
         DESTINATION ./sbl/scripts)

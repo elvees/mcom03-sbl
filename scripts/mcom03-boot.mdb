@@ -14,8 +14,8 @@ pb end
 
 pb python
 pb dtb = os.environ.get('MDB_DTB_FILE', 'mcom03-mcom03bub-r1.3.0.dtb')
-pb map_file = os.environ.get('MDB_DDRINIT_DTB_MAP', 'mcom03-ddrinit-dtb-map.txt')
-pb board = helpers.parse_ddrinit_dtb_map(f'{SCRIPTS_PATH}/{map_file}', dtb)
+pb sbl_config = os.environ.get('MDB_SBL_CONFIG', 'mcom03-sbl-config.json')
+pb ddrinit_dir = helpers.get_ddrinit_dir(f'{SCRIPTS_PATH}/{sbl_config}', dtb, 'xip')
 pb end
 
 # Load and run sbl-s1 to setup required clocks
@@ -35,7 +35,7 @@ pb helpers.set_by_addr(0xbf001008, top)
 pb end
 
 # Load and run ddrinit to setup DDR memory
-py helpers.loadelf(f'{IMAGES_PATH}/ddrinit-{board}/ddrinit.elf')
+py helpers.loadelf(f'{IMAGES_PATH}/{ddrinit_dir}/ddrinit.elf')
 hbp set jtag
 run
 hbp unset jtag

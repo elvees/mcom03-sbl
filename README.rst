@@ -40,12 +40,30 @@ SBL-XIP выполняет:
 * ./bl31.bin
 * ./bl32.bin (необязательно)
 
-Также рецепту сборки должна быть передана переменная ``DDRINIT_DTB_MAP``, содержащая пары
-ddrinit-DTB для включения в образ SBL-XIP. Переменная должна иметь следующий формат:
-``<ddrinit1>:<dtb1> <ddrinit2>:<dtb2> ...``.
+Также рецепту сборки должна быть передана переменная ``SBL_CONFIG_FILE``, содержащая список
+JSON-словарей для сборки образа SBL-XIP. Словари должны иметь следующий формат:
+::
 
-Результатом сборки SBL-XIP является набор образов для всех переданных пар ddrinit и DTB с именами
-следующего формата: ``sbl-xip-<dtb>.bin``.
+  {
+    "ddrinit_defconfig": <ddrinit1>,
+    "ddrinit_name": <ddrinit1>,
+    "boot_type": "xip",
+    "uboot_dtb": <dtb1>,
+    "ddrinit_uboot_dtb": <ddrinit1>-<dtb1>,
+    "ddrinit_build_fragments": "",
+    "sbl_xip_name": "sbl-xip-<ddrinit1>-<dtb1>"
+  },
+  {
+    "ddrinit_defconfig": <ddrinit2>,
+    "ddrinit_name": <ddrinit2>[-<ddrinit_fragment1>-<ddrinit_fragment2>],
+    "boot_type": "xip",
+    "uboot_dtb": <dtb2>,
+    "ddrinit_uboot_dtb": <ddrinit2>[-<ddrinit_fragment1>-<ddrinit_fragment2>]-<dtb2>,
+    "ddrinit_build_fragments": [<ddrinit_fragment1>:<ddrinit_fragment2>:]
+  }
+
+Результатом сборки SBL-XIP является набор образов для всех описанных словарей с именами
+следующего формата: ``sbl-xip-<ddrinit>-<ddrinit_fragments>-<dtb>.bin``.
 
 SBL-S1
 ------

@@ -11,7 +11,7 @@ readonly REPO_TOPDIR=$(realpath $(dirname $0)/..)
 fit_certs=${fit_certs:?Certificates were not specified}
 sbimg_certs=${sbimg_certs:?Certificates were not specified}
 images_path=${images_path:?The path to the images is not specified}
-ddrinit_dtb_map=${ddrinit_dtb_map:?DTB map file is not specified}
+sbl_config=${sbl_config:?SBL config file is not specified}
 cmake_toolchain_file=${cmake_toolchain_file:?CMake toolchain file is not specified}
 
 certs_dir=${certs_dir:-$REPO_TOPDIR/certs}
@@ -51,7 +51,7 @@ readonly extra_build_args=(
 check_files="$fit_certs \
     $sbimg_certs \
     $images_path \
-    $ddrinit_dtb_map \
+    $sbl_config \
     $cmake_toolchain_file \
     $certs_dir \
     $build_dir \
@@ -72,7 +72,7 @@ tar xf $fit_certs -C $certs_dir/fit
 for index in "${!sec_type[@]}"; do
     CFLAGS='-Wall -Werror' cmake -S $REPO_TOPDIR -B $build_dir \
         -DIMAGES_PATH=$images_path \
-        -DDDRINIT_DTB_MAP_FILE=$ddrinit_dtb_map \
+        -DSBL_CONFIG_FILE=$sbl_config \
         -DCMAKE_TOOLCHAIN_FILE=$cmake_toolchain_file \
         -DSBIMG_SEC_TYPE=${sec_type[$index]} \
         -DSBIMG_MAKE_RECOVERY= \
