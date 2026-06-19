@@ -112,11 +112,11 @@ int ucg_sync_and_disable_bp(ucg_regs_t *ucg, uint32_t ch_mask, uint32_t sync_mas
  * @brief Clock divider value getting function
  *
  * @param ucg    - Pointer to UCG register address
- * @param ucg_id - UCG channel number
+ * @param ch     - UCG channel number
  * @param div    - Value of divider
  *
  * @return  0             - Success,
  *         -ENULL         - ucg or div params are not provided (NULL pointers),
- *         -EINVALIDPARAM - ucg_id param is bigger than the maximum ucg channel id
+ *         -EINVALIDPARAM - ch param is bigger than the maximum ucg channel id
  */
-int ucg_get_divider(ucg_regs_t *ucg, uint32_t ucg_id, uint32_t *div);
+int ucg_get_divider(ucg_regs_t *ucg, uint32_t ch, uint32_t *div);

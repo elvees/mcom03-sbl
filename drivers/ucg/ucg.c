@@ -148,7 +148,7 @@ int ucg_sync_and_disable_bp(ucg_regs_t *ucg, uint32_t ch_mask, uint32_t sync_mas
 	return 0;
 }
 
-int ucg_get_divider(ucg_regs_t *ucg, uint32_t ucg_id, uint32_t *div)
+int ucg_get_divider(ucg_regs_t *ucg, uint32_t ch, uint32_t *div)
 {
 	if (!ucg)
 		return -ENULL;
@@ -156,11 +156,11 @@ int ucg_get_divider(ucg_regs_t *ucg, uint32_t ucg_id, uint32_t *div)
 	if (!div)
 		return -ENULL;
 
-	if (ucg_id > UCG_CTR_REG_CH_ID_MAX)
+	if (ch > UCG_CTR_REG_CH_ID_MAX)
 		return -EINVALIDPARAM;
 
 	unsigned int ucg_ctr_reg;
-	ucg_ctr_reg = ucg->ucg_ctr_reg[ucg_id];
+	ucg_ctr_reg = ucg->ucg_ctr_reg[ch];
 
 	// Get Divider
 	*div = FIELD_GET(UCG_CTR_REG_DIV_COEFF, ucg_ctr_reg);
