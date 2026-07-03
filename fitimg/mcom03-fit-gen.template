@@ -87,3 +87,4 @@ EOF
 
 mkdir -p "${FIT_GEN_FIT_DIR}"
 ${FIT_GEN_MKIMAGE} -f "${FIT_GEN_ITS}" -k "${FIT_GEN_KEYS}" -r "${FIT_GEN_FIT}"
+cp ${FIT_GEN_FIT} ${BINARIES_DIR}/
