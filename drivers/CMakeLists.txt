@@ -9,6 +9,7 @@ add_library(drivers OBJECT
             ${CMAKE_CURRENT_SOURCE_DIR}/ls-periph0/ls-periph0.c
             ${CMAKE_CURRENT_SOURCE_DIR}/ls-periph1/ls-periph1.c
             ${CMAKE_CURRENT_SOURCE_DIR}/mailbox/mailbox.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/mfbsp/mfbsp.c
             ${CMAKE_CURRENT_SOURCE_DIR}/mips-cp0/mips-cp0.c
             ${CMAKE_CURRENT_SOURCE_DIR}/pll/pll.c
             ${CMAKE_CURRENT_SOURCE_DIR}/irq/exception-handler.c
