@@ -6,6 +6,15 @@ add_executable(${PROJECT_NAME}.elf
                hwinit.c
                startup.S)
 
+file(READ ${SBL_CONFIG_FILE} SBL_CONFIGS)
+string(JSON SBL_CONFIG GET ${SBL_CONFIGS} 0)
+string(JSON DTB_NAME GET ${SBL_CONFIG} "uboot_dtb")
+if("${DTB_NAME}" MATCHES "^mcom03-")
+    target_compile_definitions(drivers PUBLIC CHIP_MCOM03)
+else()
+    target_compile_definitions(drivers PUBLIC CHIP_MCOM03R)
+endif()
+
 # Link static libraries
 target_link_libraries(${PROJECT_NAME}.elf ${MipsCSP_LIBRARIES})
 

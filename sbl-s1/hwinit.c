@@ -83,12 +83,6 @@ int main(void)
 		return ret;
 #endif
 
-	ret = console_init();
-	if (ret)
-		return ret;
-
-	printf(PREFIX " " BUILD_VERSION_STR "\n");
-
 	// Initialize and configure the RISC0 clocking system
 	uint32_t ch_mask =
 		BIT(SERVICE_UCG1_CHANNEL_CLK_APB) | BIT(SERVICE_UCG1_CHANNEL_CLK_CORE) |
@@ -101,6 +95,14 @@ int main(void)
 	ret = service_set_clock(ch_mask, ch_mask);
 	if (ret)
 		return ret;
+
+	lsp1_pads_voltage_switch();
+
+	ret = console_init();
+	if (ret)
+		return ret;
+
+	printf(PREFIX " " BUILD_VERSION_STR "\n");
 
 #ifdef WDT_ENABLE
 	wdt_dev_t *wdt = wdt_get_instance();

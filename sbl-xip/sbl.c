@@ -82,16 +82,18 @@ int main(void)
 		return ret;
 #endif
 
+	// Initialize and configure the RISC0 clocking system
+	ret = service_set_clock(SERVICE_UCG1_ALL_CH_MASK, SERVICE_UCG1_SYNC_MASK);
+	if (ret)
+		return ret;
+
+	lsp1_pads_voltage_switch();
+
 	ret = console_init();
 	if (ret)
 		return ret;
 
 	printf(PREFIX " " BUILD_VERSION_STR "\n");
-
-	// Initialize and configure the RISC0 clocking system
-	ret = service_set_clock(SERVICE_UCG1_ALL_CH_MASK, SERVICE_UCG1_SYNC_MASK);
-	if (ret)
-		return ret;
 
 #ifdef WDT_ENABLE
 	wdt_dev_t *wdt = wdt_get_instance();

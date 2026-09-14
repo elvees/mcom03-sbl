@@ -93,4 +93,5 @@ lsp1_urb_regs_t *lsp1_get_urb_registers(void);
 
 int lsp1_enable(void);
 int lsp1_pad_cfg(unsigned int port, unsigned int pin, unsigned int value);
+void lsp1_pads_voltage_switch(void);
 int lsp1_timer_register(bool do_hw_init, uint64_t timebase_us, bool do_irq_init);

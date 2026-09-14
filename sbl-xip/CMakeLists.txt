@@ -42,6 +42,12 @@ foreach(IDX RANGE ${DICT_LENGTH})
 
     add_executable(${SBL_XIP_NAME}.elf startup.S sbl.c)
 
+    if("${DTB_NAME}" MATCHES "^mcom03-")
+        target_compile_definitions(drivers PUBLIC CHIP_MCOM03)
+    else()
+        target_compile_definitions(drivers PUBLIC CHIP_MCOM03R)
+    endif()
+
     # Link static libraries
     target_link_libraries(${SBL_XIP_NAME}.elf ${MipsCSP_LIBRARIES})
 

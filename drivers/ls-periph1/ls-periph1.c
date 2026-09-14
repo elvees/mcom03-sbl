@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include <drivers/gpio/gpio.h>
+#include <drivers/mfbsp/mfbsp.h>
 #include <drivers/pll/pll.h>
 #include <drivers/service/service.h>
 #include <drivers/timer/timer.h>
@@ -147,6 +148,18 @@ static int lsp1_cfg_clks(void)
 	}
 
 	return ucg_sync_and_disable_bp(ucg, LSP1_UCG_ALL_CH_MASK, LSP1_UCG_SYNC_MASK);
+}
+
+void lsp1_pads_voltage_switch(void)
+{
+#if defined(CHIP_MCOM03R)
+	mfbsp_regs_t *mfbsp0 = mfbsp_get_registers(0);
+	lsp1_urb_regs_t *urb = lsp1_get_urb_registers();
+
+	mfbsp_gpio_set_dir(mfbsp0, MFBSP_PIN_LDAT4, MFBSP_DIR_IN);
+	if (mfbsp_gpio_get(mfbsp0, MFBSP_PIN_LDAT4))
+		urb->gpio1_v18 = 0x1;
+#endif
 }
 
 lsp1_urb_regs_t *lsp1_get_urb_registers(void)
