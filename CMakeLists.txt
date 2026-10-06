@@ -10,13 +10,13 @@ include(cmake/helpers.cmake)
 
 set(BUILD_TARGET DEFAULT CACHE STRING
     "Build target. Values: UNIT_TESTS, COMMON_LIBS otherwise SBL will be built")
-set(GIT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "Git DIR")
+set(REPO_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "Git DIR")
 set(BUILD_ID CACHE STRING "Build identificator")
 set(IMG_ALIGN 16 CACHE STRING "Image alignment")
 
 execute_process(
     COMMAND git describe --always --dirty
-    WORKING_DIRECTORY ${GIT_DIR}
+    WORKING_DIRECTORY ${REPO_DIR}
     ERROR_QUIET
     OUTPUT_VARIABLE BUILD_COMMIT)
 if("${BUILD_COMMIT}" STREQUAL "")
